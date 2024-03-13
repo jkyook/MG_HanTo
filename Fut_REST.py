@@ -16,7 +16,7 @@ access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI
 
 
 #########################################################
-# 액세스 토큰 발급 요청 URL
+# 액세스 토큰 발급 요청 URL #
 #########################################################
 
 if 1==0:
