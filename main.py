@@ -87,7 +87,9 @@ ExedQty = 0
 async def create_session():
     return aiohttp.ClientSession()
 
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjgwZGVjMjlmLTFkYzQtNGYyOS04YzM4LTA5ZTI0NTdkOTBkZCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwMzc0OTc2LCJpYXQiOjE3MTAyODg1NzYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.8X-2fr43AAWbrYApF_7Og6ETqeAt_1EbU4SI0XSqpfKNRhy_m8nLBUi1FLaruwxwSh83LudS9Hj4QugAKAW08g"
+# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjgwZGVjMjlmLTFkYzQtNGYyOS04YzM4LTA5ZTI0NTdkOTBkZCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwMzc0OTc2LCJpYXQiOjE3MTAyODg1NzYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.8X-2fr43AAWbrYApF_7Og6ETqeAt_1EbU4SI0XSqpfKNRhy_m8nLBUi1FLaruwxwSh83LudS9Hj4QugAKAW08g"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZkYjk5NjZkLWE3MDMtNDk2MS05NmY2LTI4ODZhMWJmNjY3YSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwNDcxMjM4LCJpYXQiOjE3MTAzODQ4MzgsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.yTELyJg0pTjkpPUg_kCCYjmpXlBRcEXLGSgOaZpsJYDW4j-Kx97PKV79Zrpn9fkDGLa1pcT8dzFOMaaz6yWwvQ"
+
 
 # 토큰 발급 함수
 async def get_access_token(session):
@@ -133,7 +135,7 @@ async def get_approval():
 
 # 웹소켓 접속 및 데이터 수신
 async def connect_websocket(session):
-    global ord_sent
+    global ord_sent, npp
 
     await get_approval()
 
@@ -177,11 +179,10 @@ async def connect_websocket(session):
                         # print("#### 지수선물체결 ####")
                         data_cnt = int(recvstr[2])  # 체결데이터 개수
 
+                        # # npp 계산
+                        # stockspurchase_futs(data_cnt, recvstr[3]) # price 출력
                         # npp 계산
-                        stockspurchase_futs(data_cnt, recvstr[3]) # price 출력
-
-                        # 주문처리
-                        # place_order()
+                        asyncio.create_task(stockspurchase_futs(data_cnt, recvstr[3]))  # price 출력
 
                         # 테스트
                         # if ord_sent == 0:
@@ -192,120 +193,6 @@ async def connect_websocket(session):
             except Exception as e:
                 logger.error(f"Error while receiving data from websocket: {e}")
 
-#####################################################################
-
-# # 주문 처리 함수
-# async def place_order():
-#     global npp
-#
-#     if npp ==  4:
-#         await send_order(bns = "02")
-#     if npp ==  -4:
-#         await send_order(bns = "01")
-
-
-#####################################################################
-
-# 주문 처리 함수
-async def send_order(bns):
-    global orders, ord_sent, api_key, secret_key
-
-    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
-
-    # ORD_PRCS_DVSN_CD: 주문처리구분코드(02: 실전투자)
-    # CANO: 계좌번호
-    # ACNT_PRDT_CD: 계좌상품코드(03: 선물옵션)
-    # SLL_BUY_DVSN_CD: 매도매수구분코드(02: 매수)
-    # SHTN_PDNO: 단축상품번호(선물옵션
-    # 종목번호)
-    # ORD_QTY: 주문수량
-    # UNIT_PRICE: 주문가격
-    # NMPR_TYPE_CD: 호가유형코드(01: 지정가)
-    # KRX_NMPR_CNDT_CD: KRX호가조건코드(0: 없음)
-    # ORD_DVSN_CD: 주문구분코드(01: 일반주문)
-
-    payload = json.dumps({
-    "ORD_PRCS_DVSN_CD": "02",
-    "CANO": account,
-    "ACNT_PRDT_CD": "03",
-    "SLL_BUY_DVSN_CD": bns,
-    "SHTN_PDNO": code,
-    "ORD_QTY": str(qty),
-    "UNIT_PRICE": str(price),
-    "NMPR_TYPE_CD": "01",
-    "KRX_NMPR_CNDT_CD": "0",
-    "ORD_DVSN_CD": "01"
-    })
-    headers = {
-    'content-type': 'application/json',
-    'authorization': 'Bearer ' + str(access_token),
-    'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-    'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-    # "appkey": api_key,
-    # "secretkey": secret_key,
-    'tr_id': 'VTTO1101U',
-    'hashkey': ''
-    }
-
-    response = requests.request("POST", url, headers=headers, data=payload)
-    print(response.text)
-    result = response.json()
-    if result["rt_cd"] == "0":
-        ord_no = result["output"]["ODNO"]
-        logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
-        orders[ord_no] = (qty, price, datetime.now())
-        bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 주문수량: {qty}, 주문가격: {str(price)}")
-        ord_sent = 1
-    else:
-        logger.error("주문 요청 실패")
-
-# 미체결 주문 확인 및 처리
-async def check_unexecuted_orders(session):
-    global access_token
-
-    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
-
-    payload = {
-        "CANO": account,
-        "ACNT_PRDT_CD": "03",
-        "STRT_ORD_DT": "20240313",
-        "END_ORD_DT": "20240313",
-        "SLL_BUY_DVSN_CD": "00",
-        "CCLD_NCCS_DVSN": "00",
-        "SORT_SQN": "DS",
-        "STRT_ODNO": "",
-        "PDNO": "",
-        "MKET_ID_CD": "00",
-        "CTX_AREA_FK200": "",
-        "CTX_AREA_NK200": ""
-    }
-    headers = {
-        'content-type': 'application/json',
-        'authorization': 'Bearer ' + str(access_token),
-        'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-        'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        'tr_id': 'VTTO5201R'
-    }
-
-    while True:
-        try:
-            # async with session.get(url, headers=headers, params=payload) as response:
-            response = requests.request("GET", url, headers=headers, params=payload)
-
-            data = response.json()
-            # print(data)
-
-            df = pd.DataFrame(data["output1"])
-            # filtered_df = df[df['ord_qty'].astype(int) >= 1]
-            filtered_df = df[df['tot_ccld_qty'] != df['ord_qty']][['odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
-            print(filtered_df)
-
-        except Exception as e:
-            logger.error(f"미체결 주문 확인 중 오류 발생: {e}")
-
-        await asyncio.sleep(1)  # 1초 간격으로 미체결 주문 확인
-
-#####################################################################
 
 # 토큰 갱신 함수
 async def refresh_token(session):
@@ -319,8 +206,8 @@ async def refresh_token(session):
         await asyncio.sleep(60)  # 60초마다 토큰 갱신 체크
 
 
-# npp read
-async def check():
+# order from file
+async def file_check():
     global price
 
     now = datetime.now()
@@ -403,9 +290,10 @@ def stockhoka_futs(data):
         # print("총매도호가건수	[" + recvvalue[32] + "]" + ",    총매도호가잔량	[" + recvvalue[34] + "]" + ",    총매도호가잔량증감	[" + recvvalue[36] + "]")
         # print("총매수호가건수	[" + recvvalue[33] + "]" + ",    총매수호가잔량	[" + recvvalue[35] + "]" + ",    총매수호가잔량증감	[" + recvvalue[37] + "]")
 
+#####################################################################
 
 # 지수선물체결처리 출력라이브러리
-def stockspurchase_futs(data_cnt, data):
+async def stockspurchase_futs(data_cnt, data):
     global price, volume, cvolume, cgubun, count, npp
     global last_time, last_volume, cgubun_sum, cvolume_mid, cvolume_sum, count_mid, nf, ExedQty
     global lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
@@ -414,7 +302,7 @@ def stockspurchase_futs(data_cnt, data):
     menulist = "선물단축종목코드|영업시간|선물전일대비|전일대비부호|선물전일대비율|선물현재가|선물시가|선물최고가|선물최저가|최종거래량|누적거래량|누적거래대금|HTS이론가|시장베이시스|괴리율|근월물약정가|원월물약정가|스프레드|미결제약정수량|미결제약정수량증감|시가시간|시가대비현재가부호|시가대비지수현재가|최고가시간|최고가대비현재가부호|최고가대비지수현재가|최저가시간|최저가대비현재가부호|최저가대비지수현재가|매수비율|체결강도|괴리도|미결제약정직전수량증감|이론베이시스|선물매도호가|선물매수호가|매도호가잔량|매수호가잔량|매도체결건수|매수체결건수|순매수체결건수|총매도수량|총매수수량|총매도호가잔량|총매수호가잔량|전일거래량대비등락율|협의대량거래량|실시간상한가|실시간하한가|실시간가격제한구분"
     menustr = menulist.split('|')
     pValue = data.split('^')
-    print("pValue[0]: ", pValue[0])
+    # print("code: ", pValue[0])
 
     if pValue[0] == "105V03":
         # 현재가
@@ -430,9 +318,9 @@ def stockspurchase_futs(data_cnt, data):
         last_volume = volume
         cgubun = pValue[5]
         if pValue[5] == pValue[35]:
-            cgubun = "Buy"
-        else:
             cgubun = "Sell"
+        else:
+            cgubun = "Buy"
 
         # print(price, cgubun, cvolume, pValue[9], volume)
 
@@ -444,6 +332,7 @@ def stockspurchase_futs(data_cnt, data):
         t1 = time.time()
         mt = t1 - last_time
         timestamp = int(t1 * 1000)
+        # print("mt: ", mt)
 
         # nprob at under 0.5
         if mt < 0.5:
@@ -467,39 +356,39 @@ def stockspurchase_futs(data_cnt, data):
             count = count_mid + 1
             mt = mt / count
 
-        print(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
-                       lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
+            print(price, f"{mt:.2f}", count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
+                           lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
 
-            ##########
-            # nProb()
-            ##########
-        nf += 1
-        npp = NP.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
-                       lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
+            # npp
 
-        if NP.auto_cover == 1:
-            f = open("npp_.txt", 'w')
-            # s = ex.chkForb.isChecked()
-            f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))# + "," + str(s))
-            f.close()
-        if NP.auto_cover == 2:
-            f = open("npp.txt", 'w')
-            f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))
-            f.close()
+            nf += 1
+            npp = NP.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
+                           lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
 
-        print('NP: ', npp)
-        print("[sys] ****** np.exed : ", NP.exed_qty)
-        print("[sys] Exed: ", ExedQty)
+            # 주문처리
+            asyncio.create_task(place_order())
 
-        cvolume_mid = 0
-        cvolume_sum = 0
-        count_mid = 0
-        last_time = t1
-        elap = (time.time() - t1) * 1000
-        print("elap: ", elap)
-        # ex.txtElap.setText(str("%0.1f" % elap))
+            if NP.auto_cover == 1:
+                f = open("npp_.txt", 'w')
+                # s = ex.chkForb.isChecked()
+                f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))# + "," + str(s))
+                f.close()
+            if NP.auto_cover == 2:
+                f = open("npp.txt", 'w')
+                f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))
+                f.close()
 
+            print('NP: ', npp)
+            print("[sys] ****** np.exed : ", NP.exed_qty)
+            print("[sys] Exed: ", ExedQty)
 
+            cvolume_mid = 0
+            cvolume_sum = 0
+            count_mid = 0
+            last_time = t1
+            elap = (time.time() - t1) * 1000
+            print("elap: ", elap)
+            # ex.txtElap.setText(str("%0.1f" % elap))
 
     # # 시장 체결데이터 출력
     # if 1==0:
@@ -509,6 +398,164 @@ def stockspurchase_futs(data_cnt, data):
     #         for menu in menustr:
     #             print("%-13s[%s]" % (menu, pValue[i]))
     #             i += 1
+
+
+#####################################################################
+
+# 주문 처리 함수
+async def place_order():
+    global npp, nf
+
+    if nf == 10:
+        await send_order(bns = "02")
+
+    if npp ==  4:
+        await send_order(bns = "02")
+    if npp ==  -4:
+        await send_order(bns = "01")
+
+
+#####################################################################
+
+# 주문 처리 함수
+# async def send_order(bns):
+#     global orders, ord_sent, api_key, secret_key, price, prc_o1, qty, code, account
+#
+#     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+#
+#     # ORD_PRCS_DVSN_CD: 주문처리구분코드(02: 실전투자)
+#     # CANO: 계좌번호
+#     # ACNT_PRDT_CD: 계좌상품코드(03: 선물옵션)
+#     # SLL_BUY_DVSN_CD: 매도매수구분코드(02: 매수)
+#     # SHTN_PDNO: 단축상품번호(선물옵션
+#     # 종목번호)
+#     # ORD_QTY: 주문수량
+#     # UNIT_PRICE: 주문가격
+#     # NMPR_TYPE_CD: 호가유형코드(01: 지정가)
+#     # KRX_NMPR_CNDT_CD: KRX호가조건코드(0: 없음)
+#     # ORD_DVSN_CD: 주문구분코드(01: 일반주문)
+#
+#     payload = json.dumps({
+#     "ORD_PRCS_DVSN_CD": "02",
+#     "CANO": account,
+#     "ACNT_PRDT_CD": "03",
+#     "SLL_BUY_DVSN_CD": bns,
+#     "SHTN_PDNO": code,
+#     "ORD_QTY": str(qty),
+#     "UNIT_PRICE": str(prc_o1),
+#     "NMPR_TYPE_CD": "01",
+#     "KRX_NMPR_CNDT_CD": "0",
+#     "ORD_DVSN_CD": "01"
+#     })
+#     headers = {
+#     'content-type': 'application/json',
+#     'authorization': 'Bearer ' + str(access_token),
+#     'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+#     'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+#     # "appkey": api_key,
+#     # "secretkey": secret_key,
+#     'tr_id': 'VTTO1101U',
+#     'hashkey': ''
+#     }
+#
+#     response = requests.request("POST", url, headers=headers, data=payload)
+#     print(response.text)
+#     result = response.json()
+#     if result["rt_cd"] == "0":
+#         ord_no = result["output"]["ODNO"]
+#         logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
+#         orders[ord_no] = (qty, price, datetime.now())
+#         bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 주문수량: {qty}, 주문가격: {str(price)}")
+#         ord_sent = 1
+#     else:
+#         logger.error("주문 요청 실패")
+
+async def send_order(bns):
+    global orders, ord_sent, api_key, secret_key, price, qty, code, account
+
+    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+
+    payload = json.dumps({
+        "ORD_PRCS_DVSN_CD": "02",
+        "CANO": account,
+        "ACNT_PRDT_CD": "03",
+        "SLL_BUY_DVSN_CD": bns,
+        "SHTN_PDNO": code,
+        "ORD_QTY": str(qty),
+        "UNIT_PRICE": str(prc_o1),
+        "NMPR_TYPE_CD": "01",
+        "KRX_NMPR_CNDT_CD": "0",
+        "ORD_DVSN_CD": "01"
+    })
+
+    headers = {
+        'content-type': 'application/json',
+        'authorization': 'Bearer ' + str(access_token),
+        'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+        'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+        'tr_id': 'VTTO1101U',
+        'hashkey': ''
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, headers=headers, data=payload) as response:
+            result = await response.json()
+            if result["rt_cd"] == "0":
+                ord_no = result["output"]["ODNO"]
+                logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
+                orders[ord_no] = (qty, price, datetime.now())
+                bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 주문수량: {qty}, 주문가격: {str(price)}")
+                ord_sent = 1
+            else:
+                logger.error("주문 요청 실패")
+
+
+# 미체결 주문 확인 및 처리
+async def check_unexecuted_orders(session):
+    global access_token
+
+    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
+
+    payload = {
+        "CANO": account,
+        "ACNT_PRDT_CD": "03",
+        "STRT_ORD_DT": "20240313",
+        "END_ORD_DT": "20240313",
+        "SLL_BUY_DVSN_CD": "00",
+        "CCLD_NCCS_DVSN": "00",
+        "SORT_SQN": "DS",
+        "STRT_ODNO": "",
+        "PDNO": "",
+        "MKET_ID_CD": "00",
+        "CTX_AREA_FK200": "",
+        "CTX_AREA_NK200": ""
+    }
+    headers = {
+        'content-type': 'application/json',
+        'authorization': 'Bearer ' + str(access_token),
+        'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+        'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+        'tr_id': 'VTTO5201R'
+    }
+
+    while True:
+        try:
+            # async with session.get(url, headers=headers, params=payload) as response:
+            response = requests.request("GET", url, headers=headers, params=payload)
+
+            data = response.json()
+            # print(data)
+
+            df = pd.DataFrame(data["output1"])
+            # filtered_df = df[df['ord_qty'].astype(int) >= 1]
+            filtered_df = df[df['tot_ccld_qty'] != df['ord_qty']][['odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+            print(filtered_df)
+
+        except Exception as e:
+            logger.error(f"미체결 주문 확인 중 오류 발생: {e}")
+
+        await asyncio.sleep(1)  # 1초 간격으로 미체결 주문 확인
+
 #####################################################################
 
 
@@ -517,6 +564,7 @@ async def main():
         await asyncio.gather(
             connect_websocket(session),
             # check_unexecuted_orders(session),
+            # file_check(),
             # refresh_token(session)
         )
 
