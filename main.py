@@ -46,23 +46,27 @@ token_refresh_interval = timedelta(hours=6)
 # 주문 관련 딕셔너리
 orders = {}
 orders_che = {}
+unexecuted_orders = {}
+df_npp_m = pd.DataFrame()
 ord_sent = 0
 
 # 텔레그램 봇 정보
 bot = telegram.Bot(token=telegram_token)
-
-# start
-# start_ox = 1
-# ex.chkForb.setChecked(0)
-# Console_Log("Data_Receive..Start", 1)
 text1 = " *** (MG7) 시스템 가동 시작 ***, Start == 0"
 try:
     if bot_alive == 1:
         bot.sendMessage(chat_id="322233222", text=text1)
 except:
     pass
+
+nf = 0
+last_volume = 0
+ExedQty = 0
+msg_out = ""
+bot_alive = 1
+sub = 0
+auto_time = 1
 msg_last = "ok"
-# print("Dome_ab", dome_ab)
 last_time = time.time()
 cvolume_mid = 0
 count_mid = 1
@@ -73,15 +77,11 @@ inp_o = 0
 stock = 0
 AvePrc = 0
 circulation = 0
+chkForb = 0
+
 print("jump to NP")
 NP = NProb.Nprob()
 print("NP..Laoded")
-# Console_Log("Advising Data", 1)
-
-# 변수 설정
-nf = 0
-last_volume = 0
-ExedQty = 0
 
 # 비동기 HTTP 요청 클라이언트 생성
 async def create_session():
@@ -142,8 +142,8 @@ async def connect_websocket(session):
     url = 'ws://ops.koreainvestment.com:31000' # 모의투자계좌
     # url = 'ws://ops.koreainvestment.com:21000'  # 실전투자계좌
 
-    code_list = [['1','H0IFASP0','101V03'],['1','H0IFCNT0','101V03'], # 지수선물호가, 체결가
-                 ['1', 'H0IFASP0', '105V03'], ['1', 'H0IFCNT0', '105V03'],
+    code_list = [['1','H0IFASP0','101V06'],['1','H0IFCNT0','101V06'], # 지수선물호가, 체결가
+                 ['1', 'H0IFASP0', '105V04'], ['1', 'H0IFCNT0', '105V04'],
     #              ['1','H0IOASP0','201T11317'],['1','H0IOCNT0','201T11317'], # 지수옵션호가, 체결가
                  ['1','H0IFCNI0','jika79']] # 선물옵션체결통보
 
@@ -213,14 +213,16 @@ async def file_check():
     now = datetime.now()
 
     # NP에서 데이터 입수 기록
-    f1 = open("npp.txt", 'r')
+    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+    f1 = open(file_path, 'r')
     f1_r = f1.readline()
     np1, prf1 = f1_r.strip().split(',')
     print("NP1 (-):", np1, prf1)
     f1.close()
 
     # (cover_b) -> cover_ordered = 1/0
-    f2 = open("npp_.txt", 'r')
+    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+    f2 = open(file_path, 'r')
     f2_r = f2.readline()
     np2, prf2, chkForb = f2_r.strip().split(',')
     print("NP2 (+):", np2, prf2, chkForb)
@@ -262,7 +264,7 @@ def stockhoka_futs(data):
 
     # print(data)
     recvvalue = data.split('^')  # 수신데이터를 split '^'
-    if recvvalue[0] == "101V03":
+    if recvvalue[0] == "101V06":
 
         lblSqty2v = float(recvvalue[23])
         lblSqty1v = float(recvvalue[22])
@@ -271,24 +273,6 @@ def stockhoka_futs(data):
         lblBqty2v = float(recvvalue[28])
         lblBqty1v = float(recvvalue[27])
         lblBhoga1v = float(recvvalue[7])
-
-        # if 1==1:
-        # print("지수선물  [" + recvvalue[0] + "]")
-        # print("영업시간  [" + recvvalue[1] + "]")
-        # print("====================================")
-        # print("선물매도호가1	[" + recvvalue[2] + "]" + ",    매도호가건수1	[" + recvvalue[12] + "]" + ",    매도호가잔량1	[" + recvvalue[22] + "]")
-        # print("선물매도호가2	[" + recvvalue[3] + "]" + ",    매도호가건수2	[" + recvvalue[13] + "]" + ",    매도호가잔량2	[" + recvvalue[23] + "]")
-        # print("선물매도호가3	[" + recvvalue[4] + "]" + ",    매도호가건수3	[" + recvvalue[14] + "]" + ",    매도호가잔량3	[" + recvvalue[24] + "]")
-        # print("선물매도호가4	[" + recvvalue[5] + "]" + ",    매도호가건수4	[" + recvvalue[15] + "]" + ",    매도호가잔량4	[" + recvvalue[25] + "]")
-        # print("선물매도호가5	[" + recvvalue[6] + "]" + ",    매도호가건수5	[" + recvvalue[16] + "]" + ",    매도호가잔량5	[" + recvvalue[26] + "]")
-        # print("선물매수호가1	[" + recvvalue[7] + "]" + ",    매수호가건수1	[" + recvvalue[17] + "]" + ",    매수호가잔량1	[" + recvvalue[27] + "]")
-        # print("선물매수호가2	[" + recvvalue[8] + "]" + ",    매수호가건수2	[" + recvvalue[18] + "]" + ",    매수호가잔량2	[" + recvvalue[28] + "]")
-        # print("선물매수호가3	[" + recvvalue[9] + "]" + ",    매수호가건수3	[" + recvvalue[19] + "]" + ",    매수호가잔량3	[" + recvvalue[29] + "]")
-        # print("선물매수호가4	[" + recvvalue[10] + "]" + ",   매수호가건수4	[" + recvvalue[20] + "]" + ",    매수호가잔량4	[" + recvvalue[30] + "]")
-        # print("선물매수호가5	[" + recvvalue[11] + "]" + ",    매수호가건수5	[" + recvvalue[21] + "]" + ",    매수호가잔량5	[" + recvvalue[31] + "]")
-        # print("====================================")
-        # print("총매도호가건수	[" + recvvalue[32] + "]" + ",    총매도호가잔량	[" + recvvalue[34] + "]" + ",    총매도호가잔량증감	[" + recvvalue[36] + "]")
-        # print("총매수호가건수	[" + recvvalue[33] + "]" + ",    총매수호가잔량	[" + recvvalue[35] + "]" + ",    총매수호가잔량증감	[" + recvvalue[37] + "]")
 
 #####################################################################
 
@@ -304,11 +288,11 @@ async def stockspurchase_futs(data_cnt, data):
     pValue = data.split('^')
     # print("code: ", pValue[0])
 
-    if pValue[0] == "105V03":
+    if pValue[0] == "105V04":
         # 현재가
         prc_o1 = float(pValue[5])
 
-    elif pValue[0] == "101V03":
+    elif pValue[0] == "101V06":
         # 현재가
         price = float(pValue[5])
         volume = pValue[10]
@@ -332,7 +316,6 @@ async def stockspurchase_futs(data_cnt, data):
         t1 = time.time()
         mt = t1 - last_time
         timestamp = int(t1 * 1000)
-        # print("mt: ", mt)
 
         # nprob at under 0.5
         if mt < 0.5:
@@ -355,32 +338,35 @@ async def stockspurchase_futs(data_cnt, data):
                 cgubun_sum = "Sell"
             count = count_mid + 1
             mt = mt / count
+            # print(price, f"{mt:.2f}", count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
+            #                lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
 
-            print(price, f"{mt:.2f}", count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
-                           lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
-
+            ##########
             # npp
+            ##########
 
             nf += 1
             npp = NP.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
                            lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
 
-            # 주문처리
-            asyncio.create_task(place_order())
 
+            # 기록
             if NP.auto_cover == 1:
-                f = open("npp_.txt", 'w')
-                # s = ex.chkForb.isChecked()
-                f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))# + "," + str(s))
+                file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+                f = open(file_path, 'w')
+                s = chkForb #ex.chkForb.isChecked()
+                f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt) + "," + str(s))
                 f.close()
             if NP.auto_cover == 2:
-                f = open("npp.txt", 'w')
+                file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+                f = open(file_path, 'w')
                 f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))
                 f.close()
 
-            print('NP: ', npp)
-            print("[sys] ****** np.exed : ", NP.exed_qty)
-            print("[sys] Exed: ", ExedQty)
+            ##########
+            # 주문처리
+            ##########
+            asyncio.create_task(place_order())
 
             cvolume_mid = 0
             cvolume_sum = 0
@@ -389,6 +375,7 @@ async def stockspurchase_futs(data_cnt, data):
             elap = (time.time() - t1) * 1000
             print("elap: ", elap)
             # ex.txtElap.setText(str("%0.1f" % elap))
+
 
     # # 시장 체결데이터 출력
     # if 1==0:
@@ -414,106 +401,121 @@ async def place_order():
     if npp ==  -4:
         await send_order(bns = "01")
 
+    # 기록
+    try:
+        file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+        f1 = open(file_path, 'r')
+        f1_r = f1.readline()
+        np1, prf1, chkForb = f1_r.strip().split(',')
+        NP.np1 = int(np1)
+        print("NP1 (-):", np1, prf1)
+        f1.close()
+
+        # (cover_b) -> cover_ordered = 1/0
+        file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+        f2 = open(file_path, 'r')
+        f2_r = f2.readline()
+        np2, prf2 = f2_r.strip().split(',')
+        NP.np2 = int(np2)
+        print("NP2 (+):", np2, prf2)
+        f2.close()
+
+        if np1 == "":
+            np1 = 0
+        if np2 == "":
+            np2 = 0
+        np_qty = int(np1) + int(np2)
+
+        now = datetime.now()
+
+        print("********")
+        print(np_count, np_qty, int(cum_qty))
+        print("********")
+        ##
+        np_count += 1
+        df_npp_m.at[np_count, 'np1'] = int(np1)
+        df_npp_m.at[np_count, 'np2'] = int(np2)
+        df_npp_m.at[np_count, 'np_sum'] = np_qty
+        df_npp_m.at[np_count, 'real_sum'] = int(cum_qty)
+        df_npp_m.at[np_count, 'now_prc'] = price
+        df_npp_m.at[np_count, 'prf1'] = float(prf1)
+        df_npp_m.at[np_count, 'prf2'] = float(prf2)
+        df_npp_m.at[np_count, 'prf'] = float(prf1) + float(prf2)
+        df_npp_m.at[np_count, 'time'] = str(now.hour) + str(now.minute) + str(now.second)
+        # df_npp_m에 차이값 계산 및 저장
+        df_npp_m['difference'] = (df_npp_m['np_sum'] - df_npp_m['real_sum']).abs()
+
+        if np_count % 1000 == 0 and NP.auto_cover == 1:
+            ts = datetime.now().strftime("%m-%d-%H-%M")
+            filename = "(e)df_npp_%s.csv" % (ts)
+            if NP.which_market == 4:
+                filename = "(e4)df_npp_%s.csv" % (ts)
+            df_npp_m.to_csv('%s' % filename)  # + time.strftime("%m-%d") + '.csv')
+    except:
+        pass
+
+    print('NP: ', npp)
+    print("[sys] ****** np.exed : ", NP.exed_qty)
+    print("[sys] Exed: ", ExedQty)
 
 #####################################################################
 
-# 주문 처리 함수
-# async def send_order(bns):
-#     global orders, ord_sent, api_key, secret_key, price, prc_o1, qty, code, account
-#
-#     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
-#
-#     # ORD_PRCS_DVSN_CD: 주문처리구분코드(02: 실전투자)
-#     # CANO: 계좌번호
-#     # ACNT_PRDT_CD: 계좌상품코드(03: 선물옵션)
-#     # SLL_BUY_DVSN_CD: 매도매수구분코드(02: 매수)
-#     # SHTN_PDNO: 단축상품번호(선물옵션
-#     # 종목번호)
-#     # ORD_QTY: 주문수량
-#     # UNIT_PRICE: 주문가격
-#     # NMPR_TYPE_CD: 호가유형코드(01: 지정가)
-#     # KRX_NMPR_CNDT_CD: KRX호가조건코드(0: 없음)
-#     # ORD_DVSN_CD: 주문구분코드(01: 일반주문)
-#
-#     payload = json.dumps({
-#     "ORD_PRCS_DVSN_CD": "02",
-#     "CANO": account,
-#     "ACNT_PRDT_CD": "03",
-#     "SLL_BUY_DVSN_CD": bns,
-#     "SHTN_PDNO": code,
-#     "ORD_QTY": str(qty),
-#     "UNIT_PRICE": str(prc_o1),
-#     "NMPR_TYPE_CD": "01",
-#     "KRX_NMPR_CNDT_CD": "0",
-#     "ORD_DVSN_CD": "01"
-#     })
-#     headers = {
-#     'content-type': 'application/json',
-#     'authorization': 'Bearer ' + str(access_token),
-#     'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-#     'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-#     # "appkey": api_key,
-#     # "secretkey": secret_key,
-#     'tr_id': 'VTTO1101U',
-#     'hashkey': ''
-#     }
-#
-#     response = requests.request("POST", url, headers=headers, data=payload)
-#     print(response.text)
-#     result = response.json()
-#     if result["rt_cd"] == "0":
-#         ord_no = result["output"]["ODNO"]
-#         logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
-#         orders[ord_no] = (qty, price, datetime.now())
-#         bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 주문수량: {qty}, 주문가격: {str(price)}")
-#         ord_sent = 1
-#     else:
-#         logger.error("주문 요청 실패")
-
 async def send_order(bns):
-    global orders, ord_sent, api_key, secret_key, price, qty, code, account
+    global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time
 
-    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+    if auto_time == 1:
+        url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
 
-    payload = json.dumps({
-        "ORD_PRCS_DVSN_CD": "02",
-        "CANO": account,
-        "ACNT_PRDT_CD": "03",
-        "SLL_BUY_DVSN_CD": bns,
-        "SHTN_PDNO": code,
-        "ORD_QTY": str(qty),
-        "UNIT_PRICE": str(prc_o1),
-        "NMPR_TYPE_CD": "01",
-        "KRX_NMPR_CNDT_CD": "0",
-        "ORD_DVSN_CD": "01"
-    })
+        payload = json.dumps({
+            "ORD_PRCS_DVSN_CD": "02",
+            "CANO": account,
+            "ACNT_PRDT_CD": "03",
+            "SLL_BUY_DVSN_CD": bns,
+            "SHTN_PDNO": code,
+            "ORD_QTY": str(qty),
+            "UNIT_PRICE": str(prc_o1),
+            "NMPR_TYPE_CD": "01",
+            "KRX_NMPR_CNDT_CD": "0",
+            "ORD_DVSN_CD": "01"
+        })
 
-    headers = {
-        'content-type': 'application/json',
-        'authorization': 'Bearer ' + str(access_token),
-        'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-        'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        'tr_id': 'VTTO1101U',
-        'hashkey': ''
-    }
+        headers = {
+            'content-type': 'application/json',
+            'authorization': 'Bearer ' + str(access_token),
+            'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+            'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+            'tr_id': 'VTTO1101U',
+            'hashkey': ''
+        }
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, data=payload) as response:
-            result = await response.json()
-            if result["rt_cd"] == "0":
-                ord_no = result["output"]["ODNO"]
-                logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
-                orders[ord_no] = (qty, price, datetime.now())
-                bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 주문수량: {qty}, 주문가격: {str(price)}")
-                ord_sent = 1
-            else:
-                logger.error("주문 요청 실패")
+        if chkForb != 1:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, data=payload) as response:
+                    result = await response.json()
+                    if result["rt_cd"] == "0":
+                        ord_no = result["output"]["ODNO"]
+                        logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
+                        orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"))
+                        bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}")
+                        ord_sent = 1
+                    else:
+                        logger.error("주문 요청 실패")
 
+#####################################################################
 
 # 미체결 주문 확인 및 처리
 async def check_unexecuted_orders(session):
     global access_token
+    global unexecuted_orders, orders, orders_che
 
+    # 시스템상
+    for ord_no, order_info in orders.items():
+        if ord_no not in orders_che:
+            unexecuted_orders[ord_no] = order_info
+
+    print(unexecuted_orders)
+
+    # 조회
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
     payload = {
@@ -558,16 +560,294 @@ async def check_unexecuted_orders(session):
 
 #####################################################################
 
+# 선물옵션 체결통보 출력라이브러리
+def stocksigningnotice_futsoptn(data, key, iv):
+    global orders, orders_che, price, qty, code, account
+
+    # AES256 처리 단계
+    aes_dec_str = aes_cbc_base64_dec(key, iv, data)
+    # print(aes_dec_str)
+    pValue = aes_dec_str.split('^')
+    # print(pValue)
+
+    if pValue[6] == '0':  # 체결통보
+        print("#### 지수선물옵션 체결 통보 ####")
+        menulist_sign = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|체결수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|주문수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+        menustr = menulist_sign.split('|')
+        bns_che = pValue[4]  # 매도매수구분
+        qty_che = pValue[8]  # 체결수량
+        ord_no_che = pValue[3]  # 원주문번호
+        prc_o1_che = pValue[9]  # 체결단가
+        time_che = pValue[10]  # 체결시간
+        orders_che[ord_no] = (bns_che, qty_che, price, prc_o1_che, time_che)
+        i = 0
+        for menu in menustr:
+            print("%s  [%s]" % (menu, pValue[i]))
+            i += 1
+
+        print(orders_che)
+
+
+    else:  # pValue[6] == 'L', 주문·정정·취소·거부 접수 통보
+
+        if pValue[5] == '1':  # 정정 접수 통보 (정정구분이 1일 경우)
+            print("#### 지수선물옵션 정정 접수 통보 ####")
+            menulist_revise = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|정정수량|정정단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+            menustr = menulist_revise.split('|')
+            i = 0
+            for menu in menustr:
+                print("%s  [%s]" % (menu, pValue[i]))
+                i += 1
+
+        elif pValue[5] == '2':  # 취소 접수 통보 (정정구분이 2일 경우)
+            print("#### 지수선물옵션 취소 접수 통보 ####")
+            menulist_cancel = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|취소수량|주문단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+            menustr = menulist_cancel.split('|')
+            i = 0
+            for menu in menustr:
+                print("%s  [%s]" % (menu, pValue[i]))
+                i += 1
+
+        elif pValue[11] == '1':  # 거부 접수 통보 (거부여부가 1일 경우)
+            print("#### 지수선물옵션 거부 접수 통보 ####")
+            menulist_refuse = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|주문단가|주문시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+            menustr = menulist_refuse.split('|')
+            i = 0
+            for menu in menustr:
+                print("%s  [%s]" % (menu, pValue[i]))
+                i += 1
+
+        else:  # 주문 접수 통보
+            print("#### 지수선물옵션 주문 접수 통보 ####")
+            menulist_order = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+            menustr = menulist_order.split('|')
+            i = 0
+            for menu in menustr:
+                print("%s  [%s]" % (menu, pValue[i]))
+                i += 1
+
+
+#####################################################################
+
+async def msg():
+    global bot, df, nf, df1, msg_now, msg_last, msg_last_sent, bot_alive, OrgOrdNo
+    global isblocked_msg, isreleased_msg, istimeblocked_msg, stat_out_org, stat_in_org, OrgOrdNo_Cov
+    global started, sub, orders, NP, msg_out, auto_time, chkForb
+
+    while True:
+        try:
+            if NP.auto_cover != 0:
+
+                # chat_token = "5269168004:AAEVzu9b7QBc3EBGDlQXum6abOCFxKEVmbg"
+                chat_token = telegram_token
+
+                url = "https://api.telegram.org/bot{}/getUpdates".format(chat_token)
+                response = requests.get(url)
+                updates = response.json()
+                updates = updates["result"][-5:]
+                messages = [str(update['message']['text']) for update in updates if 'message' in update]
+
+                msg_now = messages[-1]
+
+                a = ["sym", "qty", "Amt", "entPrc", "nowPrc", "prcDif", "prf"]
+                c = ["coin", "nowPrc", "prf"]
+
+                now = datetime.now()
+
+                msgs = ["block", "stop", "x", "start", "now", "last", "out", "mout", "time", "qty", "cover", "orders", "orders_che", "tr", "plot", "stat", "statset", "ord", "cordnum", "cexed", "plotset", "reord", "list", "delord", "deleted", "auto"]
+
+                if len(messages) == 5 and msg_now != msg_last and msg_now != msg_out and (msg_now in msgs or msg_now[:3] in msgs) :# and msg_last[0] == "1":# and msg_now != "shut":  # and msg_now != "last":
+                    if bot_alive == 1 or bot_alive == 2:
+                        bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " (now): " + msg_now + ", (last) : " + msg_last)
+
+                    msg_last = msg_now
+
+                    if nf > 100 and (msg_now == "stop" or msg_now == "x" or msg_now == "000"):
+                        if NP.cover_ordered != 0:
+                            text = str(NP.auto_cover) + " = (한투) (MG7) 커버 진입상태임..확인필요 ="
+                            chkForb = 1
+                            if bot_alive == 1 or bot_alive == 2:
+                                bot.sendMessage(chat_id="322233222", text=text)
+                        if NP.cover_ordered == 0:
+                            chkForb = 1
+                            text = str(NP.auto_cover) + " = (한투) (MG7) 매매를 중단합니다. ="
+                            if bot_alive == 1 or bot_alive == 2:
+                                bot.sendMessage(chat_id="322233222", text=text)
+
+                        if chkForb == 1 and isblocked_msg == 0:
+                            text = str(NP.auto_cover) + " = (한투) (MG7) 매매가 중단된 상태입니다. ="
+                            if bot_alive == 1 or bot_alive == 2:
+                                bot.sendMessage(chat_id="322233222", text=text)
+                            isblocked_msg = 1
+                            isreleased_msg = 0
+
+                    if msg_now == "auto":
+                        if auto_time == 0:
+                            auto_time = 1
+                        elif auto_time == 1:
+                            auto_time = 0
+                        bot.sendMessage(chat_id="322233222", text="(한투)" + str(auto_time) + ", 0:release, 1:set")
+
+                    if (msg_now == "start" or msg_now == "111") and msg_out != "start":
+                        chkForb = 0
+                        text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매 중단을 해제합니다. ="
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                        if chkForb == 0 and isreleased_msg == 0:
+                            text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매가 시작되었습니다. ="
+                            if bot_alive == 1 or bot_alive == 2:
+                                bot.sendMessage(chat_id="322233222", text=text)
+                            isreleased_msg = 1
+                            isblocked_msg = 0
+                            istimeblocked_msg = 0
+
+                    if msg_now[:3] == "out":
+                        msg_out = msg_now[4:]
+                        bot.sendMessage(chat_id="322233222", text= "(한투)" + "아래 명령어 제외 :" + msg_now[4:])
+
+                    if msg_now == "mout":
+                        bot.sendMessage(chat_id="322233222", text= "(한투)" + "제외된 명령어 :" + msg_out)
+
+                    if msg_now == "cover":
+                        text = "(한투)" + str(NP.auto_cover) + " (한투) cover_ordered: " + str(NP.cover_ordered) + ",  exed: " + str(NP.cover_order_exed)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "qty":
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text="(한투)" + str(cum_qty))
+
+                    if msg_now == "orders":
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " " + str(orders))
+
+                    if msg_now == "orders_che":
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " " + str(orders_che))
+
+                    if msg_now == "now":
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) +" " + msg_now)
+
+                    if msg_now == "last":
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) +" " + msg_last)
+
+                    if msg_now == "stat":
+                        text = "(한투)" + str(NP.auto_cover) + "stat_in_org: " + str(stat_in_org) + ",  stat_out_org: " + str(stat_out_org)
+                        if sub == 1:
+                            text = "(한투)" + str(NP.auto_cover) + "(sub) stat_in_org: " + str(stat_in_org) + ",  stat_out_org: " + str(stat_out_org)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "statset":
+                        stat_in_org = [0,0,0]
+                        stat_out_org = [1,1,1]
+                        text = "(한투)" + str(NP.auto_cover) + "stat_in_org: " + str(stat_in_org) + ",  stat_out_org: " + str(stat_out_org)
+                        if sub == 1:
+                            text = "(한투)" + str(NP.auto_cover) + "(sub) stat_in_org: " + str(stat_in_org) + ",  stat_out_org: " + str(stat_out_org)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "ord":
+                        text = "(한투)" + str(NP.auto_cover) + "Ord: " + str(OrgOrdNo)
+                        if sub == 1:
+                            text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) Ord: " + str(OrgOrdNo)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "cordnum":
+                        text = "(한투)" + str(NP.auto_cover) + "Ord_Cov: " + str(OrgOrdNo_Cov)
+                        if sub == 1:
+                            text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) Ord_Cov: " + str(OrgOrdNo_Cov)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "corded":
+                        text = "(한투)" + str(NP.auto_cover) + "Ord_Ordered: " + str(NP.cover_ordered)
+                        if sub == 1:
+                            text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) Ord_Ordered: " + str(NP.cover_ordered)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "cexed":
+                        text = "(한투)" + str(NP.auto_cover) + "cover_order_exed: " + str(NP.cover_order_exed)
+                        if sub == 1:
+                            text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) cover_order_exed: " + str(NP.cover_order_exed)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "reord":
+                        text = "(한투)" + str(NP.auto_cover) + "reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
+                        if sub == 1:
+                            text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "block":
+                        if chkForb == 0:
+                            text = "(한투)" + str(NP.auto_cover) + " Block: " + str("Released")
+                            if sub == 1:
+                                text = "(한투)" + str(NP.auto_cover) + " (sub) Block: " + str("Released")
+                        if chkForb == 1:
+                            text = "(한투)" + str(NP.auto_cover) + " Block: " + str("Blocked")
+                            if sub == 1:
+                                text = "(한투)" + str(NP.auto_cover) + " (sub) Block: " + str("Released")
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+
+                    if msg_now == "list":
+                        # text = " [block, stop, start, time, cover, plot, stat, statset, ord, cordnum, cexed, plotset, reord] "
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text="(한투)" + ", ".join(msgs))
+
+                if msg_now != msg_last:
+                    if msg_now[:2] == "np":
+                        # want_see = msg_now[2]
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text="(한투)" + "np :" + str(NP.msg_now[3:]))
+
+                    if msg_now[:6] == "delord":
+                        del orders[int(msg_now[6:])]
+                        bot.sendMessage(chat_id="322233222", text="(한투)" + "deleted : " + str(int(msg_now[6:])))
+
+                    if msg_now[:7] == "deleted":
+                        orders = []
+                        bot.sendMessage(chat_id="322233222", text="(한투)" + "dumped : " + str(NP.auto_cover))
+
+
+                if nf % 500 == 0 and nf != 0:
+                    if chkForb == 0:
+                        text = str(NP.auto_cover) + " = (한투) (MG7) In Released Status=" + str(nf)
+                        if sub == 1:
+                            text = str(NP.auto_cover) + "(한투, sub) = (한투) (MG7) In Released Status=" + str(nf)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+                    if chkForb == 1:
+                        text = str(NP.auto_cover) + " = (한투) (MG7) In Blocked Status =" + str(nf)
+                        if sub == 1:
+                            text = str(NP.auto_cover) + " =(한투, sub) (MG7) In Blocked Status =" + str(nf)
+                        if bot_alive == 1 or bot_alive == 2:
+                            bot.sendMessage(chat_id="322233222", text=text)
+        except:
+            bot.sendMessage(chat_id="322233222", text="no var in list")
+
+        await asyncio.sleep(5)
+
+#####################################################################
 
 async def main():
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
             connect_websocket(session),
+            asyncio.create_task(msg())
             # check_unexecuted_orders(session),
             # file_check(),
             # refresh_token(session)
         )
 
+#####################################################################
 
 # 프로그램 실행
 if __name__ == "__main__":
