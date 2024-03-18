@@ -83,7 +83,7 @@ print("jump to NP")
 NP = NProb.Nprob()
 print("NP..Laoded")
 
-## 비동기 HTTP 요청 클라이언트 생성
+# 비동기 HTTP 요청 클라이언트 생성
 async def create_session():
     return aiohttp.ClientSession()
 
