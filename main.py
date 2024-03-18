@@ -636,26 +636,27 @@ async def msg():
     global started, sub, orders, NP, msg_out, auto_time, chkForb
 
     while True:
-        try:
-            if NP.auto_cover != 0:
+        if NP.auto_cover != 0:
 
-                # chat_token = "5269168004:AAEVzu9b7QBc3EBGDlQXum6abOCFxKEVmbg"
-                chat_token = telegram_token
+            # chat_token = "5269168004:AAEVzu9b7QBc3EBGDlQXum6abOCFxKEVmbg"
+            chat_token = telegram_token
 
-                url = "https://api.telegram.org/bot{}/getUpdates".format(chat_token)
-                response = requests.get(url)
-                updates = response.json()
-                updates = updates["result"][-5:]
-                messages = [str(update['message']['text']) for update in updates if 'message' in update]
+            url = "https://api.telegram.org/bot{}/getUpdates".format(chat_token)
+            response = requests.get(url)
+            updates = response.json()
+            updates = updates["result"][-5:]
+            messages = [str(update['message']['text']) for update in updates if 'message' in update]
 
-                msg_now = messages[-1]
+            msg_now = messages[-1]
 
-                a = ["sym", "qty", "Amt", "entPrc", "nowPrc", "prcDif", "prf"]
-                c = ["coin", "nowPrc", "prf"]
+            a = ["sym", "qty", "Amt", "entPrc", "nowPrc", "prcDif", "prf"]
+            c = ["coin", "nowPrc", "prf"]
 
-                now = datetime.now()
+            now = datetime.now()
 
-                msgs = ["block", "stop", "x", "start", "now", "last", "out", "mout", "time", "qty", "cover", "orders", "orders_che", "tr", "plot", "stat", "statset", "ord", "cordnum", "cexed", "plotset", "reord", "list", "delord", "deleted", "auto"]
+            msgs = ["block", "stop", "x", "start", "now", "last", "out", "mout", "time", "qty", "cover", "orders", "orders_che", "tr", "plot", "stat", "statset", "ord", "cordnum", "cexed", "plotset", "reord", "list", "delord", "deleted", "auto"]
+
+            try:
 
                 if len(messages) == 5 and msg_now != msg_last and msg_now != msg_out and (msg_now in msgs or msg_now[:3] in msgs) :# and msg_last[0] == "1":# and msg_now != "shut":  # and msg_now != "last":
                     if bot_alive == 1 or bot_alive == 2:
@@ -802,37 +803,40 @@ async def msg():
                         # text = " [block, stop, start, time, cover, plot, stat, statset, ord, cordnum, cexed, plotset, reord] "
                         if bot_alive == 1 or bot_alive == 2:
                             bot.sendMessage(chat_id="322233222", text="(한투)" + ", ".join(msgs))
-
-                if msg_now != msg_last:
-                    if msg_now[:2] == "np":
-                        # want_see = msg_now[2]
-                        if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text="(한투)" + "np :" + str(NP.msg_now[3:]))
-
-                    if msg_now[:6] == "delord":
-                        del orders[int(msg_now[6:])]
-                        bot.sendMessage(chat_id="322233222", text="(한투)" + "deleted : " + str(int(msg_now[6:])))
-
-                    if msg_now[:7] == "deleted":
-                        orders = []
-                        bot.sendMessage(chat_id="322233222", text="(한투)" + "dumped : " + str(NP.auto_cover))
+            except:
+                if msg_now != "no var in list":
+                    bot.sendMessage(chat_id="322233222", text="no var in list")
 
 
-                if nf % 500 == 0 and nf != 0:
-                    if chkForb == 0:
-                        text = str(NP.auto_cover) + " = (한투) (MG7) In Released Status=" + str(nf)
-                        if sub == 1:
-                            text = str(NP.auto_cover) + "(한투, sub) = (한투) (MG7) In Released Status=" + str(nf)
-                        if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
-                    if chkForb == 1:
-                        text = str(NP.auto_cover) + " = (한투) (MG7) In Blocked Status =" + str(nf)
-                        if sub == 1:
-                            text = str(NP.auto_cover) + " =(한투, sub) (MG7) In Blocked Status =" + str(nf)
-                        if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
-        except:
-            bot.sendMessage(chat_id="322233222", text="no var in list")
+            if msg_now != msg_last:
+                if msg_now[:2] == "np":
+                    # want_see = msg_now[2]
+                    if bot_alive == 1 or bot_alive == 2:
+                        bot.sendMessage(chat_id="322233222", text="(한투)" + "np :" + str(NP.msg_now[3:]))
+
+                if msg_now[:6] == "delord":
+                    del orders[int(msg_now[6:])]
+                    bot.sendMessage(chat_id="322233222", text="(한투)" + "deleted : " + str(int(msg_now[6:])))
+
+                if msg_now[:7] == "deleted":
+                    orders = []
+                    bot.sendMessage(chat_id="322233222", text="(한투)" + "dumped : " + str(NP.auto_cover))
+
+
+            if nf % 500 == 0 and nf != 0:
+                if chkForb == 0:
+                    text = str(NP.auto_cover) + " = (한투) (MG7) In Released Status=" + str(nf)
+                    if sub == 1:
+                        text = str(NP.auto_cover) + "(한투, sub) = (한투) (MG7) In Released Status=" + str(nf)
+                    if bot_alive == 1 or bot_alive == 2:
+                        bot.sendMessage(chat_id="322233222", text=text)
+                if chkForb == 1:
+                    text = str(NP.auto_cover) + " = (한투) (MG7) In Blocked Status =" + str(nf)
+                    if sub == 1:
+                        text = str(NP.auto_cover) + " =(한투, sub) (MG7) In Blocked Status =" + str(nf)
+                    if bot_alive == 1 or bot_alive == 2:
+                        bot.sendMessage(chat_id="322233222", text=text)
+
 
         await asyncio.sleep(5)
 
