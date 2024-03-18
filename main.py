@@ -88,7 +88,8 @@ async def create_session():
     return aiohttp.ClientSession()
 
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjgwZGVjMjlmLTFkYzQtNGYyOS04YzM4LTA5ZTI0NTdkOTBkZCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwMzc0OTc2LCJpYXQiOjE3MTAyODg1NzYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.8X-2fr43AAWbrYApF_7Og6ETqeAt_1EbU4SI0XSqpfKNRhy_m8nLBUi1FLaruwxwSh83LudS9Hj4QugAKAW08g"
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZkYjk5NjZkLWE3MDMtNDk2MS05NmY2LTI4ODZhMWJmNjY3YSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwNDcxMjM4LCJpYXQiOjE3MTAzODQ4MzgsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.yTELyJg0pTjkpPUg_kCCYjmpXlBRcEXLGSgOaZpsJYDW4j-Kx97PKV79Zrpn9fkDGLa1pcT8dzFOMaaz6yWwvQ"
+# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZkYjk5NjZkLWE3MDMtNDk2MS05NmY2LTI4ODZhMWJmNjY3YSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwNDcxMjM4LCJpYXQiOjE3MTAzODQ4MzgsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.yTELyJg0pTjkpPUg_kCCYjmpXlBRcEXLGSgOaZpsJYDW4j-Kx97PKV79Zrpn9fkDGLa1pcT8dzFOMaaz6yWwvQ"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImM4Mjg1OTViLTdhNmEtNGFiNC1iZjRlLTIxNzJhMWU5YzE3MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwODA3MTM0LCJpYXQiOjE3MTA3MjA3MzQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.JpoXD47-tTgqmxAcB9uFCWEiRkm9nYmKDUgF21LaQv5A_tNOSDvCgXdRXZOy_E-_vSYsX8kSDxVz-K7GR5QXPg"
 
 
 # 토큰 발급 함수
@@ -841,10 +842,10 @@ async def main():
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
             connect_websocket(session),
-            asyncio.create_task(msg())
+            asyncio.create_task(msg()),
             # check_unexecuted_orders(session),
             # file_check(),
-            # refresh_token(session)
+            refresh_token(session)
         )
 
 #####################################################################
