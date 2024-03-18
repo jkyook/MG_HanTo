@@ -1,0 +1,2896 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1830</width>
+    <height>926</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/newPrefix/stock.png</normaloff>:/newPrefix/stock.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>188</y>
+      <width>351</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Hoga(Ref)</string>
+    </property>
+    <widget class="QLabel" name="lblShoga2">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>6</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblShoga1">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>28</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBhoga2">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>66</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBhoga1">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>43</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblSqty2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>6</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBqty2">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>66</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBqty1">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>43</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblSqty1">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>28</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>10</y>
+      <width>191</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QLineEdit" name="txtAccount">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>3</y>
+       <width>121</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtCode_o1">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>54</y>
+       <width>101</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtPrc_o1">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>80</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtOrdQty_o1">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>108</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnOrder">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>312</y>
+       <width>41</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ODR</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtOrderType">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>136</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtOrderdQty">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>164</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtRecevdQty">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>192</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtExedQty">
+     <property name="geometry">
+      <rect>
+       <x>143</x>
+       <y>215</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnTR">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>312</y>
+       <width>41</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TR</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnReset">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>312</y>
+       <width>41</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Reset</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtBNS_tr">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>260</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtProfit_tr">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>286</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtExedQty_tr">
+     <property name="geometry">
+      <rect>
+       <x>143</x>
+       <y>235</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnCancel">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>312</y>
+       <width>41</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cncl</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cmbOrder">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>349</y>
+       <width>91</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnOrder_2">
+     <property name="geometry">
+      <rect>
+       <x>135</x>
+       <y>260</y>
+       <width>35</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>M_O</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cmbCode">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>54</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cmbGraph">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>349</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtSExedQty">
+     <property name="geometry">
+      <rect>
+       <x>59</x>
+       <y>215</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtNpExedQty">
+     <property name="geometry">
+      <rect>
+       <x>59</x>
+       <y>235</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtAccount_2">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>26</y>
+       <width>121</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>6</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Main</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_9">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>26</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Cover</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_10">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>260</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>BNS tr</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_11">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>287</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Profit tr</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_12">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>80</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Prc</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_13">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>108</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Qty</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_14">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>136</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>BNS</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_15">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>164</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Ord</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_16">
+     <property name="geometry">
+      <rect>
+       <x>25</x>
+       <y>192</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Rec</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_17">
+     <property name="geometry">
+      <rect>
+       <x>8</x>
+       <y>215</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Sys Exe</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_18">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>235</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>NP Exe</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_19">
+     <property name="geometry">
+      <rect>
+       <x>86</x>
+       <y>215</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>sys Exe</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_20">
+     <property name="geometry">
+      <rect>
+       <x>88</x>
+       <y>237</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TR Exe</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>133</y>
+      <width>351</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Now(Ref)</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="lblNowp">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblRate">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblGubun">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblCvol">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblTvol">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>355</y>
+      <width>241</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Hoga(O)</string>
+    </property>
+    <widget class="QLabel" name="lblShoga2_o1">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>10</y>
+       <width>51</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblShoga1_o1">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>33</y>
+       <width>51</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBhoga2_o1">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>73</y>
+       <width>51</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBhoga1_o1">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>50</y>
+       <width>51</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblSqty2_o1">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>13</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBqty2_o1">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>73</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblBqty1_o1">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>50</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblSqty1_o1">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>33</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl520Count">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>21</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblCVC_sum">
+     <property name="geometry">
+      <rect>
+       <x>75</x>
+       <y>70</y>
+       <width>31</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnNPP">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>10</y>
+       <width>61</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>NP lock</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnCover">
+     <property name="geometry">
+      <rect>
+       <x>189</x>
+       <y>10</y>
+       <width>51</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Unlock</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>291</y>
+      <width>351</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Now(O)</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="lblNowp_o1">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblRate_o1">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblGubun_o1">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblCvol_o1">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblTvol_o1">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>10</y>
+      <width>341</width>
+      <height>831</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
+    <attribute name="horizontalHeaderStretchLastSection">
+     <bool>true</bool>
+    </attribute>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_11">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>10</y>
+      <width>351</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>System</string>
+    </property>
+    <widget class="QComboBox" name="cmbDome">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>24</y>
+       <width>50</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnStrart">
+     <property name="geometry">
+      <rect>
+       <x>102</x>
+       <y>80</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnMonitor_df">
+     <property name="geometry">
+      <rect>
+       <x>281</x>
+       <y>54</y>
+       <width>61</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Opt_Out</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkConti">
+     <property name="geometry">
+      <rect>
+       <x>156</x>
+       <y>22</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>굴림</family>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Ct</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnNposition">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>54</y>
+       <width>31</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>N</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnSave">
+     <property name="geometry">
+      <rect>
+       <x>281</x>
+       <y>24</y>
+       <width>61</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnML_setting">
+     <property name="geometry">
+      <rect>
+       <x>188</x>
+       <y>46</y>
+       <width>41</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TR</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnLogin">
+     <property name="geometry">
+      <rect>
+       <x>8</x>
+       <y>50</y>
+       <width>135</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Login</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cmbRealDemo">
+     <property name="geometry">
+      <rect>
+       <x>66</x>
+       <y>24</y>
+       <width>50</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnOpenposition">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>24</y>
+       <width>31</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>O</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkParaSave">
+     <property name="geometry">
+      <rect>
+       <x>196</x>
+       <y>23</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>굴림</family>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>PS</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnLoad">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>layer</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnPeak">
+     <property name="geometry">
+      <rect>
+       <x>154</x>
+       <y>81</y>
+       <width>75</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Peak</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnLoad_2">
+     <property name="geometry">
+      <rect>
+       <x>55</x>
+       <y>80</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>para</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="cmbTR">
+     <property name="geometry">
+      <rect>
+       <x>147</x>
+       <y>47</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtTime">
+     <property name="geometry">
+      <rect>
+       <x>281</x>
+       <y>85</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtTimeGap">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>84</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtWhichMarket">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>24</y>
+       <width>20</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLineEdit" name="txtOrgOrdNo">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>643</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtTR_req">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>643</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtMsg">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>673</y>
+      <width>261</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtMsg_TR">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>703</y>
+      <width>311</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtElap">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>643</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cmbPlot1">
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>734</y>
+      <width>231</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cmbPlot2">
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>762</y>
+      <width>231</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cmbPlot3">
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>790</y>
+      <width>231</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cmbPlot4">
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>818</y>
+      <width>231</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAvePrc">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>541</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_test">
+    <property name="geometry">
+     <rect>
+      <x>555</x>
+      <y>670</y>
+      <width>21</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>9</pointsize>
+      <weight>9</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 9pt &quot;Arial&quot;;</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkForb">
+    <property name="geometry">
+     <rect>
+      <x>28</x>
+      <y>538</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>forb</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkFix">
+    <property name="geometry">
+     <rect>
+      <x>76</x>
+      <y>538</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>time</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkPrfAble">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>565</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>PrfAble</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkPrfHit">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>565</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>PrfHit</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtNowPrf">
+    <property name="geometry">
+     <rect>
+      <x>395</x>
+      <y>670</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtStat">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>673</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtOptPrf">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>696</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnClrMsg">
+    <property name="geometry">
+     <rect>
+      <x>351</x>
+      <y>700</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>C</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_6">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>470</y>
+      <width>121</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>StdPrc</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="lblStdPrc">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblStdPrcPeak">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_7">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>393</y>
+      <width>191</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>OPT</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QLabel" name="lblOPTCall">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblOPTPut">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_8">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>470</y>
+      <width>121</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>PrcS</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="lblPrcS">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblPrcSPeak">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_9">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>470</y>
+      <width>91</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>TestSignal</string>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QLabel" name="lblTestSignal">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="btnGraphReset">
+    <property name="geometry">
+     <rect>
+      <x>23</x>
+      <y>734</y>
+      <width>36</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Rset</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnGraphPrc1">
+    <property name="geometry">
+     <rect>
+      <x>23</x>
+      <y>762</y>
+      <width>36</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Prc</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnGraphPrc2">
+    <property name="geometry">
+     <rect>
+      <x>23</x>
+      <y>790</y>
+      <width>36</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Prc</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnGraphPrc3">
+    <property name="geometry">
+     <rect>
+      <x>23</x>
+      <y>818</y>
+      <width>36</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Prc</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtLastCoverPrc">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>611</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkCoverOrdered">
+    <property name="geometry">
+     <rect>
+      <x>186</x>
+      <y>611</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Cov_Ord</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblCoverSignal">
+    <property name="geometry">
+     <rect>
+      <x>259</x>
+      <y>611</y>
+      <width>21</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_10">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>747</y>
+      <width>201</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Plot</string>
+    </property>
+    <widget class="QLineEdit" name="txtStart">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>26</y>
+       <width>38</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtLast">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>26</y>
+       <width>38</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkSetRange">
+     <property name="geometry">
+      <rect>
+       <x>105</x>
+       <y>26</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>굴림</family>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>R</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnPlot">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>56</y>
+       <width>88</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Plot</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnMemory">
+     <property name="geometry">
+      <rect>
+       <x>101</x>
+       <y>56</y>
+       <width>41</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Load</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="chkMemory">
+     <property name="geometry">
+      <rect>
+       <x>147</x>
+       <y>60</y>
+       <width>35</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>굴림</family>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>M</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="lblCoverSignal_2">
+    <property name="geometry">
+     <rect>
+      <x>284</x>
+      <y>611</y>
+      <width>21</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtPeakTouch">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>541</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtCovPrf">
+    <property name="geometry">
+     <rect>
+      <x>442</x>
+      <y>697</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkCover">
+    <property name="geometry">
+     <rect>
+      <x>127</x>
+      <y>538</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Cov</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkCoverSig_2">
+    <property name="geometry">
+     <rect>
+      <x>28</x>
+      <y>564</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Sig</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkInHitTouch">
+    <property name="geometry">
+     <rect>
+      <x>98</x>
+      <y>608</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>In_touch</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtInHit">
+    <property name="geometry">
+     <rect>
+      <x>75</x>
+      <y>608</y>
+      <width>16</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtNPP">
+    <property name="geometry">
+     <rect>
+      <x>34</x>
+      <y>608</y>
+      <width>16</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkCV_C">
+    <property name="geometry">
+     <rect>
+      <x>125</x>
+      <y>563</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>CV_C</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkInit_5">
+    <property name="geometry">
+     <rect>
+      <x>179</x>
+      <y>562</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Init5</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkAdd_Prf">
+    <property name="geometry">
+     <rect>
+      <x>73</x>
+      <y>563</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>A_P</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtPrf">
+    <property name="geometry">
+     <rect>
+      <x>442</x>
+      <y>670</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtLastO">
+    <property name="geometry">
+     <rect>
+      <x>256</x>
+      <y>541</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chkIndep">
+    <property name="geometry">
+     <rect>
+      <x>173</x>
+      <y>539</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>굴림</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Indep</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtData1_1">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>736</y>
+      <width>45</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtData1_2">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>763</y>
+      <width>45</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtData1_3">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>792</y>
+      <width>45</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtData1_4">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>820</y>
+      <width>45</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAISpot">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>366</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAI">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>390</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAIBns">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>415</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnGraphPrc1_2">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>366</y>
+      <width>36</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>spot</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnGraphPrc1_3">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>390</y>
+      <width>36</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>AI</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnGraphPrc1_4">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>415</y>
+      <width>36</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>BNS</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAISpot_2">
+    <property name="geometry">
+     <rect>
+      <x>352</x>
+      <y>366</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAI_2">
+    <property name="geometry">
+     <rect>
+      <x>352</x>
+      <y>390</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAIBns_2">
+    <property name="geometry">
+     <rect>
+      <x>352</x>
+      <y>415</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAIBns_3">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>440</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtAIBns_4">
+    <property name="geometry">
+     <rect>
+      <x>352</x>
+      <y>440</y>
+      <width>30</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnGraphPrc1_5">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>440</y>
+      <width>36</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>T</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblElapTime">
+    <property name="geometry">
+     <rect>
+      <x>319</x>
+      <y>643</y>
+      <width>21</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>t</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_12">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>632</y>
+      <width>201</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string>수익</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <widget class="QLabel" name="lblElapTime_21">
+     <property name="geometry">
+      <rect>
+       <x>57</x>
+       <y>10</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>현재</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_22">
+     <property name="geometry">
+      <rect>
+       <x>106</x>
+       <y>10</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>누적</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblElapTime_23">
+     <property name="geometry">
+      <rect>
+       <x>154</x>
+       <y>10</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>포지션</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtNExedQty">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>60</y>
+       <width>16</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="txtProfit">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>40</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="lblElapTime_2">
+    <property name="geometry">
+     <rect>
+      <x>322</x>
+      <y>348</y>
+      <width>31</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>short</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblElapTime_3">
+    <property name="geometry">
+     <rect>
+      <x>357</x>
+      <y>348</y>
+      <width>31</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>long</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblCoverSignal_3">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>520</y>
+      <width>181</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>peak touch    Last_o     AP</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_13">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>586</y>
+      <width>201</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Cover</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblElapTime_4">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>593</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>sig1  sig2   cov_prc</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblElapTime_5">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>590</y>
+      <width>31</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>in_hit</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblElapTime_6">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>590</y>
+      <width>31</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>NPP</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblElapTime_7">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>444</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>520_count_m  cvol_c_sum</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>10</y>
+      <width>871</width>
+      <height>831</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
+    <attribute name="horizontalHeaderStretchLastSection">
+     <bool>true</bool>
+    </attribute>
+   </widget>
+   <widget class="QPushButton" name="btnPlot_2">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>734</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnPlot_3">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>762</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnPlot_4">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>790</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnPlot_5">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>820</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnPlot_6">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>589</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtFind">
+    <property name="geometry">
+     <rect>
+      <x>434</x>
+      <y>590</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnFind">
+    <property name="geometry">
+     <rect>
+      <x>392</x>
+      <y>590</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Find</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtFind_2">
+    <property name="geometry">
+     <rect>
+      <x>433</x>
+      <y>560</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnFind_2">
+    <property name="geometry">
+     <rect>
+      <x>392</x>
+      <y>560</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Find</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnPlot_7">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>560</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtLast_2">
+    <property name="geometry">
+     <rect>
+      <x>494</x>
+      <y>530</y>
+      <width>38</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="txtStart_2">
+    <property name="geometry">
+     <rect>
+      <x>434</x>
+      <y>530</y>
+      <width>38</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnCopy">
+    <property name="geometry">
+     <rect>
+      <x>574</x>
+      <y>560</y>
+      <width>21</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnCopy_2">
+    <property name="geometry">
+     <rect>
+      <x>574</x>
+      <y>589</y>
+      <width>21</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnClr">
+    <property name="geometry">
+     <rect>
+      <x>391</x>
+      <y>529</y>
+      <width>31</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Clr</string>
+    </property>
+   </widget>
+   <zorder>groupBox_13</zorder>
+   <zorder>groupBox_12</zorder>
+   <zorder>groupBox</zorder>
+   <zorder>groupBox_2</zorder>
+   <zorder>groupBox_3</zorder>
+   <zorder>groupBox_4</zorder>
+   <zorder>groupBox_5</zorder>
+   <zorder>tableWidget</zorder>
+   <zorder>groupBox_11</zorder>
+   <zorder>txtOrgOrdNo</zorder>
+   <zorder>txtTR_req</zorder>
+   <zorder>txtMsg</zorder>
+   <zorder>txtMsg_TR</zorder>
+   <zorder>txtElap</zorder>
+   <zorder>cmbPlot1</zorder>
+   <zorder>cmbPlot2</zorder>
+   <zorder>cmbPlot3</zorder>
+   <zorder>cmbPlot4</zorder>
+   <zorder>txtAvePrc</zorder>
+   <zorder>lbl_test</zorder>
+   <zorder>chkForb</zorder>
+   <zorder>chkFix</zorder>
+   <zorder>chkPrfAble</zorder>
+   <zorder>chkPrfHit</zorder>
+   <zorder>txtNowPrf</zorder>
+   <zorder>txtStat</zorder>
+   <zorder>txtOptPrf</zorder>
+   <zorder>btnClrMsg</zorder>
+   <zorder>groupBox_6</zorder>
+   <zorder>groupBox_7</zorder>
+   <zorder>groupBox_8</zorder>
+   <zorder>groupBox_9</zorder>
+   <zorder>btnGraphReset</zorder>
+   <zorder>btnGraphPrc1</zorder>
+   <zorder>btnGraphPrc2</zorder>
+   <zorder>btnGraphPrc3</zorder>
+   <zorder>txtLastCoverPrc</zorder>
+   <zorder>chkCoverOrdered</zorder>
+   <zorder>lblCoverSignal</zorder>
+   <zorder>groupBox_10</zorder>
+   <zorder>lblCoverSignal_2</zorder>
+   <zorder>txtPeakTouch</zorder>
+   <zorder>txtCovPrf</zorder>
+   <zorder>chkCover</zorder>
+   <zorder>chkCoverSig_2</zorder>
+   <zorder>chkInHitTouch</zorder>
+   <zorder>txtInHit</zorder>
+   <zorder>txtNPP</zorder>
+   <zorder>chkCV_C</zorder>
+   <zorder>chkInit_5</zorder>
+   <zorder>chkAdd_Prf</zorder>
+   <zorder>txtPrf</zorder>
+   <zorder>txtLastO</zorder>
+   <zorder>chkIndep</zorder>
+   <zorder>txtData1_1</zorder>
+   <zorder>txtData1_2</zorder>
+   <zorder>txtData1_3</zorder>
+   <zorder>txtData1_4</zorder>
+   <zorder>txtAISpot</zorder>
+   <zorder>txtAI</zorder>
+   <zorder>txtAIBns</zorder>
+   <zorder>btnGraphPrc1_2</zorder>
+   <zorder>btnGraphPrc1_3</zorder>
+   <zorder>btnGraphPrc1_4</zorder>
+   <zorder>txtAISpot_2</zorder>
+   <zorder>txtAI_2</zorder>
+   <zorder>txtAIBns_2</zorder>
+   <zorder>txtAIBns_3</zorder>
+   <zorder>txtAIBns_4</zorder>
+   <zorder>btnGraphPrc1_5</zorder>
+   <zorder>lblElapTime</zorder>
+   <zorder>lblElapTime_2</zorder>
+   <zorder>lblElapTime_3</zorder>
+   <zorder>lblCoverSignal_3</zorder>
+   <zorder>lblElapTime_4</zorder>
+   <zorder>lblElapTime_5</zorder>
+   <zorder>lblElapTime_6</zorder>
+   <zorder>lblElapTime_7</zorder>
+   <zorder>tableWidget_2</zorder>
+   <zorder>btnPlot_2</zorder>
+   <zorder>btnPlot_3</zorder>
+   <zorder>btnPlot_4</zorder>
+   <zorder>btnPlot_5</zorder>
+   <zorder>btnPlot_6</zorder>
+   <zorder>txtFind</zorder>
+   <zorder>btnFind</zorder>
+   <zorder>txtFind_2</zorder>
+   <zorder>btnFind_2</zorder>
+   <zorder>btnPlot_7</zorder>
+   <zorder>txtLast_2</zorder>
+   <zorder>txtStart_2</zorder>
+   <zorder>btnCopy</zorder>
+   <zorder>btnCopy_2</zorder>
+   <zorder>btnClr</zorder>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/newPrefix/open.png</normaloff>:/newPrefix/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>열기</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/newPrefix/파일저장.png</normaloff>:/newPrefix/파일저장.png</iconset>
+   </property>
+   <property name="text">
+    <string>저장</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/newPrefix/help.png</normaloff>:/newPrefix/help.png</iconset>
+   </property>
+   <property name="text">
+    <string>help</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
