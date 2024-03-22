@@ -7,7 +7,7 @@ from datetime import datetime
 from sklearn import datasets, linear_model
 from sklearn.preprocessing import scale, robust_scale, minmax_scale, maxabs_scale
 import numpy as np
-import talib
+# import talib
 import matplotlib.pyplot as plt
 import smtplib
 from email.mime.text import MIMEText
@@ -1042,9 +1042,14 @@ class Nprob:
             ema_50_prc_std = 0
             ema_200_prc_std = 0
         if self.nf >= 400 + 11:
-            ema_20_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 20)[-1]
-            ema_50_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 50)[-1]
-            ema_200_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 200)[-1]
+            # ema_20_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 20)[-1]
+            # ema_50_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 50)[-1]
+            # ema_200_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 200)[-1]
+
+            ema_20_prc_std = pd.Series(self.df['prc_std']).ewm(span=20, adjust=False).mean().iloc[-1]
+            ema_50_prc_std = pd.Series(self.df['prc_std']).ewm(span=50, adjust=False).mean().iloc[-1]
+            ema_200_prc_std = pd.Series(self.df['prc_std']).ewm(span=200, adjust=False).mean().iloc[-1]
+
         self.df.at[self.nf, "ema_20_prc_std"] = ema_20_prc_std
         self.df.at[self.nf, "ema_50_prc_std"] = ema_50_prc_std
         self.df.at[self.nf, "ema_200_prc_std"] = ema_200_prc_std
@@ -1506,9 +1511,12 @@ class Nprob:
             ema_50 = 0
             ema_200 = 0
         if self.nf >= 400 + 11:
-            ema_20 = talib.EMA(np.array(self.df['px1'], dtype=float), 20)[-1]
-            ema_50 = talib.EMA(np.array(self.df['px1'], dtype=float), 50)[-1]
-            ema_200 = talib.EMA(np.array(self.df['px1'], dtype=float), 200)[-1]
+            # ema_20 = talib.EMA(np.array(self.df['px1'], dtype=float), 20)[-1]
+            # ema_50 = talib.EMA(np.array(self.df['px1'], dtype=float), 50)[-1]
+            # ema_200 = talib.EMA(np.array(self.df['px1'], dtype=float), 200)[-1]
+            ema_20 = pd.Series(self.df['px1']).ewm(span=20, adjust=False).mean().iloc[-1]
+            ema_50 = pd.Series(self.df['px1']).ewm(span=50, adjust=False).mean().iloc[-1]
+            ema_200 = pd.Series(self.df['px1']).ewm(span=200, adjust=False).mean().iloc[-1]
             # print(ema_50)
             # print(ema_200)
         self.df.at[self.nf, "ema_20"] = ema_20
@@ -1566,7 +1574,8 @@ class Nprob:
             self.prc_dev = 0
             self.rsi_init = 50
         if self.nf >= 300 + 11:
-            rsi = talib.RSI(np.array(self.df['price'], dtype=float), timeperiod=200)[-1]
+            # rsi = talib.RSI(np.array(self.df['price'], dtype=float), timeperiod=200)[-1]
+            rsi_value = rsi(pd.Series(self.df['price']), window=200).iloc[-1]
             self.prc_dev = (price - self.init_prc) / self.init_prc * 100
             self.rsi_init = rsi + self.prc_dev
             # print("rsi: ", rsi)
@@ -1751,9 +1760,12 @@ class Nprob:
             ema_50_count_m = 0
             ema_200_count_m = 0
         if self.nf >= 400 + 11:
-            ema_20_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 20)[-1]
-            ema_50_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 50)[-1]
-            ema_200_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 200)[-1]
+            # ema_20_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 20)[-1]
+            # ema_50_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 50)[-1]
+            # ema_200_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 200)[-1]
+            ema_20_count_m = pd.Series(self.df['count_m_per_5']).ewm(span=20, adjust=False).mean().iloc[-1]
+            ema_50_count_m = pd.Series(self.df['count_m_per_5']).ewm(span=50, adjust=False).mean().iloc[-1]
+            ema_200_count_m = pd.Series(self.df['count_m_per_5']).ewm(span=200, adjust=False).mean().iloc[-1]
             # print(ema_50)
             # print(ema_200)
         self.df.at[self.nf, "ema_20_count_m"] = ema_20_count_m
@@ -2078,7 +2090,8 @@ class Nprob:
         if self.nf < 250 + 1:
             cvol_sum_rsi = 50
         if self.nf >= 250 + 1:
-            cvol_sum_rsi = talib.RSI(np.array(self.df['cvol_sum'], dtype=float), timeperiod=200)[-1]
+            # cvol_sum_rsi = talib.RSI(np.array(self.df['cvol_sum'], dtype=float), timeperiod=200)[-1]
+            cvol_sum_rsi = rsi(pd.Series(self.df['cvol_sum']), window=200).iloc[-1]
             # print("rsi: ", rsi)
         self.df.at[self.nf, "cvol_sum_rsi"] = cvol_sum_rsi
 
@@ -2213,9 +2226,12 @@ class Nprob:
             ema_50_cvol_m = 0
             ema_200_cvol_m = 0
         if self.nf >= 400 + 11:
-            ema_20_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 20)[-1]
-            ema_50_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 50)[-1]
-            ema_200_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 200)[-1]
+            # ema_20_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 20)[-1]
+            # ema_50_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 50)[-1]
+            # ema_200_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 200)[-1]
+            ema_20_cvol_m = pd.Series(self.df['cvol_m']).ewm(span=20, adjust=False).mean().iloc[-1]
+            ema_50_cvol_m = pd.Series(self.df['cvol_m']).ewm(span=50, adjust=False).mean().iloc[-1]
+            ema_200_cvol_m = pd.Series(self.df['cvol_m']).ewm(span=200, adjust=False).mean().iloc[-1]
         self.df.at[self.nf, "ema_20_cvol_m"] = ema_20_cvol_m
         self.df.at[self.nf, "ema_50_cvol_m"] = ema_50_cvol_m
         self.df.at[self.nf, "ema_200_cvol_m"] = ema_200_cvol_m
@@ -8049,7 +8065,7 @@ class Nprob:
                 self.prf_cover = (self.cover_in_prc - price) / prc_std
 
                 # np2_out : (b_in) -> (s_out)
-                if 1==1 and self.np1 == 1 and self.np2 == -1:
+                if 1==0 and self.np1 == 1 and self.np2 == -1:
                     if self.df.at[self.nf - 84, "np1"] != 1 and self.df.at[self.nf - 83, "np1"] == 1:
                         if self.df.loc[self.nf - 80: self.nf - 1, "np1"].mean() == 1 and (self.prc_s_peak >= 2 or self.bns_check_3 >= 0.5):
                             if (self.OrgMain == "b" or self.OrgMain == "n") and self.cover_ordered != 0:
@@ -10208,4 +10224,17 @@ def xnet(p, t, W, sw, a, b, c, d):
         else:
             result = (a - b - d)
     return result
+
+def rsi(data, window=200):
+    delta = data.diff()
+    up, down = delta.copy(), delta.copy()
+
+    up[up < 0] = 0
+    down[down > 0] = 0
+
+    rUp = up.ewm(com=window - 1, adjust=False).mean()
+    rDown = down.abs().ewm(com=window - 1, adjust=False).mean()
+
+    RS = rUp / rDown
+    return 100 - (100 / (1 + RS))
 
