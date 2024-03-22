@@ -29,6 +29,7 @@ import sqlite3
 import scipy.stats as stat
 import copy
 import NProb
+import NProb2
 
 # from twilio.rest import Client
 
@@ -78,18 +79,23 @@ stock = 0
 AvePrc = 0
 circulation = 0
 chkForb = 0
+np_count = 0
+cum_qty = 0
 
 print("jump to NP")
 NP = NProb.Nprob()
+NP2 = NProb2.Nprob()
 print("NP..Laoded")
+
+# code = "105V04"
+# account = "60025978"
+# qty =1
 
 # 비동기 HTTP 요청 클라이언트 생성
 async def create_session():
     return aiohttp.ClientSession()
 
-# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjgwZGVjMjlmLTFkYzQtNGYyOS04YzM4LTA5ZTI0NTdkOTBkZCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwMzc0OTc2LCJpYXQiOjE3MTAyODg1NzYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.8X-2fr43AAWbrYApF_7Og6ETqeAt_1EbU4SI0XSqpfKNRhy_m8nLBUi1FLaruwxwSh83LudS9Hj4QugAKAW08g"
-# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZkYjk5NjZkLWE3MDMtNDk2MS05NmY2LTI4ODZhMWJmNjY3YSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwNDcxMjM4LCJpYXQiOjE3MTAzODQ4MzgsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.yTELyJg0pTjkpPUg_kCCYjmpXlBRcEXLGSgOaZpsJYDW4j-Kx97PKV79Zrpn9fkDGLa1pcT8dzFOMaaz6yWwvQ"
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImM4Mjg1OTViLTdhNmEtNGFiNC1iZjRlLTIxNzJhMWU5YzE3MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwODA3MTM0LCJpYXQiOjE3MTA3MjA3MzQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.JpoXD47-tTgqmxAcB9uFCWEiRkm9nYmKDUgF21LaQv5A_tNOSDvCgXdRXZOy_E-_vSYsX8kSDxVz-K7GR5QXPg"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjQ1MmE4MWRjLTg3NTYtNDU2OC1hMGI4LTM5NGVmYjI5ODBmZSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwODk4NzE0LCJpYXQiOjE3MTA4MTIzMTQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.hk35jZCGQTnjNDhEXdm_vA59TdF-Rqhj8jwQHdoNA1YMep23g9l7eAmzlOB9nX0O7eYM9tYL34NaR_0fZKxxyg"
 
 
 # 토큰 발급 함수
@@ -111,6 +117,8 @@ async def get_access_token(session):
                 access_token = result["access_token"]
                 print("access_token: ", access_token)
                 token_update_time = datetime.now()
+                with open('token_update_time.txt', 'w') as f:
+                    f.write(token_update_time.strftime('%Y-%m-%d %H:%M:%S'))
                 logger.info("액세스 토큰 발급 완료")
             else:
                 logger.error("액세스 토큰 발급 실패")
@@ -197,6 +205,18 @@ async def connect_websocket(session):
 
 # 토큰 갱신 함수
 async def refresh_token(session):
+    global token_update_time
+
+    try:
+        # 파일에서 읽어들이기
+        with open('token_update_time.txt', 'r') as f:
+            token_update_time_str = f.read().strip()
+
+        # 문자열을 datetime 객체로 변환
+        token_update_time = datetime.strptime(token_update_time_str, '%Y-%m-%d %H:%M:%S')
+    except:
+        pass
+
     while True:
         try:
             if token_update_time is None or datetime.now() >= token_update_time + token_refresh_interval:
@@ -222,7 +242,8 @@ async def file_check():
     f1.close()
 
     # (cover_b) -> cover_ordered = 1/0
-    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+    # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp.txt'
     f2 = open(file_path, 'r')
     f2_r = f2.readline()
     np2, prf2, chkForb = f2_r.strip().split(',')
@@ -279,7 +300,7 @@ def stockhoka_futs(data):
 
 # 지수선물체결처리 출력라이브러리
 async def stockspurchase_futs(data_cnt, data):
-    global price, volume, cvolume, cgubun, count, npp
+    global price, volume, cvolume, cgubun, count, npp, npp2
     global last_time, last_volume, cgubun_sum, cvolume_mid, cvolume_sum, count_mid, nf, ExedQty
     global lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
 
@@ -349,6 +370,9 @@ async def stockspurchase_futs(data_cnt, data):
             nf += 1
             npp = NP.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
                            lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
+            npp2 = NP2.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
+                           lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
+
 
 
             # 기록
@@ -358,10 +382,16 @@ async def stockspurchase_futs(data_cnt, data):
                 s = chkForb #ex.chkForb.isChecked()
                 f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt) + "," + str(s))
                 f.close()
-            if NP.auto_cover == 2:
-                file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+            # if NP.auto_cover == 2:
+            #     file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+            #     f = open(file_path, 'w')
+            #     f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))
+            #     f.close()
+
+            if NP2.auto_cover == 2:
+                file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp.txt'
                 f = open(file_path, 'w')
-                f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))
+                f.write(str(NP2.cover_ordered) + "," + str(NP2.profit_opt))
                 f.close()
 
             ##########
@@ -392,14 +422,19 @@ async def stockspurchase_futs(data_cnt, data):
 
 # 주문 처리 함수
 async def place_order():
-    global npp, nf
+    global npp, npp2, nf, np_count, cum_qty
 
     if nf == 10:
         await send_order(bns = "02")
 
     if npp ==  4:
         await send_order(bns = "02")
-    if npp ==  -4:
+    elif npp ==  -4:
+        await send_order(bns = "01")
+
+    if npp2 ==  4:
+        await send_order(bns = "02")
+    elif npp2 ==  -4:
         await send_order(bns = "01")
 
     # 기록
@@ -413,7 +448,8 @@ async def place_order():
         f1.close()
 
         # (cover_b) -> cover_ordered = 1/0
-        file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+        # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+        file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp.txt'
         f2 = open(file_path, 'r')
         f2_r = f2.readline()
         np2, prf2 = f2_r.strip().split(',')
@@ -462,7 +498,7 @@ async def place_order():
 #####################################################################
 
 async def send_order(bns):
-    global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time
+    global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
 
     if auto_time == 1:
         url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
@@ -563,7 +599,7 @@ async def check_unexecuted_orders(session):
 
 # 선물옵션 체결통보 출력라이브러리
 def stocksigningnotice_futsoptn(data, key, iv):
-    global orders, orders_che, price, qty, code, account
+    global orders, orders_che, price, qty, code, account, cum_qty
 
     # AES256 처리 단계
     aes_dec_str = aes_cbc_base64_dec(key, iv, data)
@@ -576,7 +612,12 @@ def stocksigningnotice_futsoptn(data, key, iv):
         menulist_sign = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|체결수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|주문수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
         menustr = menulist_sign.split('|')
         bns_che = pValue[4]  # 매도매수구분
+
         qty_che = pValue[8]  # 체결수량
+        if bns_che == "매도":
+            qty_che = int(qty_che) * -1
+        cum_qty += qty_che
+
         ord_no_che = pValue[3]  # 원주문번호
         prc_o1_che = pValue[9]  # 체결단가
         time_che = pValue[10]  # 체결시간
@@ -639,7 +680,7 @@ async def msg():
         if NP.auto_cover != 0:
 
             # chat_token = "5269168004:AAEVzu9b7QBc3EBGDlQXum6abOCFxKEVmbg"
-            chat_token = telegram_token
+            chat_token = "5030631557:AAGFTf-C0XDWCViU3pOtLea5qSdiNSxDL7g" # bot2
 
             url = "https://api.telegram.org/bot{}/getUpdates".format(chat_token)
             response = requests.get(url)
@@ -647,7 +688,11 @@ async def msg():
             updates = updates["result"][-5:]
             messages = [str(update['message']['text']) for update in updates if 'message' in update]
 
-            msg_now = messages[-1]
+            try:
+                msg_now = messages[-1]
+            except:
+                msg_now = msg_last
+            # print("msg_now: ", msg_now)
 
             a = ["sym", "qty", "Amt", "entPrc", "nowPrc", "prcDif", "prf"]
             c = ["coin", "nowPrc", "prf"]
@@ -658,7 +703,7 @@ async def msg():
 
             try:
 
-                if len(messages) == 5 and msg_now != msg_last and msg_now != msg_out and (msg_now in msgs or msg_now[:3] in msgs) :# and msg_last[0] == "1":# and msg_now != "shut":  # and msg_now != "last":
+                if msg_now != msg_last and msg_now != msg_out and (msg_now in msgs or msg_now[:3] in msgs) :# and msg_last[0] == "1":# and msg_now != "shut":  # and msg_now != "last":
                     if bot_alive == 1 or bot_alive == 2:
                         bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " (now): " + msg_now + ", (last) : " + msg_last)
 
