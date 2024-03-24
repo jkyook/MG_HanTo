@@ -621,7 +621,7 @@ def stocksigningnotice_futsoptn(data, key, iv):
         ord_no_che = pValue[3]  # 원주문번호
         prc_o1_che = pValue[9]  # 체결단가
         time_che = pValue[10]  # 체결시간
-        orders_che[ord_no] = (bns_che, qty_che, price, prc_o1_che, time_che)
+        orders_che[ord_no_che] = (bns_che, qty_che, price, prc_o1_che, time_che)
         i = 0
         for menu in menustr:
             print("%s  [%s]" % (menu, pValue[i]))
