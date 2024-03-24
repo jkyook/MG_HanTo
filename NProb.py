@@ -18,7 +18,7 @@ from keras.models import model_from_json
 # from h5py import *
 import h5py  # as h5py
 
-os.environ['KERAS_BACKEND'] = 'theano'
+# os.environ['KERAS_BACKEND'] = 'theano'
 # from twilio.rest import Client
 # from keras import backend as K
 import keras as ks
@@ -58,6 +58,9 @@ class Nprob:
     global bot_alive, bot1, chat_token
 
     def __init__(self):
+
+        self.talib = 0
+
         # global df , nf
         self.nf = 0
         self.no = 0
@@ -111,7 +114,7 @@ class Nprob:
         # self.which_market = 1
         # if self.which_market == 4:
         #     chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
-        # self.which_market = 3
+        # self.which_market = 1
 
         # self.auto
         self.auto_cover = 1 # 0:off, 1:sell, 2:buy
@@ -1042,13 +1045,15 @@ class Nprob:
             ema_50_prc_std = 0
             ema_200_prc_std = 0
         if self.nf >= 400 + 11:
-            # ema_20_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 20)[-1]
-            # ema_50_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 50)[-1]
-            # ema_200_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 200)[-1]
+            if self.talib == 1:
+                ema_20_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 20)[-1]
+                ema_50_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 50)[-1]
+                ema_200_prc_std = talib.EMA(np.array(self.df['prc_std'], dtype=float), 200)[-1]
 
-            ema_20_prc_std = pd.Series(self.df['prc_std']).ewm(span=20, adjust=False).mean().iloc[-1]
-            ema_50_prc_std = pd.Series(self.df['prc_std']).ewm(span=50, adjust=False).mean().iloc[-1]
-            ema_200_prc_std = pd.Series(self.df['prc_std']).ewm(span=200, adjust=False).mean().iloc[-1]
+            if self.talib == 0:
+                ema_20_prc_std = cal_ema(pd.Series(self.df['prc_std']), window=20).iloc[-1]
+                ema_50_prc_std = cal_ema(pd.Series(self.df['prc_std']), window=50).iloc[-1]
+                ema_200_prc_std = cal_ema(pd.Series(self.df['prc_std']), window=200).iloc[-1]
 
         self.df.at[self.nf, "ema_20_prc_std"] = ema_20_prc_std
         self.df.at[self.nf, "ema_50_prc_std"] = ema_50_prc_std
@@ -1511,12 +1516,14 @@ class Nprob:
             ema_50 = 0
             ema_200 = 0
         if self.nf >= 400 + 11:
-            # ema_20 = talib.EMA(np.array(self.df['px1'], dtype=float), 20)[-1]
-            # ema_50 = talib.EMA(np.array(self.df['px1'], dtype=float), 50)[-1]
-            # ema_200 = talib.EMA(np.array(self.df['px1'], dtype=float), 200)[-1]
-            ema_20 = pd.Series(self.df['px1']).ewm(span=20, adjust=False).mean().iloc[-1]
-            ema_50 = pd.Series(self.df['px1']).ewm(span=50, adjust=False).mean().iloc[-1]
-            ema_200 = pd.Series(self.df['px1']).ewm(span=200, adjust=False).mean().iloc[-1]
+            if self.talib == 1:
+                ema_20 = talib.EMA(np.array(self.df['px1'], dtype=float), 20)[-1]
+                ema_50 = talib.EMA(np.array(self.df['px1'], dtype=float), 50)[-1]
+                ema_200 = talib.EMA(np.array(self.df['px1'], dtype=float), 200)[-1]
+            if self.talib == 0:
+                ema_20 = cal_ema(pd.Series(self.df['px1']), window=20).iloc[-1]
+                ema_50 = cal_ema(pd.Series(self.df['px1']), window=50).iloc[-1]
+                ema_200 = cal_ema(pd.Series(self.df['px1']), window=200).iloc[-1]
             # print(ema_50)
             # print(ema_200)
         self.df.at[self.nf, "ema_20"] = ema_20
@@ -1574,8 +1581,10 @@ class Nprob:
             self.prc_dev = 0
             self.rsi_init = 50
         if self.nf >= 300 + 11:
-            # rsi = talib.RSI(np.array(self.df['price'], dtype=float), timeperiod=200)[-1]
-            rsi_value = rsi(pd.Series(self.df['price']), window=200).iloc[-1]
+            if self.talib == 1:
+                rsi = talib.RSI(np.array(self.df['price'], dtype=float), timeperiod=200)[-1]
+            if self.talib == 0:
+                rsi_value = cal_rsi(pd.Series(self.df['price']), window=200).iloc[-1]
             self.prc_dev = (price - self.init_prc) / self.init_prc * 100
             self.rsi_init = rsi + self.prc_dev
             # print("rsi: ", rsi)
@@ -1760,12 +1769,14 @@ class Nprob:
             ema_50_count_m = 0
             ema_200_count_m = 0
         if self.nf >= 400 + 11:
-            # ema_20_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 20)[-1]
-            # ema_50_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 50)[-1]
-            # ema_200_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 200)[-1]
-            ema_20_count_m = pd.Series(self.df['count_m_per_5']).ewm(span=20, adjust=False).mean().iloc[-1]
-            ema_50_count_m = pd.Series(self.df['count_m_per_5']).ewm(span=50, adjust=False).mean().iloc[-1]
-            ema_200_count_m = pd.Series(self.df['count_m_per_5']).ewm(span=200, adjust=False).mean().iloc[-1]
+            if self.talib == 1:
+                ema_20_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 20)[-1]
+                ema_50_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 50)[-1]
+                ema_200_count_m = talib.EMA(np.array(self.df['count_m_per_5'], dtype=float), 200)[-1]
+            if self.talib == 0:
+                ema_20_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=20).iloc[-1]
+                ema_50_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=50).iloc[-1]
+                ema_200_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=200).iloc[-1]
             # print(ema_50)
             # print(ema_200)
         self.df.at[self.nf, "ema_20_count_m"] = ema_20_count_m
@@ -2090,8 +2101,13 @@ class Nprob:
         if self.nf < 250 + 1:
             cvol_sum_rsi = 50
         if self.nf >= 250 + 1:
-            # cvol_sum_rsi = talib.RSI(np.array(self.df['cvol_sum'], dtype=float), timeperiod=200)[-1]
-            cvol_sum_rsi = rsi(pd.Series(self.df['cvol_sum']), window=200).iloc[-1]
+            if self.talib == 1:
+                cvol_sum_rsi = talib.RSI(np.array(self.df['cvol_sum'], dtype=float), timeperiod=200)[-1]
+            if self.talib == 0:
+                # print("before rsi")
+                # print(pd.Series(self.df['cvol_sum']))
+                cvol_sum_rsi = cal_rsi(pd.Series(self.df['cvol_sum']), window=20).iloc[-1]
+                # print("after rsi")
             # print("rsi: ", rsi)
         self.df.at[self.nf, "cvol_sum_rsi"] = cvol_sum_rsi
 
@@ -2226,12 +2242,14 @@ class Nprob:
             ema_50_cvol_m = 0
             ema_200_cvol_m = 0
         if self.nf >= 400 + 11:
-            # ema_20_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 20)[-1]
-            # ema_50_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 50)[-1]
-            # ema_200_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 200)[-1]
-            ema_20_cvol_m = pd.Series(self.df['cvol_m']).ewm(span=20, adjust=False).mean().iloc[-1]
-            ema_50_cvol_m = pd.Series(self.df['cvol_m']).ewm(span=50, adjust=False).mean().iloc[-1]
-            ema_200_cvol_m = pd.Series(self.df['cvol_m']).ewm(span=200, adjust=False).mean().iloc[-1]
+            if self.talib == 1:
+                ema_20_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 20)[-1]
+                ema_50_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 50)[-1]
+                ema_200_cvol_m = talib.EMA(np.array(self.df['cvol_m'], dtype=float), 200)[-1]
+            if self.talib == 0:
+                ema_20_cvol_m = cal_ema(pd.Series(self.df['cvol_m']), window=20).iloc[-1]
+                ema_50_cvol_m = cal_ema(pd.Series(self.df['cvol_m']), window=50).iloc[-1]
+                ema_200_cvol_m = cal_ema(pd.Series(self.df['cvol_m']), window=200).iloc[-1]
         self.df.at[self.nf, "ema_20_cvol_m"] = ema_20_cvol_m
         self.df.at[self.nf, "ema_50_cvol_m"] = ema_50_cvol_m
         self.df.at[self.nf, "ema_200_cvol_m"] = ema_200_cvol_m
@@ -10225,16 +10243,19 @@ def xnet(p, t, W, sw, a, b, c, d):
             result = (a - b - d)
     return result
 
-def rsi(data, window=200):
-    delta = data.diff()
-    up, down = delta.copy(), delta.copy()
+def cal_rsi(data, window):
+    # print("data: ", data)
+    diff = data.diff()
+    up = diff.clip(lower=0)
+    down = -diff.clip(upper=0)
 
-    up[up < 0] = 0
-    down[down > 0] = 0
+    ema_up = up.ewm(com=window - 1, adjust=False).mean()
+    ema_down = down.ewm(com=window - 1, adjust=False).mean()
 
-    rUp = up.ewm(com=window - 1, adjust=False).mean()
-    rDown = down.abs().ewm(com=window - 1, adjust=False).mean()
+    rs = ema_up / ema_down
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
 
-    RS = rUp / rDown
-    return 100 - (100 / (1 + RS))
-
+def cal_ema(data, window):
+    ema = data.ewm(span=window, adjust=False).mean()
+    return ema
