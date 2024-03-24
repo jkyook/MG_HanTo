@@ -885,6 +885,17 @@ async def msg():
 
         await asyncio.sleep(5)
 
+def aes_cbc_base64_dec(key, iv, cipher_text):
+    """
+    :param key:  str type AES256 secret key value
+    :param iv: str type AES256 Initialize Vector
+    :param cipher_text: Base64 encoded AES256 str
+    :return: Base64-AES256 decodec str
+    """
+    cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
+    return bytes.decode(unpad(cipher.decrypt(b64decode(cipher_text)), AES.block_size))
+
+
 #####################################################################
 
 async def main():
