@@ -261,23 +261,23 @@ async def file_check():
     s_prc = str(float(now_prc) - tick * 1)
     ord_type = "1"
 
-    if cover_ordered1 == 0:
-        if np1 == "1":
-            send_order(bns = "02")
-            cover_ordered1 = 1
-    elif cover_ordered1 == 1:
-        if np1 == "0":
-            send_order(bns = "01")
-            cover_ordered1 = 0
-
-    if cover_ordered2 == 0:
-        if np2 == "-1":
-            send_order(bns = "01")
-            cover_ordered2 = -1
-    elif cover_ordered2 == 1:
-        if np2 == "0":
-            send_order(bns = "02")
-            cover_ordered1 = 0
+    # if cover_ordered1 == 0:
+    #     if np1 == "1":
+    #         send_order(bns = "02")
+    #         cover_ordered1 = 1
+    # elif cover_ordered1 == 1:
+    #     if np1 == "0":
+    #         send_order(bns = "01")
+    #         cover_ordered1 = 0
+    #
+    # if cover_ordered2 == 0:
+    #     if np2 == "-1":
+    #         send_order(bns = "01")
+    #         cover_ordered2 = -1
+    # elif cover_ordered2 == 1:
+    #     if np2 == "0":
+    #         send_order(bns = "02")
+    #         cover_ordered1 = 0
 
 #####################################################################
 # 지수선물호가 출력라이브러리
