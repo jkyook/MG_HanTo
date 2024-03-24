@@ -229,7 +229,7 @@ async def refresh_token(session):
 
 # order from file
 async def file_check():
-    global price
+    global price, now_prc
 
     now = datetime.now()
 
