@@ -825,12 +825,12 @@ async def msg():
                         if bot_alive == 1 or bot_alive == 2:
                             bot.sendMessage(chat_id="322233222", text=text)
 
-                    if msg_now == "reord":
-                        text = "(한투)" + str(NP.auto_cover) + "reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
-                        if sub == 1:
-                            text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
-                        if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                    # if msg_now == "reord":
+                    #     text = "(한투)" + str(NP.auto_cover) + "reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
+                    #     if sub == 1:
+                    #         text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
+                    #     if bot_alive == 1 or bot_alive == 2:
+                    #         bot.sendMessage(chat_id="322233222", text=text)
 
                     if msg_now == "block":
                         if chkForb == 0:
