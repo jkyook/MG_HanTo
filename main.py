@@ -442,7 +442,8 @@ async def place_order():
 
     # 기록
     try:
-        file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+        # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+        file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
         f1 = open(file_path, 'r')
         f1_r = f1.readline()
         np1, prf1, chkForb = f1_r.strip().split(',')
@@ -452,7 +453,7 @@ async def place_order():
 
         # (cover_b) -> cover_ordered = 1/0
         # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
-        file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp.txt'
+        file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
         f2 = open(file_path, 'r')
         f2_r = f2.readline()
         np2, prf2 = f2_r.strip().split(',')
