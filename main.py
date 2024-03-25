@@ -905,7 +905,7 @@ async def main():
             asyncio.create_task(msg()),
             # check_unexecuted_orders(session),
             # file_check(),
-            refresh_token(session)
+            # refresh_token(session)
         )
 
 #####################################################################
