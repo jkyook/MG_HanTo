@@ -8083,7 +8083,7 @@ class Nprob:
                 self.prf_cover = (self.cover_in_prc - price) / prc_std
 
                 # np2_out : (b_in) -> (s_out)
-                if 1==0 and self.np1 == 1 and self.np2 == -1:
+                if 1==1 and self.np1 == 1 and self.np2 == -1:
                     if self.df.at[self.nf - 84, "np1"] != 1 and self.df.at[self.nf - 83, "np1"] == 1:
                         if self.df.loc[self.nf - 80: self.nf - 1, "np1"].mean() == 1 and (self.prc_s_peak >= 2 or self.bns_check_3 >= 0.5):
                             if (self.OrgMain == "b" or self.OrgMain == "n") and self.cover_ordered != 0:
