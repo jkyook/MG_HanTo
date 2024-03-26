@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 
-directory_path = "/Users/yugjingwan/PycharmProjects/MG_HanTo"
+# directory_path = "/Users/yugjingwan/PycharmProjects/MG_HanTo"
+directory_path = "C:/Users/Administrator/PycharmProjects/MG_HanTo"
+
 files = [file for file in os.listdir(directory_path) if file.startswith('(e)df_npp_')]
 print(files)
 
