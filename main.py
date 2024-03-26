@@ -345,7 +345,7 @@ async def stockspurchase_futs(data_cnt, data):
         timestamp = int(t1 * 1000)
 
         # nprob at under 0.5
-        if mt < 0.5:
+        if mt < 1:
             if cgubun == "Buy":
                 cvolume_mid += cvolume
             else:
