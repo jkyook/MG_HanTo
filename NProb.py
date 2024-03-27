@@ -59,6 +59,21 @@ class Nprob:
 
     def __init__(self):
 
+        # 파티션
+        self.partition_size = 250  # 파티션 크기 (예: 1000개의 데이터씩 파티셔닝)
+        self.partition_index = 0  # 현재 파티션 인덱스
+        # self.df = pd.DataFrame()  # 현재 파티션의 데이터프레임
+        self.partition_dir = "./partitions"  # 파티션 파일이 저장될 디렉토리
+        self.merged_dir = "./merged"  # 병합된 파일이 저장될 디렉토리
+
+        # 파티션 디렉토리 생성
+        if not os.path.exists(self.partition_dir):
+            os.makedirs(self.partition_dir)
+
+        # 병합된 파일 디렉토리 생성
+        if not os.path.exists(self.merged_dir):
+            os.makedirs(self.merged_dir)
+
         self.talib = 0
 
         # global df , nf
@@ -114,7 +129,7 @@ class Nprob:
         # self.which_market = 1
         # if self.which_market == 4:
         #     chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
-        # self.which_market = 1
+        self.which_market = 1
 
         # self.auto
         self.auto_cover = 1 # 0:off, 1:sell, 2:buy
@@ -953,6 +968,8 @@ class Nprob:
         # Raw Data
         ###############################
 
+        print("inputting data...", self.nf)
+
         self.df.at[self.nf, "price"] = price
         self.df.at[self.nf, "cgubun"] = cgubun_sum
         self.df.at[self.nf, "cvolume"] = cvolume_sum
@@ -963,6 +980,8 @@ class Nprob:
         self.df.at[self.nf, "x1"] = lblBqty1v
         self.df.at[self.nf, "px1"] = lblBhoga1v
         self.df.at[self.nf, "x2"] = lblBqty2v
+
+        print(self.df)
 
         # init_prc
         if self.nf == 200:
@@ -1423,6 +1442,8 @@ class Nprob:
             dxy_20_medi_s = 0
         self.df.at[self.nf, "dxy_20_medi_s"] = dxy_20_medi_s
 
+        print("1")
+
         # dxy med_200
         if self.nf < 200 + 1:
             self.dxy_200_medi = 0
@@ -1674,6 +1695,8 @@ class Nprob:
             count_m_ave = abs(self.df.loc[self.nf - self.sec_15 * 4:self.nf - 1, "count_m"]).mean()
         self.df.at[self.nf, "count_m_ave"] = count_m_ave
 
+        print("2")
+
         # count_m_avg
         if self.nf < self.min_1 + 11:
             count_m_avg = count_m
@@ -1718,6 +1741,8 @@ class Nprob:
                     self.std_count_m_peak = 0
         self.df.at[self.nf, "std_count_m_peak"] = self.std_count_m_peak
 
+        print("2.1")
+
         ###### (1.5) count_m_sig
         count_m_sig = 0
         if self.nf >= self.sec_15 * 6 + 51 and count_m_ave != 0:
@@ -1746,6 +1771,8 @@ class Nprob:
             self.df.at[self.nf, "count_m_sig_ave"] = count_m_sig_ave
         self.df.at[self.nf, "count_m_sig_mode"] = self.count_m_sig_mode
 
+        print("2.2")
+
         # count_m_percentile
         if self.nf < 100 + 11:
             self.count_m_per_5 = 0
@@ -1753,15 +1780,29 @@ class Nprob:
             self.count_m_per_40 = 0
             self.count_m_per_80 = 0
         if self.nf >= 100 + 11:
-            self.count_m_per_5 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 5)
-            self.count_m_per_10 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 10)
-            self.count_m_per_40 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 40)
-            self.count_m_per_80 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 80)
+            recent_data = self.df.iloc[-52:-2]['count_m']
+            percentiles = recent_data.quantile([0.05, 0.1, 0.4, 0.8])
+            self.count_m_per_5 = percentiles[0.05]
+            self.count_m_per_10 = percentiles[0.1]
+            self.count_m_per_40 = percentiles[0.4]
+            self.count_m_per_80 = percentiles[0.8]
+            print("2.23")
+            print(self.count_m_per_5, self.count_m_per_10)
+
+            # self.count_m_per_5 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 5)
+            # self.count_m_per_10 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 10)
+            # print("2.23")
+            # print(self.count_m_per_5, self.count_m_per_10)
+            # self.count_m_per_40 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 40)
+            # self.count_m_per_80 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 80)
             # print("count_m_percentile: ", count_m_per_5)
+
         self.df.at[self.nf, "count_m_per_5"] = self.count_m_per_5
         self.df.at[self.nf, "count_m_per_10"] = self.count_m_per_10
         self.df.at[self.nf, "count_m_per_40"] = self.count_m_per_40
         self.df.at[self.nf, "count_m_per_80"] = self.count_m_per_80
+
+        print("2.25")
 
         # EMA_count_m
         if self.nf < 400 + 11:
@@ -1776,6 +1817,7 @@ class Nprob:
             if self.talib == 0:
                 ema_20_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=20).iloc[-1]
                 ema_50_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=50).iloc[-1]
+                print("2.27")
                 ema_200_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=200).iloc[-1]
             # print(ema_50)
             # print(ema_200)
@@ -1783,13 +1825,15 @@ class Nprob:
         self.df.at[self.nf, "ema_50_count_m"] = ema_50_count_m
         self.df.at[self.nf, "ema_200_count_m"] = ema_200_count_m
 
+        print("2.3")
+
         # on basis of 'count_m_per_5'
-        ema_25_count_m = 0
+        self.ema_25_count_m = 0
         if ema_20_count_m > ema_50_count_m:
-            ema_25_count_m = 1
+            self.ema_25_count_m = 1
         if ema_20_count_m < ema_50_count_m:
-            ema_25_count_m = -1
-        self.df.at[self.nf, "ema_25_count_m"] = ema_25_count_m
+            self.ema_25_count_m = -1
+        self.df.at[self.nf, "ema_25_count_m"] = self.ema_25_count_m
 
         self.ema_520_count_m = 0
         multi_count = 1
@@ -1802,6 +1846,8 @@ class Nprob:
         if ema_50_count_m < ema_200_count_m:
             self.ema_520_count_m = -1
         self.df.at[self.nf, "ema_520_count_m"] = self.ema_520_count_m
+
+        print("3")
 
         # per_medi
         if self.nf < 300 + 1:
@@ -2142,6 +2188,9 @@ class Nprob:
             if (cvol_c - 10) < (self.cvol_c_ave - 10) - 2 and cvol_c < 8:
                 cvol_c_sig = -1
         self.df.at[self.nf, "cvol_c_sig"] = cvol_c_sig
+
+
+        print("4")
 
         # cvol_c_sig_sum
         if self.nf < self.sec_30 + 201:
@@ -2499,6 +2548,8 @@ class Nprob:
         if self.nf >= self.min_1 + 11:
             cvol_s_std = self.df.loc[self.nf - 10:self.nf - 1, "cvol_s"].std()
         self.df.at[self.nf, "cvol_s_std"] = cvol_s_std
+
+        print("5")
 
         ############   like : std_prc  ##############
         # cvol_s_avg
@@ -2946,6 +2997,8 @@ class Nprob:
             pindex2 = self.df.loc[self.nf - 100:self.nf - 1, "pindex"].mean()
         self.df.at[self.nf, "pindex2"] = pindex2
 
+        print("6")
+
         # PINDEX3
         if self.nf < 205:
             pindex3 = 0
@@ -2963,8 +3016,12 @@ class Nprob:
 
         # gold
         if self.nf >= 550:
-            self.prc_per_10 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 10)
-            self.prc_per_20 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            # self.prc_per_10 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 10)
+            # self.prc_per_20 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            recent_data = self.df.iloc[-502:-2]['price']
+            percentiles = recent_data.quantile([0.1, 0.15, 0.85, 0.9])
+            self.prc_per_10 = percentiles[0.1]
+            self.prc_per_20 = percentiles[0.15]
             self.df.at[self.nf, "prc_per_10"] = self.prc_per_10
 
             self.gold1 = 0
@@ -2977,8 +3034,12 @@ class Nprob:
             self.gold1_avg = self.df.loc[self.nf - 20:self.nf - 1, "gold1"].mean()
             self.df.at[self.nf, "gold1_avg"] = self.gold1_avg
 
-            self.prc_per_90 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 90)
-            self.prc_per_80 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            print("7")
+
+            # self.prc_per_90 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 90)
+            # self.prc_per_80 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            self.prc_per_80 = percentiles[0.85]
+            self.prc_per_90 = percentiles[0.9]
             self.df.at[self.nf, "prc_per_90"] = self.prc_per_90
 
             self.gold2 = 0
@@ -2993,8 +3054,12 @@ class Nprob:
 
         # rsi_gold
         if self.nf >= 550:
-            self.rsi_per_10 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 10)
-            self.rsi_per_20 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            # self.rsi_per_10 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 10)
+            # self.rsi_per_20 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            recent_data = self.df.iloc[-502:-2]['rsi']
+            percentiles = recent_data.quantile([0.1, 0.15, 0.85, 0.9])
+            self.rsi_per_10 = percentiles[0.1]
+            self.rsi_per_20 = percentiles[0.15]
             self.df.at[self.nf, "rsi_per_10"] = self.rsi_per_10
 
             self.rsi_gold1 = 0
@@ -3007,8 +3072,10 @@ class Nprob:
             self.rsi_gold1_avg = self.df.loc[self.nf - 20:self.nf - 1, "rsi_gold1"].mean()
             self.df.at[self.nf, "rsi_gold1_avg"] = self.rsi_gold1_avg
 
-            self.rsi_per_90 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 90)
-            self.rsi_per_80 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            # self.rsi_per_90 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 90)
+            # self.rsi_per_80 = np.percentile(np.array(self.df['rsi'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            self.rsi_per_80 = percentiles[0.85]
+            self.rsi_per_90 = percentiles[0.9]
             self.df.at[self.nf, "rsi_per_90"] = self.rsi_per_90
 
             self.rsi_gold2 = 0
@@ -3023,8 +3090,12 @@ class Nprob:
 
         # pvol_gold
         if self.nf >= 550:
-            self.pvol_per_10 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 10)
-            self.pvol_per_20 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            # self.pvol_per_10 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 10)
+            # self.pvol_per_20 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            recent_data = self.df.iloc[-502:-2]['std_prc_cvol_m']
+            percentiles = recent_data.quantile([0.1, 0.15, 0.85, 0.9])
+            self.pvol_per_10 = percentiles[0.1]
+            self.pvol_per_20 = percentiles[0.15]
             self.df.at[self.nf, "pvol_per_10"] = self.pvol_per_10
 
             self.pvol_gold1 = 0
@@ -3037,8 +3108,10 @@ class Nprob:
             self.pvol_gold1_avg = self.df.loc[self.nf - 20:self.nf - 1, "pvol_gold1"].mean()
             self.df.at[self.nf, "pvol_gold1_avg"] = self.pvol_gold1_avg
 
-            self.pvol_per_90 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 90)
-            self.pvol_per_80 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            # self.pvol_per_90 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 90)
+            # self.pvol_per_80 = np.percentile(np.array(self.df['std_prc_cvol_m'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            self.pvol_per_80 = percentiles[0.85]
+            self.pvol_per_90 = percentiles[0.9]
             self.df.at[self.nf, "pvol_per_90"] = self.pvol_per_90
 
             self.pvol_gold2 = 0
@@ -3053,8 +3126,12 @@ class Nprob:
 
         # p1000_gold
         if self.nf >= 550 and prc_avg_1000 != 0 and prc_std_1000 != 0:
-            self.p1000_per_10 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 10)
-            self.p1000_per_20 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            # self.p1000_per_10 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 10)
+            # self.p1000_per_20 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 15)
+            recent_data = self.df.iloc[-502:-2]['std_prc_1000']
+            percentiles = recent_data.quantile([0.1, 0.15, 0.85, 0.9])
+            self.p1000_per_10 = percentiles[0.1]
+            self.p1000_per_20 = percentiles[0.15]
             self.df.at[self.nf, "p1000_per_10"] = self.p1000_per_10
 
             self.p1000_gold1 = 0
@@ -3067,8 +3144,10 @@ class Nprob:
             self.p1000_gold1_avg = self.df.loc[self.nf - 20:self.nf - 1, "p1000_gold1"].mean()
             self.df.at[self.nf, "p1000_gold1_avg"] = self.p1000_gold1_avg
 
-            self.p1000_per_90 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 90)
-            self.p1000_per_80 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            # self.p1000_per_90 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 90)
+            # self.p1000_per_80 = np.percentile(np.array(self.df['std_prc_1000'], dtype=float)[self.nf - 500:self.nf - 2], 85)
+            self.p1000_per_80 = percentiles[0.85]
+            self.p1000_per_90 = percentiles[0.9]
             self.df.at[self.nf, "p1000_per_90"] = self.p1000_per_90
 
             self.p1000_gold2 = 0
@@ -3807,6 +3886,8 @@ class Nprob:
             self.df.at[self.nf, "in_hit"] = self.in_hit
             self.df.at[self.nf, "in_hit_touch"] = self.in_hit_touch
 
+            print("8")
+
             ### data ###
             if self.nf > 250:
                 self.df_prc_s = self.df.loc[self.nf - 200: self.nf - 1, "prc_s"]
@@ -3853,6 +3934,8 @@ class Nprob:
             ##########################
             # // In Decision - main //
             ##########################
+
+            print("9")
 
             # pre Time Condition
             self.tc = 0
@@ -4208,6 +4291,8 @@ class Nprob:
             # self.df.at[self.nf, "check2_pvt_point"] = self.check2_pvt_point
             # self.df.at[self.nf, "wc_pvt"] = self.wc_pvt
 
+            print("10")
+
             ###################################
             # MAIN BNS
             ###################################
@@ -4530,8 +4615,8 @@ class Nprob:
                         # Conversion init 1(prc_s_limit)
                         ###################################
 
-                        self.prc_per_10 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 10)
-                        self.prc_per_20 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 10)
+                        # self.prc_per_10 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 10)
+                        # self.prc_per_20 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 20)
                         self.df.at[self.nf, "prc_per_10"] = self.prc_per_10
 
                         # self.gold1 = 0
@@ -4819,8 +4904,8 @@ class Nprob:
                         ###################################
                         # Conversion init 1(prc_s_limit)
                         ###################################
-                        self.prc_per_90 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 90)
-                        self.prc_per_80 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 80)
+                        # self.prc_per_90 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 90)
+                        # self.prc_per_80 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 80)
                         self.df.at[self.nf, "prc_per_90"] = self.prc_per_90
 
                         # self.gold2 = 0
@@ -4970,6 +5055,7 @@ class Nprob:
             if self.triple_last_last != self.triple_last and self.triple_last != 0:
                 self.triple_last_last = self.triple_last
 
+            print("11")
 
             self.df.at[self.nf, "bns_check_last"] = self.bns_check_last
             self.df.at[self.nf, "bns_check_4_last"] = self.bns_check_4_last
@@ -5033,6 +5119,8 @@ class Nprob:
             self.df.at[self.nf, "last_prc_s_peak"] = self.last_prc_s_peak
             self.df.at[self.nf, "now_prc_s_peak"] = self.now_prc_s_peak
             self.df.at[self.nf, "long_prc_s_peak"] = self.long_prc_s_peak
+
+            print("12")
 
             # NEW SIGNAL_IN
             if 1 == 1:
@@ -5588,6 +5676,8 @@ class Nprob:
                 self.df.at[self.nf, "add_touch"] = self.add_touch
                 self.df.at[self.nf, "Indep"] = self.Indep
 
+                print("13")
+
                 # send add_signal from add_touch
                 self.add_signal = 0
                 self.df_prc_s = self.df.loc[self.nf - 100: self.nf - 1, "prc_s"]
@@ -5857,6 +5947,8 @@ class Nprob:
         self.df.at[self.nf, "nfset"] = self.nfset
         self.df.at[self.nf, "Add_Prf"] = self.Add_Prf
 
+        print("14")
+
         ###############################
         # hit_peak setting
         ###############################
@@ -6019,6 +6111,8 @@ class Nprob:
                         # if self.check_gold == -1:
                         self.bns_check_4 = -1.4
         self.df.at[self.nf, "bns_check_4"] = self.bns_check_4
+
+        print("15")
 
         ###############################
         #  // Out Decision //
@@ -6983,6 +7077,8 @@ class Nprob:
         #     self.d_OMain = 3
         # if self.add == -1:
         #     self.d_OMain = -3
+
+        print("16")
 
         ############
         # add_signal
@@ -8077,6 +8173,8 @@ class Nprob:
             # (out)
         if self.cover_ordered != 0 and (self.which_market != 3 or self.cover_order_exed != 0 or self.chkForb == 1 or self.acc_uninfied == 1):
             self.prf_cover = (self.cover_in_prc - price) / prc_std
+
+            print("17")
 
             if self.df.loc[self.nf - 25: self.nf - 1, "cover_ordered"].mean() == -1:# and (self.which_market==3 or abs(self.prf_cover)>=1.5):
 
@@ -9204,6 +9302,9 @@ class Nprob:
                             self.profit, self.profit_opt, self.mode, self.ave_prc, prc_o1)
                             self.peak_block = 0
 
+
+                print("18")
+
                 # OLD
                 if 1 == 1:
 
@@ -9702,6 +9803,8 @@ class Nprob:
             print('-----------')
             # print("chkCoverSig_2: ", self.chkCoverSig_2)
 
+        print("20")
+
         elap = time.time() - t_start
         self.df.at[self.nf, "elap"] = elap
         if self.OrgOrdNo != []:
@@ -9720,9 +9823,67 @@ class Nprob:
 
         print('-----------')
 
+        # 파티션 크기를 초과하면 새로운 파티션 생성
+        if len(self.df) >= self.partition_size:
+            self.save_partition()
+            self.partition_index += 1
+            self.df = self.df.iloc[-211:-1] #self.df.tail(200)#.reset_index(drop=False)
+            print(self.df)
+
         ######################
         return self.d_OMain
         ######################
+
+    #################################
+
+    # def add_data(self, data):
+    #     # 데이터를 현재 파티션에 추가
+    #     self.df = self.df.append(data, ignore_index=True)
+    #
+    #     # 파티션 크기를 초과하면 새로운 파티션 생성
+    #     if len(self.df) >= self.partition_size:
+    #         self.save_partition()
+    #         self.partition_index += 1
+    #         self.df = pd.DataFrame()
+
+    def save_partition(self):
+        # 현재 파티션을 파일로 저장
+        partition_path = f"{self.partition_dir}/partition_{self.partition_index}.csv"
+        self.df.to_csv(partition_path, index=False)
+        print(f"Partition {self.partition_index} saved to {partition_path}")
+
+    # def load_partition(self, index):
+    #     # 특정 파티션을 메모리에 로드
+    #     partition_path = f"{self.partition_dir}/partition_{index}.csv"
+    #     if os.path.exists(partition_path):
+    #         self.df = pd.read_csv(partition_path)
+    #         print(f"Partition {index} loaded from {partition_path}")
+    #     else:
+    #         print(f"Partition {index} does not exist")
+
+    def cleanup(self):
+        # 모든 파티션 파일 삭제
+        for file_name in os.listdir(self.partition_dir):
+            file_path = os.path.join(self.partition_dir, file_name)
+            os.remove(file_path)
+        print("Partitions cleaned up")
+
+    def merge_partitions(self):
+        # 모든 파티션 파일을 하나로 병합
+        merged_df = pd.DataFrame()
+        for file_name in os.listdir(self.partition_dir):
+            file_path = os.path.join(self.partition_dir, file_name)
+            partition_df = pd.read_csv(file_path)
+            merged_df = merged_df.append(partition_df, ignore_index=True)
+
+        # 병합된 파일 저장
+        merged_path = f"{self.merged_dir}/merged_data.csv"
+        # merged_df.to_csv(merged_path, index=False)
+        print(f"Partitions merged and saved to {merged_path}")
+
+        return merged_df
+
+    #################################
 
     def hist_rec(self, nf, lblShoga1v, lblBhoga1v, exed_qty, OrgMain, type, profit, prf_opt, mode, ave_prc, prc_o1):
         global bot1, bot_alive
@@ -9781,6 +9942,7 @@ class Nprob:
 
     def btnSave_Clicked(self):
         # df.to_sql("Main_DB", con, if_exists='replace', index=True) #, index_label=None, chunksize=None, dtype=None)
+
         ts = datetime.now().strftime("%m-%d-%H-%M")
         if self.which_market == 1 or self.which_market == 2:  # Bit
             filename = "EDB_2__%s.csv" % (ts)
@@ -9796,7 +9958,11 @@ class Nprob:
         elif self.which_market == 6:  # micro
             filename = "EDB_6__%s.csv" % (ts)
         filename_hist = "Hist_%s.csv" % (ts)
-        self.df.to_csv('%s' % filename)  # + time.strftime("%m-%d") + '.csv')
+
+        # self.df.to_csv('%s' % filename)  # + time.strftime("%m-%d") + '.csv')
+        mgd_df = merge_partitions()
+        mgd_df.to_csv('%s' % filename)
+
         if self.which_market == 3:
             self.hist.to_csv('%s' % filename_hist)
         if self.which_market != 3:
