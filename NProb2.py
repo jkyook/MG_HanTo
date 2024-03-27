@@ -1927,7 +1927,7 @@ class Nprob:
             # self.last_cover_prc : price when dyna- position signal on, even in case of cover_sig is on, cover_order !=1 because it happen only when exeqty>=2
             # self.cover_out_prc : price when dyna- position out
 
-            if 1 == 1 and self.dynamic_cover == 1:
+            if 1 == 0 and self.dynamic_cover == 1:
                 if self.OrgMain == "b" or self.OrgMain == "n":  # and self.test_signal_mode == 1:
                     # (in)
                     if self.last_cover_prc == 0:
@@ -4311,24 +4311,24 @@ class Nprob:
                         self.bns_check_6 = 0
 
                         # bns_check in
-                        if self.df_bns_check[self.df_bns_check >= 0.3].count() >= 1 and self.nf > self.nfset + 25 and self.nfset != 0: # and self.df.at[self.nf-1, "bns_check"] != 1):# or self.bns_check == 0.7):
+                        if self.df_bns_check[self.df_bns_check >= 0.3].count() >= 1:# and self.nf > self.nfset + 25 and self.nfset != 0: # and self.df.at[self.nf-1, "bns_check"] != 1):# or self.bns_check == 0.7):
                             if self.df_bns_check[self.df_bns_check >= 0.2].count() >= 1 and self.df_bns_check[self.df_bns_check < 0].count() == 0:
-                                if self.df.loc[self.nf - 20:self.nf - 1, "std_prc_cvol_m"].mean() >= self.df.at[self.nfset, "std_prc_cvol_m"] * 0.98:
-                                    if self.bns_check_mode != 1 or (self.OrgMain == 'n' and self.df.at[self.nf - 3, "OrgMain"] == 'n'):
-                                        if (self.which_market == 1 or (self.which_market == 3 and self.stat_in_org == "000" and self.stat_out_org == "111")):
-                                            self.in_str = 2
-                                            self.OrgMain = "b"
-                                            self.nfset = self.nf
-                                            self.inp = float(lblShoga1v)
-                                            self.last_o = float(lblShoga1v)
-                                            self.ave_prc = float(lblShoga1v)
-                                            self.exed_qty += 1
-                                            self.type = "tr 0"
-                                            self.hist_rec(self.nf, lblShoga1v, lblBhoga1v, self.exed_qty, self.OrgMain,
-                                                          self.type,
-                                                          self.profit, self.profit_opt, self.mode, self.ave_prc, prc_o1)
-                                            self.in_hit = 0
-                                            self.in_hit_touch = 0
+                                # if self.df.loc[self.nf - 20:self.nf - 1, "std_prc_cvol_m"].mean() >= self.df.at[self.nfset, "std_prc_cvol_m"] * 0.98:
+                                if self.bns_check_mode != 1 or (self.OrgMain == 'n' and self.df.at[self.nf - 3, "OrgMain"] == 'n'):
+                                    if (self.which_market == 1 or (self.which_market == 3 and self.stat_in_org == "000" and self.stat_out_org == "111")):
+                                        self.in_str = 2
+                                        self.OrgMain = "b"
+                                        self.nfset = self.nf
+                                        self.inp = float(lblShoga1v)
+                                        self.last_o = float(lblShoga1v)
+                                        self.ave_prc = float(lblShoga1v)
+                                        self.exed_qty += 1
+                                        self.type = "tr 0"
+                                        self.hist_rec(self.nf, lblShoga1v, lblBhoga1v, self.exed_qty, self.OrgMain,
+                                                      self.type,
+                                                      self.profit, self.profit_opt, self.mode, self.ave_prc, prc_o1)
+                                        self.in_hit = 0
+                                        self.in_hit_touch = 0
                                 # else:
                                 #     self.bns_check_3 = -1.5
 
@@ -4336,25 +4336,25 @@ class Nprob:
                             #     self.bns_check = -0.1
 
                         # print("10.2")
-                        if self.df_bns_check[self.df_bns_check <= -0.3].count() >= 1 and self.nf > self.nfset + 25 and self.nfset != 0: #and self.df.at[self.nf-1, "bns_check"] != -1):# or self.bns_check == -0.7):
+                        if self.df_bns_check[self.df_bns_check <= -0.3].count() >= 1:# and self.nf > self.nfset + 25 and self.nfset != 0: #and self.df.at[self.nf-1, "bns_check"] != -1):# or self.bns_check == -0.7):
                             if self.df_bns_check[self.df_bns_check <= -0.2].count() >= 1 and self.df_bns_check[self.df_bns_check > 0].count() == 0:
-                                if self.df.loc[self.nf - 20:self.nf - 1, "std_prc_cvol_m"].mean() <= self.df.at[self.nfset, "std_prc_cvol_m"] * 1.02:
-                                    if self.bns_check_mode != 1 or (self.OrgMain == 'n' and self.df.at[self.nf - 3, "OrgMain"] == 'n'):
-                                        if (self.which_market == 1 or (self.which_market == 3 and self.stat_in_org == "000" and self.stat_out_org == "111")):
-                                            self.in_str = -2
-                                            self.OrgMain = "s"
-                                            self.nfset = self.nf
-                                            self.inp = float(lblShoga1v)
-                                            self.last_o = float(lblShoga1v)
-                                            self.ave_prc = float(lblShoga1v)
-                                            self.exed_qty += 1
-                                            self.type = "tr 0"
-                                            self.hist_rec(self.nf, lblShoga1v, lblBhoga1v, self.exed_qty, self.OrgMain,
-                                                          self.type,
-                                                          self.profit, self.profit_opt, self.mode, self.ave_prc, prc_o1)
-                                            self.in_hit = 0
-                                            self.in_hit_touch = 0
-                                            self.init5_touched = 0
+                                # if self.df.loc[self.nf - 20:self.nf - 1, "std_prc_cvol_m"].mean() <= self.df.at[self.nfset, "std_prc_cvol_m"] * 1.02:
+                                if self.bns_check_mode != 1 or (self.OrgMain == 'n' and self.df.at[self.nf - 3, "OrgMain"] == 'n'):
+                                    if (self.which_market == 1 or (self.which_market == 3 and self.stat_in_org == "000" and self.stat_out_org == "111")):
+                                        self.in_str = -2
+                                        self.OrgMain = "s"
+                                        self.nfset = self.nf
+                                        self.inp = float(lblShoga1v)
+                                        self.last_o = float(lblShoga1v)
+                                        self.ave_prc = float(lblShoga1v)
+                                        self.exed_qty += 1
+                                        self.type = "tr 0"
+                                        self.hist_rec(self.nf, lblShoga1v, lblBhoga1v, self.exed_qty, self.OrgMain,
+                                                      self.type,
+                                                      self.profit, self.profit_opt, self.mode, self.ave_prc, prc_o1)
+                                        self.in_hit = 0
+                                        self.in_hit_touch = 0
+                                        self.init5_touched = 0
                                 # else:
                                 #     self.bns_check_3 = 1.5
 
@@ -5447,7 +5447,7 @@ class Nprob:
                     m_add = 20
                 if self.which_market == 4:
                     m_add = 6
-                if self.nf > self.nfset + 20:
+                if 1==0:# and self.nf > self.nfset + 20:
                     # if self.df.at[self.nf - 1, "std_prc_peak"] == -2 and self.df.at[self.nf, "std_prc_peak"] == -1:
                     #     # if self.OrgMain == 'b':
                     #         # if self.cvol_t_decay > self.cvol_t_cri_ave * -20:
@@ -6128,7 +6128,7 @@ class Nprob:
         ###############################
 
         # Peak_Out
-        if 1 == 1 and self.auto_cover == 0 and self.nf > self.nfset + 3:  # and count_m<count_m_cri:
+        if 1 == 1 and self.auto_cover == 0:# and self.nf > self.nfset + 3:  # and count_m<count_m_cri:
 
             if self.nfset != 0:
                 self.df.at[self.nf, "set_count"] = self.nf - self.nfset + 1
@@ -6141,7 +6141,7 @@ class Nprob:
                 if 1 == 1 and self.prf_able == 0 and self.prf_hit_inv == 1 and price > self.ave_prc + self.tick * (
                         12 / self.which_market):
                     if self.df.loc[self.nf - 10:self.nf - 1, "std_prc"].mean() < 0:
-                        if prc_s < 0 and self.nf > self.nfset + 200:  # self.mode_spot != 2 and
+                        if prc_s < 0:# and self.nf > self.nfset + 200:  # self.mode_spot != 2 and
                             if (self.ai <= 0.1):  # and self.ai_long <= self.ai_long_low):
                                 if self.which_market != 1 and self.which_market != 2:
                                     self.Profit += ((float(
@@ -6583,7 +6583,7 @@ class Nprob:
                 if 1 == 1 and self.prf_able == 0 and self.prf_hit_inv == 1 and price < self.ave_prc - self.tick * (
                         12 / self.which_market):
                     if self.df.loc[self.nf - 10:self.nf - 1, "std_prc"].mean() > 0:
-                        if prc_s > 0 and self.nf > self.nfset + 200:  # self.mode_spot != -2 and
+                        if prc_s > 0:# and self.nf > self.nfset + 200:  # self.mode_spot != -2 and
                             if (self.ai >= 0.9 and self.ai_long >= 1.8):
                                 if self.which_market != 1 and self.which_market != 2:
                                     self.Profit += ((self.inp - float(
