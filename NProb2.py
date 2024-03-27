@@ -9837,7 +9837,7 @@ class Nprob:
             self.save_partition()
             self.partition_index += 1
             self.df = self.df.iloc[-211:-1] #self.df.tail(200)#.reset_index(drop=False)
-            self.nfset = self.self.df['nf'].iloc[-1]
+            self.nfset = self.df['nf'].iloc[-1]
             print(self.df)
 
         ######################
