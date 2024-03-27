@@ -968,8 +968,6 @@ class Nprob:
         # Raw Data
         ###############################
 
-        print("inputting data...", self.nf)
-
         self.df.at[self.nf, "price"] = price
         self.df.at[self.nf, "cgubun"] = cgubun_sum
         self.df.at[self.nf, "cvolume"] = cvolume_sum
@@ -980,8 +978,6 @@ class Nprob:
         self.df.at[self.nf, "x1"] = lblBqty1v
         self.df.at[self.nf, "px1"] = lblBhoga1v
         self.df.at[self.nf, "x2"] = lblBqty2v
-
-        print(self.df)
 
         # init_prc
         if self.nf == 200:
@@ -1442,7 +1438,7 @@ class Nprob:
             dxy_20_medi_s = 0
         self.df.at[self.nf, "dxy_20_medi_s"] = dxy_20_medi_s
 
-        print("1")
+        # print("1")
 
         # dxy med_200
         if self.nf < 200 + 1:
@@ -1695,7 +1691,7 @@ class Nprob:
             count_m_ave = abs(self.df.loc[self.nf - self.sec_15 * 4:self.nf - 1, "count_m"]).mean()
         self.df.at[self.nf, "count_m_ave"] = count_m_ave
 
-        print("2")
+        # print("2")
 
         # count_m_avg
         if self.nf < self.min_1 + 11:
@@ -1741,7 +1737,7 @@ class Nprob:
                     self.std_count_m_peak = 0
         self.df.at[self.nf, "std_count_m_peak"] = self.std_count_m_peak
 
-        print("2.1")
+        # print("2.1")
 
         ###### (1.5) count_m_sig
         count_m_sig = 0
@@ -1771,7 +1767,7 @@ class Nprob:
             self.df.at[self.nf, "count_m_sig_ave"] = count_m_sig_ave
         self.df.at[self.nf, "count_m_sig_mode"] = self.count_m_sig_mode
 
-        print("2.2")
+        # print("2.2")
 
         # count_m_percentile
         if self.nf < 100 + 11:
@@ -1786,7 +1782,6 @@ class Nprob:
             self.count_m_per_10 = percentiles[0.1]
             self.count_m_per_40 = percentiles[0.4]
             self.count_m_per_80 = percentiles[0.8]
-            print("2.23")
             print(self.count_m_per_5, self.count_m_per_10)
 
             # self.count_m_per_5 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 5)
@@ -1817,7 +1812,7 @@ class Nprob:
             if self.talib == 0:
                 ema_20_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=20).iloc[-1]
                 ema_50_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=50).iloc[-1]
-                print("2.27")
+                # print("2.27")
                 ema_200_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=200).iloc[-1]
             # print(ema_50)
             # print(ema_200)
@@ -1825,7 +1820,7 @@ class Nprob:
         self.df.at[self.nf, "ema_50_count_m"] = ema_50_count_m
         self.df.at[self.nf, "ema_200_count_m"] = ema_200_count_m
 
-        print("2.3")
+        # print("2.3")
 
         # on basis of 'count_m_per_5'
         self.ema_25_count_m = 0
@@ -1847,7 +1842,7 @@ class Nprob:
             self.ema_520_count_m = -1
         self.df.at[self.nf, "ema_520_count_m"] = self.ema_520_count_m
 
-        print("3")
+        # print("3")
 
         # per_medi
         if self.nf < 300 + 1:
@@ -2190,7 +2185,7 @@ class Nprob:
         self.df.at[self.nf, "cvol_c_sig"] = cvol_c_sig
 
 
-        print("4")
+        # print("4")
 
         # cvol_c_sig_sum
         if self.nf < self.sec_30 + 201:
@@ -2549,7 +2544,7 @@ class Nprob:
             cvol_s_std = self.df.loc[self.nf - 10:self.nf - 1, "cvol_s"].std()
         self.df.at[self.nf, "cvol_s_std"] = cvol_s_std
 
-        print("5")
+        # print("5")
 
         ############   like : std_prc  ##############
         # cvol_s_avg
@@ -2997,7 +2992,7 @@ class Nprob:
             pindex2 = self.df.loc[self.nf - 100:self.nf - 1, "pindex"].mean()
         self.df.at[self.nf, "pindex2"] = pindex2
 
-        print("6")
+        # print("6")
 
         # PINDEX3
         if self.nf < 205:
@@ -3034,7 +3029,7 @@ class Nprob:
             self.gold1_avg = self.df.loc[self.nf - 20:self.nf - 1, "gold1"].mean()
             self.df.at[self.nf, "gold1_avg"] = self.gold1_avg
 
-            print("7")
+            # print("7")
 
             # self.prc_per_90 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 90)
             # self.prc_per_80 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 85)
@@ -3886,7 +3881,7 @@ class Nprob:
             self.df.at[self.nf, "in_hit"] = self.in_hit
             self.df.at[self.nf, "in_hit_touch"] = self.in_hit_touch
 
-            print("8")
+            # print("8")
 
             ### data ###
             if self.nf > 250:
@@ -3935,7 +3930,7 @@ class Nprob:
             # // In Decision - main //
             ##########################
 
-            print("9")
+            # print("9")
 
             # pre Time Condition
             self.tc = 0
@@ -4291,7 +4286,7 @@ class Nprob:
             # self.df.at[self.nf, "check2_pvt_point"] = self.check2_pvt_point
             # self.df.at[self.nf, "wc_pvt"] = self.wc_pvt
 
-            print("10")
+            # print("10")
 
             ###################################
             # MAIN BNS
@@ -4303,6 +4298,8 @@ class Nprob:
                 if 1 == 1 or (self.which_market == 1 or (
                         self.stat_in_org == "000" and self.stat_out_org == "111")) or self.chkForb == 1:
                     # Position Condition(nprob)
+                    # print("10.1")
+
                     if 1 == 1 or (self.df.at[
                                       self.nf - 3, "OrgMain"] == 'n' and self.OrgMain == 'n') or self.bns_check_mode == 1:
 
@@ -4338,6 +4335,7 @@ class Nprob:
                             # if self.df.loc[self.nf - 25:self.nf - 5, "std_prc_cvol_m"].mean() <= self.df.at[self.nfset, "std_prc_cvol_m"] * 0.9:
                             #     self.bns_check = -0.1
 
+                        # print("10.2")
                         if self.df_bns_check[self.df_bns_check <= -0.3].count() >= 1 and self.nf > self.nfset + 25 and self.nfset != 0: #and self.df.at[self.nf-1, "bns_check"] != -1):# or self.bns_check == -0.7):
                             if self.df_bns_check[self.df_bns_check <= -0.2].count() >= 1 and self.df_bns_check[self.df_bns_check > 0].count() == 0:
                                 if self.df.loc[self.nf - 20:self.nf - 1, "std_prc_cvol_m"].mean() <= self.df.at[self.nfset, "std_prc_cvol_m"] * 1.02:
@@ -4360,6 +4358,7 @@ class Nprob:
                                 # else:
                                 #     self.bns_check_3 = 1.5
 
+                        # print("10.3")
                         # bns_check_2 display
                         if self.df_bns_check2[self.df_bns_check2 == -1].count() >= 1 and self.bns_check_2 == 0:
                             if self.df_std_std_s[self.df_std_std_s >= self.std_std_prc_cvol_m_limit * 0.8].count() >= 1 and self.std_std_prc_cvol_m <= self.std_std_prc_cvol_m_limit * 0.8:
@@ -4386,6 +4385,7 @@ class Nprob:
                                         #         self.in_hit = 0
                                         #         self.in_hit_touch = 0
 
+                        # print("10.41")
                         if self.df_bns_check2[self.df_bns_check2 == 1].count() >= 1 and self.bns_check_2 == 0:
                             if self.df_std_std_s[self.df_std_std_s >= self.std_std_prc_cvol_m_limit * 0.8].count() >= 1 and self.std_std_prc_cvol_m <= self.std_std_prc_cvol_m_limit * 0.8:
                                 if self.std_prc_cvol_m < self.std_prc_cvol_m_limit * 1.25 and self.dxy_200_medi > 0:
@@ -4412,6 +4412,7 @@ class Nprob:
                                         #         self.in_hit_touch = 0
                                         #         self.init5_touched = 0
 
+                        # print("10.42")
                         # bns_check_2 in
                         if self.nf >= 1000 and self.df_bns_check2[self.df_bns_check2 == 1.5].count() >= 1 and self.bns_check_2 == 0:
                             if self.df.loc[self.nf - 10:self.nf - 1, "bns_check_2"].mean() == 0:
@@ -4433,6 +4434,7 @@ class Nprob:
                                             self.in_hit = 0
                                             self.in_hit_touch = 0
 
+                        # print("10.43")
                         if self.nf >= 1000 and self.df_bns_check2[self.df_bns_check2 == -1.5].count() >= 1 and self.bns_check_2 == 0:
                             if self.df.loc[self.nf - 10:self.nf - 1, "bns_check_2"].mean() == 0:
                                 if self.df_bns_check2[self.df_bns_check2 == -2.5].count() == 0:
@@ -4453,6 +4455,7 @@ class Nprob:
                                             self.in_hit = 0
                                             self.in_hit_touch = 0
 
+                        # print("10.5")
 
                         ###################################
                         # Trend init 1(long ai_long high + not prc_s_peak peak)
@@ -4618,6 +4621,8 @@ class Nprob:
                         # self.prc_per_10 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 10)
                         # self.prc_per_20 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 20)
                         self.df.at[self.nf, "prc_per_10"] = self.prc_per_10
+
+                        # print("10.7")
 
                         # self.gold1 = 0
                         # if price > self.prc_per_10:
@@ -4917,6 +4922,8 @@ class Nprob:
                         # self.gold2_avg = self.df.loc[self.nf - 10:self.nf - 1, "gold2"].mean()
                         # self.df.at[self.nf, "gold2_avg"] = self.gold2_avg
 
+                        # print("10.8")
+
                         if self.nf > 800 and (
                                 self.std_std_prc_cvol_m < self.std_std_prc_cvol_m_limit * 1.5 and self.df_std_std[
                             self.df_std_std >= self.std_std_prc_cvol_m_limit * 1.25].count() > 1):
@@ -5034,6 +5041,8 @@ class Nprob:
                                                 self.in_hit = 0
                                                 self.in_hit_touch = 0
 
+            # print("10.9")
+
             if self.bns_check_last != self.bns_check and self.bns_check != 0:
                 self.bns_check_last = self.bns_check
             if self.bns_check_4_last != self.bns_check_4 and self.bns_check_4 != 0:
@@ -5055,7 +5064,7 @@ class Nprob:
             if self.triple_last_last != self.triple_last and self.triple_last != 0:
                 self.triple_last_last = self.triple_last
 
-            print("11")
+            # print("11")
 
             self.df.at[self.nf, "bns_check_last"] = self.bns_check_last
             self.df.at[self.nf, "bns_check_4_last"] = self.bns_check_4_last
@@ -5120,7 +5129,7 @@ class Nprob:
             self.df.at[self.nf, "now_prc_s_peak"] = self.now_prc_s_peak
             self.df.at[self.nf, "long_prc_s_peak"] = self.long_prc_s_peak
 
-            print("12")
+            # print("12")
 
             # NEW SIGNAL_IN
             if 1 == 1:
@@ -5676,7 +5685,7 @@ class Nprob:
                 self.df.at[self.nf, "add_touch"] = self.add_touch
                 self.df.at[self.nf, "Indep"] = self.Indep
 
-                print("13")
+                # print("13")
 
                 # send add_signal from add_touch
                 self.add_signal = 0
@@ -5947,7 +5956,7 @@ class Nprob:
         self.df.at[self.nf, "nfset"] = self.nfset
         self.df.at[self.nf, "Add_Prf"] = self.Add_Prf
 
-        print("14")
+        # print("14")
 
         ###############################
         # hit_peak setting
@@ -6112,7 +6121,7 @@ class Nprob:
                         self.bns_check_4 = -1.4
         self.df.at[self.nf, "bns_check_4"] = self.bns_check_4
 
-        print("15")
+        # print("15")
 
         ###############################
         #  // Out Decision //
@@ -7078,7 +7087,7 @@ class Nprob:
         # if self.add == -1:
         #     self.d_OMain = -3
 
-        print("16")
+        # print("16")
 
         ############
         # add_signal
@@ -8174,7 +8183,7 @@ class Nprob:
         if self.cover_ordered != 0 and (self.which_market != 3 or self.cover_order_exed != 0 or self.chkForb == 1 or self.acc_uninfied == 1):
             self.prf_cover = (self.cover_in_prc - price) / prc_std
 
-            print("17")
+            # print("17")
 
             if self.df.loc[self.nf - 25: self.nf - 1, "cover_ordered"].mean() == -1:# and (self.which_market==3 or abs(self.prf_cover)>=1.5):
 
@@ -9303,7 +9312,7 @@ class Nprob:
                             self.peak_block = 0
 
 
-                print("18")
+                # print("18")
 
                 # OLD
                 if 1 == 1:
@@ -9803,7 +9812,7 @@ class Nprob:
             print('-----------')
             # print("chkCoverSig_2: ", self.chkCoverSig_2)
 
-        print("20")
+        # print("20")
 
         elap = time.time() - t_start
         self.df.at[self.nf, "elap"] = elap
@@ -9828,6 +9837,7 @@ class Nprob:
             self.save_partition()
             self.partition_index += 1
             self.df = self.df.iloc[-211:-1] #self.df.tail(200)#.reset_index(drop=False)
+            self.nfset = self.self.df['nf'].iloc[-1]
             print(self.df)
 
         ######################
