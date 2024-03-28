@@ -208,7 +208,7 @@ class AutoTradeGUI(QMainWindow):
 
         # 누적수익 업데이트
         self.profit_label.setText(f'누적수익: {NP.profit_opt}, {NP2.profit_opt}')
-        self.npp_label.setText(f'누적수익: {npp}, {npp2}')
+        self.npp_label.setText(f'NPPs: {npp}, {npp2}')
 
 #####################################################################
 
