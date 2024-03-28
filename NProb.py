@@ -7211,7 +7211,7 @@ class Nprob:
                                 self.cover_ordered = -1
                                 self.cover_in_prc = price
                                 self.cover_in_nf = self.nf
-                                self.cover_in_time = now.minute
+                                self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                 self.type = "cover_s_bns_check0 : " + str(self.bns_check_last)
                                 # self.sys_force_out = 0
                                 # self.last_cover_prc = price
@@ -7229,7 +7229,7 @@ class Nprob:
                             #                     self.cover_ordered = -1
                             #                     self.cover_in_prc = price
                             #                     self.cover_in_nf = self.nf
-                            #                     self.cover_in_time = now.minute
+                            #                     self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                             #                     self.type = "cover_s_bns_check0- : " + str(self.bns_check_last)
                             #                     # self.sys_force_out = 0
                             #                     # self.last_cover_prc = price
@@ -7250,7 +7250,7 @@ class Nprob:
             #                         self.cover_ordered = -1
             #                         self.cover_in_prc = price
             #                         self.cover_in_nf = self.nf
-            #                         self.cover_in_time = now.minute
+            #                         self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                         self.type = "cover_s_bns_check0_strong"
             #                         # self.sys_force_out = 0
             #                         # self.last_cover_prc = price
@@ -7273,7 +7273,7 @@ class Nprob:
             #                             self.cover_ordered = 1
             #                             self.cover_in_prc = price
             #                             self.cover_in_nf = self.nf
-            #                             self.cover_in_time = now.minute
+            #                             self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                             self.type = "cover_b_bns_check0_new"
             #                             # self.sys_force_out = 0
             #                             # self.last_cover_prc = price
@@ -7303,7 +7303,7 @@ class Nprob:
                                     self.cover_ordered = 1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_b_bns_check0 : " + str(self.bns_check_last)
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -7324,7 +7324,7 @@ class Nprob:
             #                         self.cover_ordered = 1
             #                         self.cover_in_prc = price
             #                         self.cover_in_nf = self.nf
-            #                         self.cover_in_time = now.minute
+            #                         self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                         self.type = "cover_b_bns_check0_strong"
             #                         # self.sys_force_out = 0
             #                         # self.last_cover_prc = price
@@ -7375,7 +7375,7 @@ class Nprob:
                                     self.cover_ordered = 1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_b_triple"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -7394,7 +7394,7 @@ class Nprob:
                             self.cover_ordered = 1
                             self.cover_in_prc = price
                             self.cover_in_nf = self.nf
-                            self.cover_in_time = now.minute
+                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                             self.type = "cover_b_gray"
                             # self.sys_force_out = 0
                             # self.last_cover_prc = price
@@ -7417,7 +7417,7 @@ class Nprob:
                                     self.cover_ordered = -1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_s_triple"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -7436,7 +7436,7 @@ class Nprob:
                             self.cover_ordered = -1
                             self.cover_in_prc = price
                             self.cover_in_nf = self.nf
-                            self.cover_in_time = now.minute
+                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                             self.type = "cover_s_gray"
                             # self.sys_force_out = 0
                             # self.last_cover_prc = price
@@ -7459,7 +7459,7 @@ class Nprob:
                                         self.cover_ordered = 1
                                         self.cover_in_prc = price
                                         self.cover_in_nf = self.nf
-                                        self.cover_in_time = now.minute
+                                        self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                         self.type = "cover_b_bns_check3"
                                         # self.sys_force_out = 0
                                         # self.last_cover_prc = price
@@ -7481,7 +7481,7 @@ class Nprob:
                                         self.cover_ordered = -1
                                         self.cover_in_prc = price
                                         self.cover_in_nf = self.nf
-                                        self.cover_in_time = now.minute
+                                        self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                         self.type = "cover_s_bns_check3"
                                         # self.sys_force_out = 0
                                         # self.last_cover_prc = price
@@ -7500,7 +7500,7 @@ class Nprob:
             #                 self.cover_ordered = -1
             #                 self.cover_in_prc = price
             #                 self.cover_in_nf = self.nf
-            #                 self.cover_in_time = now.minute
+            #                 self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                 self.type = "cover_s_bns_check_2"
             #                 # self.sys_force_out = 0
             #                 # self.last_cover_prc = price
@@ -7518,7 +7518,7 @@ class Nprob:
             #                 self.cover_ordered = 1
             #                 self.cover_in_prc = price
             #                 self.cover_in_nf = self.nf
-            #                 self.cover_in_time = now.minute
+            #                 self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                 self.type = "cover_b_bns_check_2"
             #                 # self.sys_force_out = 0
             #                 # self.last_cover_prc = price
@@ -7540,7 +7540,7 @@ class Nprob:
             #                         self.cover_ordered = -1
             #                         self.cover_in_prc = price
             #                         self.cover_in_nf = self.nf
-            #                         self.cover_in_time = now.minute
+            #                         self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                         self.type = "cover_s_std_prc"
             #                         # self.sys_force_out = 0
             #                         # self.last_cover_prc = price
@@ -7562,7 +7562,7 @@ class Nprob:
             #                         self.cover_ordered = 1
             #                         self.cover_in_prc = price
             #                         self.cover_in_nf = self.nf
-            #                         self.cover_in_time = now.minute
+            #                         self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                         self.type = "cover_b_std_prc"
             #                         # self.sys_force_out = 0
             #                         # self.last_cover_prc = price
@@ -7591,7 +7591,7 @@ class Nprob:
             #                                 self.cover_ordered = -1
             #                                 self.cover_in_prc = price
             #                                 self.cover_in_nf = self.nf
-            #                                 self.cover_in_time = now.minute
+            #                                 self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                                 self.type = "cover_s_bns2_check"
             #                                 # self.last_cover_prc = price
             #                                 self.cover_out_prc = 0
@@ -7614,7 +7614,7 @@ class Nprob:
                 #                             self.cover_ordered = 1
                 #                             self.cover_in_prc = price
                 #                             self.cover_in_nf = self.nf
-                #                             self.cover_in_time = now.minute
+                #                             self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                 #                             self.type = "cover_b_bns2_check"
                 #                             # self.last_cover_prc = price
                 #                             self.cover_out_prc = 0
@@ -7640,7 +7640,7 @@ class Nprob:
             #                             self.cover_ordered = -1
             #                             self.cover_in_prc = price
             #                             self.cover_in_nf = self.nf
-            #                             self.cover_in_time = now.minute
+            #                             self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                             self.type = "cover_s_short"
             #                             # self.sys_force_out = 0
             #                             # self.last_cover_prc = price
@@ -7669,7 +7669,7 @@ class Nprob:
             #                                     self.cover_ordered = 1
             #                                     self.cover_in_prc = price
             #                                     self.cover_in_nf = self.nf
-            #                                     self.cover_in_time = now.minute
+            #                                     self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                                     self.type = "cover_b3-long"
             #                                     # self.sys_force_out = 0
             #                                     # self.last_cover_prc = price
@@ -7696,7 +7696,7 @@ class Nprob:
             #                                 self.cover_ordered = -1
             #                                 self.cover_in_prc = price
             #                                 self.cover_in_nf = self.nf
-            #                                 self.cover_in_time = now.minute
+            #                                 self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                                 self.type = "cover_s_std_std"
             #                                 # self.sys_force_out = 0
             #                                 # self.last_cover_prc = price
@@ -7721,7 +7721,7 @@ class Nprob:
             #                                 self.cover_ordered = 1
             #                                 self.cover_in_prc = price
             #                                 self.cover_in_nf = self.nf
-            #                                 self.cover_in_time = now.minute
+            #                                 self.cover_in_time = str(now.hour) + ":" + str(now.minute)
             #                                 self.type = "cover_b_std_std"
             #                                 # self.sys_force_out = 0
             #                                 # self.last_cover_prc = price
@@ -7740,7 +7740,7 @@ class Nprob:
                             self.cover_ordered = -1
                             self.cover_in_prc = price
                             self.cover_in_nf = self.nf
-                            self.cover_in_time = now.minute
+                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                             self.type = "cover_s_bit_test"
                             # self.sys_force_out = 0
                             # self.last_cover_prc = price
@@ -7757,7 +7757,7 @@ class Nprob:
                             self.cover_ordered = 1
                             self.cover_in_prc = price
                             self.cover_in_nf = self.nf
-                            self.cover_in_time = now.minute
+                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                             self.type = "cover_b_bit_test"
                             # self.sys_force_out = 0
                             # self.last_cover_prc = price
@@ -7776,7 +7776,7 @@ class Nprob:
                             self.cover_ordered = 1
                             self.cover_in_prc = price
                             self.cover_in_nf = self.nf
-                            self.cover_in_time = now.minute
+                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                             self.type = "cover_b_test_signal"
                             # self.sys_force_out = 0
                             # self.last_cover_prc = price
@@ -7794,7 +7794,7 @@ class Nprob:
                             self.cover_ordered = -1
                             self.cover_in_prc = price
                             self.cover_in_nf = self.nf
-                            self.cover_in_time = now.minute
+                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                             self.type = "cover_s_test_signal"
                             # self.sys_force_out = 0
                             # self.last_cover_prc = price
@@ -7819,7 +7819,7 @@ class Nprob:
                                             self.cover_ordered = 1
                                             self.cover_in_prc = price
                                             self.cover_in_nf = self.nf
-                                            self.cover_in_time = now.minute
+                                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                             self.type = "cover_b1"
                                             # self.sys_force_out = 0
                                             # self.last_cover_prc = price
@@ -7840,7 +7840,7 @@ class Nprob:
                                     self.cover_ordered = 1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_b2"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price795563c
@@ -7864,7 +7864,7 @@ class Nprob:
                                                 self.cover_ordered = 1
                                                 self.cover_in_prc = price
                                                 self.cover_in_nf = self.nf
-                                                self.cover_in_time = now.minute
+                                                self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                                 self.type = "cover_b3"
                                                 # self.sys_force_out = 0
                                                 # self.last_cover_prc = price
@@ -7883,7 +7883,7 @@ class Nprob:
                                     self.cover_ordered = 1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_b7"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -7901,7 +7901,7 @@ class Nprob:
                                     self.cover_ordered = 1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_b8"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -7927,7 +7927,7 @@ class Nprob:
                                                         self.cover_ordered = 1
                                                         self.cover_in_prc = price
                                                         self.cover_in_nf = self.nf
-                                                        self.cover_in_time = now.minute
+                                                        self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                                         self.type = "cover_b4"
                                                         # self.sys_force_out = 0
                                                         # self.last_cover_prc = price
@@ -7948,7 +7948,7 @@ class Nprob:
                                     self.cover_ordered = 1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_b5"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -7968,7 +7968,7 @@ class Nprob:
                                         self.cover_ordered = 1
                                         self.cover_in_prc = price
                                         self.cover_in_nf = self.nf
-                                        self.cover_in_time = now.minute
+                                        self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                         self.type = "cover_b6"
                                         # self.sys_force_out = 0
                                         # self.last_cover_prc = price
@@ -7991,7 +7991,7 @@ class Nprob:
                                             self.cover_ordered = -1
                                             self.cover_in_prc = price
                                             self.cover_in_nf = self.nf
-                                            self.cover_in_time = now.minute
+                                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                             self.type = "cover_s1"
                                             # self.sys_force_out = 0
                                             # self.last_cover_prc = price
@@ -8012,7 +8012,7 @@ class Nprob:
                                     self.cover_ordered = -1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_s2"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -8037,7 +8037,7 @@ class Nprob:
                                                 self.cover_ordered = -1
                                                 self.cover_in_prc = price
                                                 self.cover_in_nf = self.nf
-                                                self.cover_in_time = now.minute
+                                                self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                                 self.type = "cover_s3"
                                                 # self.sys_force_out = 0
                                                 # self.last_cover_prc = price
@@ -8056,7 +8056,7 @@ class Nprob:
                                     self.cover_ordered = -1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_s7"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -8083,7 +8083,7 @@ class Nprob:
                                                         self.cover_ordered = -1
                                                         self.cover_in_prc = price
                                                         self.cover_in_nf = self.nf
-                                                        self.cover_in_time = now.minute
+                                                        self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                                         self.type = "cover_s4"
                                                         # self.sys_force_out = 0
                                                         # self.last_cover_prc = price
@@ -8104,7 +8104,7 @@ class Nprob:
                                     self.cover_ordered = -1
                                     self.cover_in_prc = price
                                     self.cover_in_nf = self.nf
-                                    self.cover_in_time = now.minute
+                                    self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                     self.type = "cover_s5"
                                     # self.sys_force_out = 0
                                     # self.last_cover_prc = price
@@ -8125,7 +8125,7 @@ class Nprob:
                                             self.cover_ordered = -1
                                             self.cover_in_prc = price
                                             self.cover_in_nf = self.nf
-                                            self.cover_in_time = now.minute
+                                            self.cover_in_time = str(now.hour) + ":" + str(now.minute)
                                             self.type = "cover_s6"
                                             # self.sys_force_out = 0
                                             # self.last_cover_prc = price

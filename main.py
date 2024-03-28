@@ -110,7 +110,7 @@ class AutoTradeGUI(QMainWindow):
         self.profit_label = QLabel('누적수익: ')
         self.profit_layout.addWidget(self.profit_label)
         self.profit_group.setLayout(self.profit_layout)
-        self.profit_group.setFixedSize(400,70)  # 누적수익 구획 크기 지정
+        self.profit_group.setFixedSize(420,70)  # 누적수익 구획 크기 지정
 
         # 주문 상태 구획
         self.order_status_group = QGroupBox('주문 상태')
@@ -124,7 +124,7 @@ class AutoTradeGUI(QMainWindow):
         self.order_status_layout.addWidget(self.cover_time_label)
         self.order_status_layout.addWidget(self.cover_type_label)
         self.order_status_group.setLayout(self.order_status_layout)
-        self.order_status_group.setFixedSize(400, 180)  # 주문 상태 구획 크기 지정
+        self.order_status_group.setFixedSize(420, 180)  # 주문 상태 구획 크기 지정
 
         # 주문 내역 구획
         self.order_list_group = QGroupBox('주문 내역')
@@ -207,7 +207,7 @@ class AutoTradeGUI(QMainWindow):
         self.cover_type_label.setText(f'유형: {NP.type}, {NP2.type}')
 
         # 누적수익 업데이트
-        self.profit_label.setText(f'누적수익: {NP.profit_opt}, {NP2.profit_opt}')
+        self.profit_label.setText(f'누적수익: {NP.profit_opt:.1f}, {NP2.profit_opt:.1f}')
         self.npp_label.setText(f'NPPs: {npp}, {npp2}')
 
 #####################################################################
