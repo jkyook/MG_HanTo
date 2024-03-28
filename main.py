@@ -229,14 +229,6 @@ unexecuted_orders = {}
 df_npp_m = pd.DataFrame()
 ord_sent = 0
 
-# 텔레그램 봇 정보
-bot = telegram.Bot(token=telegram_token)
-text1 = " *** (MG7) 시스템 가동 시작 ***, Start == 0"
-try:
-    if bot_alive == 1:
-        bot.sendMessage(chat_id="322233222", text=text1)
-except:
-    pass
 
 global price, lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
 
@@ -282,6 +274,16 @@ print("NP..Laoded")
 # code = "105V04"
 # account = "60025978"
 # qty =1
+
+
+# 텔레그램 봇 정보
+bot = telegram.Bot(token=telegram_token)
+text1 = " *** (MG7) 시스템 가동 시작 ***, Start == 0"
+try:
+    if bot_alive == 1:
+        bot.sendMessage(chat_id="322233222", text=text1)
+except:
+    pass
 
 # 비동기 HTTP 요청 클라이언트 생성
 async def create_session():
