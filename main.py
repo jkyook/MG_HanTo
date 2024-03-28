@@ -1,33 +1,36 @@
 # -*- coding: utf-8 -*-
-import asyncio
-import aiohttp
-import websockets
-import json
-import logging
-import requests
-from datetime import datetime, timedelta
-import telegram
-from config import api_key, secret_key, telegram_token, chat_id, account, code, qty
 
 import sys
 import os
 import time
 import pandas as pd
 import numpy as np
-from PyQt5.QtWidgets import *
 import tkinter as tk
-# import tkFileDialog  # //Python 2.7
-from tkinter import filedialog  # //Python 3
-# # python 2.7py
-# import Tkinter as Tk
-# from tkFileDialog import askopenfilename
-
-import matplotlib.pyplot as plt
-import MyWindow2
-
+import asyncio
+import aiohttp
+import websockets
+import json
+import logging
+import requests
 import sqlite3
 import scipy.stats as stat
 import copy
+from datetime import datetime, timedelta
+import telegram
+from config import api_key, secret_key, telegram_token, chat_id, account, code, qty
+from tkinter import filedialog  # //Python 3
+import matplotlib.pyplot as plt
+import MyWindow2
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QThread, pyqtSignal
+from qasync import QEventLoop
+# from qasync import asyncSlot, QThreadExecutor
+# from quamash import QEventLoop
+
+
 import NProb
 import NProb2
 
@@ -35,8 +38,92 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from base64 import b64decode
 
-# from twilio.rest import Client
+#####################################################################
 
+class AutoTradeGUI(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_gui)
+        self.timer.start(500)  # 1초마다 update_gui 호출
+
+    def initUI(self):
+        self.setWindowTitle('Auto Trade System')
+
+        self.account_group = QGroupBox('계좌 정보')
+        self.account_layout = QVBoxLayout()
+        self.account_num_label = QLabel('계좌번호: ')
+        self.login_status_label = QLabel('로그인 상태: ')
+        self.account_layout.addWidget(self.account_num_label)
+        self.account_layout.addWidget(self.login_status_label)
+        self.account_group.setLayout(self.account_layout)
+
+        # 시세 정보 구획
+        self.market_group = QGroupBox('시세 정보')
+        self.market_layout = QVBoxLayout()
+        self.stock_code_label = QLabel('종목코드: ')
+        self.stock_open_label = QLabel('시가: ')
+        self.stock_bid_label = QLabel('매수호가 잔량: ')
+        self.stock_ask_label = QLabel('매도호가 잔량: ')
+        self.market_layout.addWidget(self.stock_code_label)
+        self.market_layout.addWidget(self.stock_open_label)
+        self.market_layout.addWidget(self.stock_bid_label)
+        self.market_layout.addWidget(self.stock_ask_label)
+        self.market_group.setLayout(self.market_layout)
+
+        # 주문 입력 구획
+        self.order_group = QGroupBox('주문 입력')
+        self.order_layout = QVBoxLayout()
+        self.order_qty_edit = QLineEdit()
+        self.order_price_edit = QLineEdit()
+        self.order_button = QPushButton('주문')
+        self.order_layout.addWidget(QLabel('주문수량: '))
+        self.order_layout.addWidget(self.order_qty_edit)
+        self.order_layout.addWidget(QLabel('주문가격: '))
+        self.order_layout.addWidget(self.order_price_edit)
+        self.order_layout.addWidget(self.order_button)
+        self.order_group.setLayout(self.order_layout)
+
+        # 주문 내역 구획
+        self.order_list_group = QGroupBox('주문 내역')
+        self.order_list_layout = QVBoxLayout()
+        self.order_list_text = QTextEdit()
+        self.order_list_layout.addWidget(self.order_list_text)
+        self.order_list_group.setLayout(self.order_list_layout)
+
+        # 메인 레이아웃 구성
+        self.main_layout = QVBoxLayout()
+        self.main_layout.addWidget(self.account_group)
+        self.main_layout.addWidget(self.market_group)
+        self.main_layout.addWidget(self.order_group)
+        self.main_layout.addWidget(self.order_list_group)
+
+        self.setLayout(self.main_layout)
+
+        # 주문 버튼 클릭 이벤트 연결
+        self.order_button.clicked.connect(self.place_order)
+
+    def place_order(self):
+        # qty = self.order_qty_edit.text()
+        # price = prc_o1
+        # price = self.order_price_edit.text()
+        # if qty and price:
+        asyncio.create_task(send_order(bns=2))  # 주문 요청
+
+    def update_gui(self):
+        # while True:
+        self.account_num_label.setText(f'계좌번호: {account}')
+        self.login_status_label.setText(f'로그인 상태: {access_token != ""}')  # 토큰 존재 여부로 로그인 상태 표시
+        self.stock_code_label.setText(f'종목코드: {code}')
+        self.stock_open_label.setText(f'시가: {price}')
+        self.stock_bid_label.setText(f'매수호가 잔량: {lblBqty1v}')
+        self.stock_ask_label.setText(f'매도호가 잔량: {lblSqty1v}')
+        self.order_list_text.setText(str(orders))  # 주문 내역 표시
+            #
+            # await asyncio.sleep(1)  # 비동기 대기
+
+#####################################################################
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -63,6 +150,17 @@ try:
         bot.sendMessage(chat_id="322233222", text=text1)
 except:
     pass
+
+global price, lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
+
+price = 0
+lblSqty2v = 0
+lblSqty1v = 0
+lblShoga1v = 0
+lblBqty1v = 0
+lblBqty2v = 0
+prc_o1 = 0
+
 
 nf = 0
 last_volume = 0
@@ -238,8 +336,8 @@ async def file_check():
     now = datetime.now()
 
     # NP에서 데이터 입수 기록
-    # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
-    file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
+    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+    # file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
     f1 = open(file_path, 'r')
     f1_r = f1.readline()
     np1, prf1 = f1_r.strip().split(',')
@@ -247,8 +345,8 @@ async def file_check():
     f1.close()
 
     # (cover_b) -> cover_ordered = 1/0
-    # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
-    file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
+    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+    # file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
     f2 = open(file_path, 'r')
     f2_r = f2.readline()
     np2, prf2, chkForb = f2_r.strip().split(',')
@@ -382,8 +480,8 @@ async def stockspurchase_futs(data_cnt, data):
 
             # 기록
             if NP.auto_cover == 1:
-                # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
-                file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
+                file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+                # file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
                 f = open(file_path, 'w')
                 s = chkForb #ex.chkForb.isChecked()
                 f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt) + "," + str(s))
@@ -395,8 +493,8 @@ async def stockspurchase_futs(data_cnt, data):
             #     f.close()
 
             if NP2.auto_cover == 2:
-                # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp.txt'
-                file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
+                file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp.txt'
+                # file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
                 f = open(file_path, 'w')
                 f.write(str(NP2.cover_ordered) + "," + str(NP2.profit_opt))
                 f.close()
@@ -890,7 +988,6 @@ async def msg():
                     if bot_alive == 1 or bot_alive == 2:
                         bot.sendMessage(chat_id="322233222", text=text)
 
-
         await asyncio.sleep(5)
 
 def aes_cbc_base64_dec(key, iv, cipher_text):
@@ -904,19 +1001,31 @@ def aes_cbc_base64_dec(key, iv, cipher_text):
     return bytes.decode(unpad(cipher.decrypt(b64decode(cipher_text)), AES.block_size))
 
 
-#####################################################################
+# #####################################################################
+# GUI
 
 async def main():
+    # loop = asyncio.get_event_loop()
+
+    app = QApplication(sys.argv)
+    loop = QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
+    gui = AutoTradeGUI()
+    gui.show()
+
+    with loop:
+        loop.run_until_complete(run_async_tasks(gui, loop))
+        loop.run_forever()
+
+async def run_async_tasks(gui, loop):
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
             connect_websocket(session),
-            asyncio.create_task(msg()),
-            # check_unexecuted_orders(session),
-            # file_check(),
-            # refresh_token(session)
+            refresh_token(session),
+            msg(),
+            # loop=loop
         )
-
-#####################################################################
 
 # 프로그램 실행
 if __name__ == "__main__":
