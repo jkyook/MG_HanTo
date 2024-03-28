@@ -24,6 +24,7 @@ import MyWindow2
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QThread, pyqtSignal
 from qasync import QEventLoop
@@ -40,23 +41,32 @@ from base64 import b64decode
 
 #####################################################################
 
-class AutoTradeGUI(QWidget):
+class AutoTradeGUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_gui)
         self.timer.start(500)  # 1초마다 update_gui 호출
+        self.buy_sell_selection = 2  # 초기값은 매수
+        self.resize(1000, 800)  # 초기 창 크기 설정
 
     def initUI(self):
+        central_widget = QWidget()
         self.setWindowTitle('Auto Trade System')
 
-        self.account_group = QGroupBox('계좌 정보')
+        # 계좌 정보 구획
+        self.account_group = QGroupBox('계좌 정보 등')
         self.account_layout = QVBoxLayout()
         self.account_num_label = QLabel('계좌번호: ')
         self.login_status_label = QLabel('로그인 상태: ')
+        self.order_ban_label = QLabel('주문금지: ')
+        self.elap_label = QLabel('nf, elap: ')
+        self.order_ban_label.setStyleSheet("background-color: white;")  # 초기 배경색은 흰색
         self.account_layout.addWidget(self.account_num_label)
         self.account_layout.addWidget(self.login_status_label)
+        self.account_layout.addWidget(self.order_ban_label)
+        self.account_layout.addWidget(self.elap_label)
         self.account_group.setLayout(self.account_layout)
 
         # 시세 정보 구획
@@ -78,12 +88,43 @@ class AutoTradeGUI(QWidget):
         self.order_qty_edit = QLineEdit()
         self.order_price_edit = QLineEdit()
         self.order_button = QPushButton('주문')
+        self.buy_button = QPushButton('매수')
+        self.sell_button = QPushButton('매도')
         self.order_layout.addWidget(QLabel('주문수량: '))
         self.order_layout.addWidget(self.order_qty_edit)
         self.order_layout.addWidget(QLabel('주문가격: '))
         self.order_layout.addWidget(self.order_price_edit)
+        self.order_layout.addWidget(QLabel('구분: '))
+        order_selection_layout = QHBoxLayout()
+        order_selection_layout.addWidget(self.buy_button)
+        order_selection_layout.addWidget(self.sell_button)
+        self.order_layout.addLayout(order_selection_layout)
         self.order_layout.addWidget(self.order_button)
         self.order_group.setLayout(self.order_layout)
+
+        # 누적수익 구획
+        self.profit_group = QGroupBox('누적수익')
+        self.profit_layout = QHBoxLayout()
+        self.npp_label = QLabel('NPPs: ')
+        self.profit_layout.addWidget(self.npp_label)
+        self.profit_label = QLabel('누적수익: ')
+        self.profit_layout.addWidget(self.profit_label)
+        self.profit_group.setLayout(self.profit_layout)
+        self.profit_group.setFixedSize(400,70)  # 누적수익 구획 크기 지정
+
+        # 주문 상태 구획
+        self.order_status_group = QGroupBox('주문 상태')
+        self.order_status_layout = QVBoxLayout()
+        self.cover_ordered_label = QLabel('커버주문: ')
+        self.cover_price_label = QLabel('주문가격: ')
+        self.cover_time_label = QLabel('주문시각: ')
+        self.cover_type_label = QLabel('유형: ')
+        self.order_status_layout.addWidget(self.cover_ordered_label)
+        self.order_status_layout.addWidget(self.cover_price_label)
+        self.order_status_layout.addWidget(self.cover_time_label)
+        self.order_status_layout.addWidget(self.cover_type_label)
+        self.order_status_group.setLayout(self.order_status_layout)
+        self.order_status_group.setFixedSize(400, 180)  # 주문 상태 구획 크기 지정
 
         # 주문 내역 구획
         self.order_list_group = QGroupBox('주문 내역')
@@ -92,36 +133,82 @@ class AutoTradeGUI(QWidget):
         self.order_list_layout.addWidget(self.order_list_text)
         self.order_list_group.setLayout(self.order_list_layout)
 
+        # 체결 내역 구획
+        self.execution_list_group = QGroupBox('체결 내역')
+        self.execution_list_layout = QVBoxLayout()
+        self.execution_list_text = QTextEdit()
+        self.execution_list_layout.addWidget(self.execution_list_text)
+        self.execution_list_group.setLayout(self.execution_list_layout)
+
         # 메인 레이아웃 구성
-        self.main_layout = QVBoxLayout()
-        self.main_layout.addWidget(self.account_group)
-        self.main_layout.addWidget(self.market_group)
-        self.main_layout.addWidget(self.order_group)
-        self.main_layout.addWidget(self.order_list_group)
+        main_layout = QHBoxLayout()
 
-        self.setLayout(self.main_layout)
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(self.account_group)
+        left_layout.addWidget(self.market_group)
+        left_layout.addWidget(self.order_group)
+        left_layout.addWidget(self.profit_group)
+        left_layout.addWidget(self.order_status_group)
+        main_layout.addLayout(left_layout)
 
-        # 주문 버튼 클릭 이벤트 연결
+        right_layout = QHBoxLayout()
+        right_layout.addWidget(self.order_list_group)
+        right_layout.addWidget(self.execution_list_group)
+        main_layout.addLayout(right_layout)
+
+        self.setLayout(main_layout)
+
+        # 버튼 클릭 이벤트 연결
         self.order_button.clicked.connect(self.place_order)
+        self.buy_button.clicked.connect(self.select_buy)
+        self.sell_button.clicked.connect(self.select_sell)
+
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
+
+    def select_buy(self):
+        self.buy_sell_selection = 2  # 매수
+
+    def select_sell(self):
+        self.buy_sell_selection = 1  # 매도
+
+    # def place_order(self):
+    #     # qty = self.order_qty_edit.text()
+    #     # price = prc_o1
+    #     # price = self.order_price_edit.text()
+    #     # if qty and price:
+    #     asyncio.create_task(send_order(bns=2))  # 주문 요청
 
     def place_order(self):
-        # qty = self.order_qty_edit.text()
-        # price = prc_o1
-        # price = self.order_price_edit.text()
-        # if qty and price:
-        asyncio.create_task(send_order(bns=2))  # 주문 요청
+        asyncio.create_task(send_order(bns=self.buy_sell_selection))  # 주문 요청
+
 
     def update_gui(self):
         # while True:
         self.account_num_label.setText(f'계좌번호: {account}')
         self.login_status_label.setText(f'로그인 상태: {access_token != ""}')  # 토큰 존재 여부로 로그인 상태 표시
+        self.order_ban_label.setText(f'주문금지: {chkForb}')
+        if chkForb == 1:
+            self.order_ban_label.setStyleSheet("background-color: red;")  # 주문금지 시 배경색을 빨간색으로 변경
+        else:
+            self.order_ban_label.setStyleSheet("background-color: green;")  # 주문가능 시 배경색을 흰색으로 변경
+        self.elap_label.setText(f'nf, elap: {nf}, {elap:.1f}')
+
         self.stock_code_label.setText(f'종목코드: {code}')
         self.stock_open_label.setText(f'시가: {price}')
         self.stock_bid_label.setText(f'매수호가 잔량: {lblBqty1v}')
         self.stock_ask_label.setText(f'매도호가 잔량: {lblSqty1v}')
         self.order_list_text.setText(str(orders))  # 주문 내역 표시
-            #
-            # await asyncio.sleep(1)  # 비동기 대기
+
+        # 주문 상태 업데이트
+        self.cover_ordered_label.setText(f'커버주문: {NP.cover_ordered}, {NP2.cover_ordered}')
+        self.cover_price_label.setText(f'주문가격: {NP.cover_in_prc}, {NP2.cover_in_prc}')
+        self.cover_time_label.setText(f'주문시각: {NP.cover_in_time}, {NP2.cover_in_time}')
+        self.cover_type_label.setText(f'유형: {NP.type}, {NP2.type}')
+
+        # 누적수익 업데이트
+        self.profit_label.setText(f'누적수익: {NP.profit_opt}, {NP2.profit_opt}')
+        self.npp_label.setText(f'누적수익: {npp}, {npp2}')
 
 #####################################################################
 
@@ -163,6 +250,8 @@ prc_o1 = 0
 
 
 nf = 0
+npp = 0
+npp2 = 0
 last_volume = 0
 ExedQty = 0
 msg_out = ""
@@ -183,6 +272,7 @@ circulation = 0
 chkForb = 0
 np_count = 0
 cum_qty = 0
+elap = 0
 
 print("jump to NP")
 NP = NProb.Nprob()
@@ -403,7 +493,7 @@ def stockhoka_futs(data):
 
 # 지수선물체결처리 출력라이브러리
 async def stockspurchase_futs(data_cnt, data):
-    global price, volume, cvolume, cgubun, count, npp, npp2
+    global price, volume, cvolume, cgubun, count, npp, npp2, elap
     global last_time, last_volume, cgubun_sum, cvolume_mid, cvolume_sum, count_mid, nf, ExedQty
     global lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
 

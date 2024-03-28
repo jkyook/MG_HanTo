@@ -60,7 +60,7 @@ class Nprob:
     def __init__(self):
 
         # 파티션
-        self.partition_size = 250  # 파티션 크기 (예: 1000개의 데이터씩 파티셔닝)
+        self.partition_size = 400  # 파티션 크기 (예: 1000개의 데이터씩 파티셔닝)
         self.partition_index = 0  # 현재 파티션 인덱스
         # self.df = pd.DataFrame()  # 현재 파티션의 데이터프레임
         self.partition_dir = "./partitions"  # 파티션 파일이 저장될 디렉토리
@@ -925,32 +925,32 @@ class Nprob:
         print('nf: %d  //prc: %0.2f/ /in: %d /out: %0.1f /prf: %d /last_o %0.2f  /turn: %d' % (
             self.nf, price, self.in_str, self.piox, self.prf_able, self.last_o, self.turnover))
 
-        if self.nf != 0 and ((self.auto_cover == 1 and self.nf % 2000 == 0) or (self.auto_cover == 2 and self.nf % 2100 == 0)):
+        if self.nf != 0 and ((self.auto_cover == 1 and self.nf % 800 == 0) or (self.auto_cover == 2 and self.nf % 2100 == 0)):
 
-            try:
-                self.start_data_index += 1
-                self.para.at[self.start_data_index, "cvol_m"] = self.cvol_m_cri_ave
-                self.para.at[self.start_data_index, "cvol_s_p"] = self.cvol_s_cri_ave_p
-                self.para.at[self.start_data_index, "cvol_s_m"] = self.cvol_s_cri_ave_m
-                self.para.at[self.start_data_index, "cvol_t_p"] = self.cvol_t_cri_ave_p
-                self.para.at[self.start_data_index, "cvol_t_m"] = self.cvol_t_cri_ave_m
-                self.para.at[self.start_data_index, "dxy_200_p"] = self.dxy_200_cri_ave_p
-                self.para.at[self.start_data_index, "dxy_200_m"] = self.dxy_200_cri_ave_m
-                self.para.at[self.start_data_index, "count_m"] = self.count_m_act_ave
-                self.para.at[self.start_data_index, "prc_std"] = self.prc_std_ave
-                self.para.at[self.start_data_index, "prc_std_1000"] = self.prc_std_1000_ave
-                self.para.at[self.start_data_index, "std_std_prc"] = self.std_std_prc_ave
-
-                self.para_after = self.para_pre.append(self.para[1:])
-                print(self.para_after)
-                if self.which_market == 4:
-                    filename_para = "para_emini.csv"
-                else:
-                    filename_para = "para.csv"
-                print('###### saving..')
-                self.para_after.to_csv(filename_para)
-            except:
-                print("2000 error")
+            # try:
+            #     self.start_data_index += 1
+            #     self.para.at[self.start_data_index, "cvol_m"] = self.cvol_m_cri_ave
+            #     self.para.at[self.start_data_index, "cvol_s_p"] = self.cvol_s_cri_ave_p
+            #     self.para.at[self.start_data_index, "cvol_s_m"] = self.cvol_s_cri_ave_m
+            #     self.para.at[self.start_data_index, "cvol_t_p"] = self.cvol_t_cri_ave_p
+            #     self.para.at[self.start_data_index, "cvol_t_m"] = self.cvol_t_cri_ave_m
+            #     self.para.at[self.start_data_index, "dxy_200_p"] = self.dxy_200_cri_ave_p
+            #     self.para.at[self.start_data_index, "dxy_200_m"] = self.dxy_200_cri_ave_m
+            #     self.para.at[self.start_data_index, "count_m"] = self.count_m_act_ave
+            #     self.para.at[self.start_data_index, "prc_std"] = self.prc_std_ave
+            #     self.para.at[self.start_data_index, "prc_std_1000"] = self.prc_std_1000_ave
+            #     self.para.at[self.start_data_index, "std_std_prc"] = self.std_std_prc_ave
+            #
+            #     self.para_after = self.para_pre.append(self.para[1:])
+            #     print(self.para_after)
+            #     if self.which_market == 4:
+            #         filename_para = "para_emini.csv"
+            #     else:
+            #         filename_para = "para.csv"
+            #     print('###### saving..')
+            #     self.para_after.to_csv(filename_para)
+            # except:
+            #     print("2000 error")
 
             self.btnSave_Clicked()
 
@@ -1438,7 +1438,7 @@ class Nprob:
             dxy_20_medi_s = 0
         self.df.at[self.nf, "dxy_20_medi_s"] = dxy_20_medi_s
 
-        # print("1")
+        print("1")
 
         # dxy med_200
         if self.nf < 200 + 1:
@@ -1691,7 +1691,7 @@ class Nprob:
             count_m_ave = abs(self.df.loc[self.nf - self.sec_15 * 4:self.nf - 1, "count_m"]).mean()
         self.df.at[self.nf, "count_m_ave"] = count_m_ave
 
-        # print("2")
+        print("2")
 
         # count_m_avg
         if self.nf < self.min_1 + 11:
@@ -1767,7 +1767,7 @@ class Nprob:
             self.df.at[self.nf, "count_m_sig_ave"] = count_m_sig_ave
         self.df.at[self.nf, "count_m_sig_mode"] = self.count_m_sig_mode
 
-        # print("2.2")
+        print("2.2")
 
         # count_m_percentile
         if self.nf < 100 + 11:
@@ -1782,7 +1782,7 @@ class Nprob:
             self.count_m_per_10 = percentiles[0.1]
             self.count_m_per_40 = percentiles[0.4]
             self.count_m_per_80 = percentiles[0.8]
-            print(self.count_m_per_5, self.count_m_per_10)
+            # print(self.count_m_per_5, self.count_m_per_10)
 
             # self.count_m_per_5 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 5)
             # self.count_m_per_10 = np.percentile(np.array(self.df['count_m'], dtype=float)[self.nf - 52:self.nf - 2], 10)
@@ -1812,7 +1812,7 @@ class Nprob:
             if self.talib == 0:
                 ema_20_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=20).iloc[-1]
                 ema_50_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=50).iloc[-1]
-                # print("2.27")
+                print("2.27")
                 ema_200_count_m = cal_ema(pd.Series(self.df['count_m_per_5']), window=200).iloc[-1]
             # print(ema_50)
             # print(ema_200)
@@ -1820,7 +1820,7 @@ class Nprob:
         self.df.at[self.nf, "ema_50_count_m"] = ema_50_count_m
         self.df.at[self.nf, "ema_200_count_m"] = ema_200_count_m
 
-        # print("2.3")
+        print("2.3")
 
         # on basis of 'count_m_per_5'
         self.ema_25_count_m = 0
@@ -2185,7 +2185,7 @@ class Nprob:
         self.df.at[self.nf, "cvol_c_sig"] = cvol_c_sig
 
 
-        # print("4")
+        print("4")
 
         # cvol_c_sig_sum
         if self.nf < self.sec_30 + 201:
@@ -2544,7 +2544,7 @@ class Nprob:
             cvol_s_std = self.df.loc[self.nf - 10:self.nf - 1, "cvol_s"].std()
         self.df.at[self.nf, "cvol_s_std"] = cvol_s_std
 
-        # print("5")
+        print("5")
 
         ############   like : std_prc  ##############
         # cvol_s_avg
@@ -2992,7 +2992,7 @@ class Nprob:
             pindex2 = self.df.loc[self.nf - 100:self.nf - 1, "pindex"].mean()
         self.df.at[self.nf, "pindex2"] = pindex2
 
-        # print("6")
+        print("6")
 
         # PINDEX3
         if self.nf < 205:
@@ -3029,7 +3029,7 @@ class Nprob:
             self.gold1_avg = self.df.loc[self.nf - 20:self.nf - 1, "gold1"].mean()
             self.df.at[self.nf, "gold1_avg"] = self.gold1_avg
 
-            # print("7")
+            print("7")
 
             # self.prc_per_90 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 90)
             # self.prc_per_80 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 85)
@@ -3373,6 +3373,7 @@ class Nprob:
                     if dxy_20_medi > 0 and self.cover_signal_2 >= 0:
                         self.piox = 0
 
+        print("7.2")
         ###############################
         #  // In Decision - AI//
         ###############################
@@ -3630,6 +3631,7 @@ class Nprob:
                 rX.append(nX[len(nX) - 1 - self.time_span_lstm_alt:len(nX) - 1])
                 rX = np.array(rX)
                 # print(rX.shape)
+                print("7.3")
 
                 if 1 == 1 and self.which_market == 1:
                     print("***************/// Conversion_alt (cate = 2, x:50) (model_c_alt_x) ///***************  ")
@@ -3710,6 +3712,7 @@ class Nprob:
         #  // In Decision - pre //
         ###############################
 
+        print("7.4")
         self.df.at[self.nf, "exed_qty"] = self.exed_qty
         self.df.at[self.nf, "ave_prc"] = self.ave_prc
 
@@ -3733,6 +3736,8 @@ class Nprob:
                     self.signal_set = -2
             self.df.at[self.nf, "signal_set"] = self.signal_set
 
+            print("7.5")
+
             ### test_signal
             if self.ema_520_count_m >= 1:
                 if self.prc_s_peak + self.std_prc_peak == -4 and self.dxy_decay < 0:
@@ -3751,6 +3756,8 @@ class Nprob:
 
             # self.df.at[self.nf, "prc_signal"] = 0
             self.df.at[self.nf, "test_signal"] = self.test_signal
+
+            print("7.6")
 
             # price_trend
             if self.price_trend != 1:
@@ -3775,6 +3782,8 @@ class Nprob:
 
             self.df.at[self.nf, "price_trend"] = self.price_trend
 
+            print("7.7")
+
             # last_trend
             if self.now_trend != self.price_trend:
                 self.last_trend = self.now_trend
@@ -3783,6 +3792,7 @@ class Nprob:
             self.df.at[self.nf, "now_trend"] = self.now_trend
             self.df.at[self.nf, "last_trend"] = self.last_trend
 
+            print("7.71")
             if self.price_trend_s != 1:
                 if self.std_prc_slope >= 0 and (self.ai >= 0.9 and self.ai_long >= 1.8):
                     self.price_trend_s = 1  # B_mode
@@ -3800,12 +3810,13 @@ class Nprob:
                         self.price_trend_s = 0.5
 
             self.df.at[self.nf, "price_trend_s"] = self.price_trend_s
-
+            print("7.72")
             ### in_hit, in_hit_touch
             ### B_mode
             if self.in_hit == 0:
+                print("7.731")
                 if self.test_signal == 2:
-                    if (ema_25_count_m == -1 and self.std_prc_peak >= -1 and cvol_t > 0) or prc_s > 0:
+                    if (self.ema_25_count_m == -1 and self.std_prc_peak >= -1 and cvol_t > 0) or prc_s > 0:
                         # self.test_signal = 4
                         self.test_signal_mode = 1
                         self.pre_in_hit = 1
@@ -3814,20 +3825,20 @@ class Nprob:
                                 if self.df.loc[self.nf - 50: self.nf - 1, "count_m"].max() > self.count_m_start * 0.5:
                                     self.in_hit = 1
                                     self.in_hit_touch = 1
-
+                print("7.732")
                 if self.test_signal == 3:
                     self.test_signal_mode = 1
                     self.pre_in_hit = 1
                     if self.cover_signal_2 != -1:
                         self.in_hit = 1
                         self.in_hit_touch = 1
-
+                print("7.733")
                 if self.pre_in_hit == 1:
                     if self.cover_signal_2 != -1:
                         self.in_hit = 1
                         self.in_hit_touch = 1
                         self.pre_in_hit = 0
-
+            print("7.74")
             if self.in_hit >= 1:
                 if ema_520 != -2:
                     self.in_hit = 2
@@ -3839,10 +3850,12 @@ class Nprob:
                 # if self.df.at[self.nf-1, "test_signal"] >= 0 and self.df.at[self.nf, "test_signal"] == 0:
                 #     self.in_hit = 2
 
+            print("7.8")
+
             ### S_mode
             if self.in_hit == 0:
                 if self.test_signal == -2:
-                    if (ema_25_count_m == -1 and self.std_prc_peak <= 1 and cvol_t < 0) or prc_s < 0:
+                    if (self.ema_25_count_m == -1 and self.std_prc_peak <= 1 and cvol_t < 0) or prc_s < 0:
                         # self.test_signal = -4
                         self.test_signal_mode = -1
                         self.pre_in_hit = -1
@@ -3865,6 +3878,7 @@ class Nprob:
                         self.in_hit_touch = -1
                         self.pre_in_hit = 0
 
+            print("7.81")
             if self.in_hit <= -1:
                 if ema_520 != 2:
                     self.in_hit = -2
@@ -3881,7 +3895,7 @@ class Nprob:
             self.df.at[self.nf, "in_hit"] = self.in_hit
             self.df.at[self.nf, "in_hit_touch"] = self.in_hit_touch
 
-            # print("8")
+            print("8")
 
             ### data ###
             if self.nf > 250:
@@ -3930,7 +3944,7 @@ class Nprob:
             # // In Decision - main //
             ##########################
 
-            # print("9")
+            print("9")
 
             # pre Time Condition
             self.tc = 0
@@ -4286,7 +4300,7 @@ class Nprob:
             # self.df.at[self.nf, "check2_pvt_point"] = self.check2_pvt_point
             # self.df.at[self.nf, "wc_pvt"] = self.wc_pvt
 
-            # print("10")
+            print("10")
 
             ###################################
             # MAIN BNS
@@ -4298,7 +4312,7 @@ class Nprob:
                 if 1 == 1 or (self.which_market == 1 or (
                         self.stat_in_org == "000" and self.stat_out_org == "111")) or self.chkForb == 1:
                     # Position Condition(nprob)
-                    # print("10.1")
+                    print("10.1")
 
                     if 1 == 1 or (self.df.at[
                                       self.nf - 3, "OrgMain"] == 'n' and self.OrgMain == 'n') or self.bns_check_mode == 1:
@@ -4335,7 +4349,7 @@ class Nprob:
                             # if self.df.loc[self.nf - 25:self.nf - 5, "std_prc_cvol_m"].mean() <= self.df.at[self.nfset, "std_prc_cvol_m"] * 0.9:
                             #     self.bns_check = -0.1
 
-                        # print("10.2")
+                        print("10.2")
                         if self.df_bns_check[self.df_bns_check <= -0.3].count() >= 1:# and self.nf > self.nfset + 25 and self.nfset != 0: #and self.df.at[self.nf-1, "bns_check"] != -1):# or self.bns_check == -0.7):
                             if self.df_bns_check[self.df_bns_check <= -0.2].count() >= 1 and self.df_bns_check[self.df_bns_check > 0].count() == 0:
                                 # if self.df.loc[self.nf - 20:self.nf - 1, "std_prc_cvol_m"].mean() <= self.df.at[self.nfset, "std_prc_cvol_m"] * 1.02:
@@ -4358,7 +4372,7 @@ class Nprob:
                                 # else:
                                 #     self.bns_check_3 = 1.5
 
-                        # print("10.3")
+                        print("10.3")
                         # bns_check_2 display
                         if self.df_bns_check2[self.df_bns_check2 == -1].count() >= 1 and self.bns_check_2 == 0:
                             if self.df_std_std_s[self.df_std_std_s >= self.std_std_prc_cvol_m_limit * 0.8].count() >= 1 and self.std_std_prc_cvol_m <= self.std_std_prc_cvol_m_limit * 0.8:
@@ -4385,7 +4399,7 @@ class Nprob:
                                         #         self.in_hit = 0
                                         #         self.in_hit_touch = 0
 
-                        # print("10.41")
+                        print("10.41")
                         if self.df_bns_check2[self.df_bns_check2 == 1].count() >= 1 and self.bns_check_2 == 0:
                             if self.df_std_std_s[self.df_std_std_s >= self.std_std_prc_cvol_m_limit * 0.8].count() >= 1 and self.std_std_prc_cvol_m <= self.std_std_prc_cvol_m_limit * 0.8:
                                 if self.std_prc_cvol_m < self.std_prc_cvol_m_limit * 1.25 and self.dxy_200_medi > 0:
@@ -4412,7 +4426,7 @@ class Nprob:
                                         #         self.in_hit_touch = 0
                                         #         self.init5_touched = 0
 
-                        # print("10.42")
+                        print("10.42")
                         # bns_check_2 in
                         if self.nf >= 1000 and self.df_bns_check2[self.df_bns_check2 == 1.5].count() >= 1 and self.bns_check_2 == 0:
                             if self.df.loc[self.nf - 10:self.nf - 1, "bns_check_2"].mean() == 0:
@@ -4434,7 +4448,7 @@ class Nprob:
                                             self.in_hit = 0
                                             self.in_hit_touch = 0
 
-                        # print("10.43")
+                        print("10.43")
                         if self.nf >= 1000 and self.df_bns_check2[self.df_bns_check2 == -1.5].count() >= 1 and self.bns_check_2 == 0:
                             if self.df.loc[self.nf - 10:self.nf - 1, "bns_check_2"].mean() == 0:
                                 if self.df_bns_check2[self.df_bns_check2 == -2.5].count() == 0:
@@ -4455,7 +4469,7 @@ class Nprob:
                                             self.in_hit = 0
                                             self.in_hit_touch = 0
 
-                        # print("10.5")
+                        print("10.5")
 
                         ###################################
                         # Trend init 1(long ai_long high + not prc_s_peak peak)
@@ -4622,7 +4636,7 @@ class Nprob:
                         # self.prc_per_20 = np.percentile(np.array(self.df['price'], dtype=float)[self.nf - 500:self.nf - 2], 20)
                         self.df.at[self.nf, "prc_per_10"] = self.prc_per_10
 
-                        # print("10.7")
+                        print("10.7")
 
                         # self.gold1 = 0
                         # if price > self.prc_per_10:
@@ -4922,7 +4936,7 @@ class Nprob:
                         # self.gold2_avg = self.df.loc[self.nf - 10:self.nf - 1, "gold2"].mean()
                         # self.df.at[self.nf, "gold2_avg"] = self.gold2_avg
 
-                        # print("10.8")
+                        print("10.8")
 
                         if self.nf > 800 and (
                                 self.std_std_prc_cvol_m < self.std_std_prc_cvol_m_limit * 1.5 and self.df_std_std[
@@ -5041,7 +5055,7 @@ class Nprob:
                                                 self.in_hit = 0
                                                 self.in_hit_touch = 0
 
-            # print("10.9")
+            print("10.9")
 
             if self.bns_check_last != self.bns_check and self.bns_check != 0:
                 self.bns_check_last = self.bns_check
@@ -5064,7 +5078,7 @@ class Nprob:
             if self.triple_last_last != self.triple_last and self.triple_last != 0:
                 self.triple_last_last = self.triple_last
 
-            # print("11")
+            print("11")
 
             self.df.at[self.nf, "bns_check_last"] = self.bns_check_last
             self.df.at[self.nf, "bns_check_4_last"] = self.bns_check_4_last
@@ -5129,7 +5143,7 @@ class Nprob:
             self.df.at[self.nf, "now_prc_s_peak"] = self.now_prc_s_peak
             self.df.at[self.nf, "long_prc_s_peak"] = self.long_prc_s_peak
 
-            # print("12")
+            print("12")
 
             # NEW SIGNAL_IN
             if 1 == 1:
@@ -5451,7 +5465,7 @@ class Nprob:
                     # if self.df.at[self.nf - 1, "std_prc_peak"] == -2 and self.df.at[self.nf, "std_prc_peak"] == -1:
                     #     # if self.OrgMain == 'b':
                     #         # if self.cvol_t_decay > self.cvol_t_cri_ave * -20:
-                    #     if ema_25_count_m == -1 and self.df.loc[self.nf - 50:self.nf - 1, "std_prc_peak"].mean() == -2:
+                    #     if self.ema_25_count_m == -1 and self.df.loc[self.nf - 50:self.nf - 1, "std_prc_peak"].mean() == -2:
                     #         if self.which_market != 3 or now.hour<15:
                     #             if 1==1 and price <= self.ave_prc - self.tick * 3:
                     #                 if self.mode_spot != -2:
@@ -5468,7 +5482,7 @@ class Nprob:
                     # if self.df.at[self.nf - 1, "std_prc_peak"] == 2 and self.df.at[self.nf, "std_prc_peak"] == 1:
                     #     # if self.OrgMain == 's':
                     #         # if self.cvol_t_decay < self.cvol_t_cri_ave * 20:
-                    #     if ema_25_count_m == -1 and self.df.loc[self.nf - 50:self.nf - 1, "std_prc_peak"].mean() == 2:
+                    #     if self.ema_25_count_m == -1 and self.df.loc[self.nf - 50:self.nf - 1, "std_prc_peak"].mean() == 2:
                     #         if self.which_market != 3 or now.hour<15:
                     #             if 1==1 and price >= self.ave_prc + self.tick * 3:
                     #                 if self.mode_spot != 2:
@@ -5685,7 +5699,7 @@ class Nprob:
                 self.df.at[self.nf, "add_touch"] = self.add_touch
                 self.df.at[self.nf, "Indep"] = self.Indep
 
-                # print("13")
+                print("13")
 
                 # send add_signal from add_touch
                 self.add_signal = 0
@@ -5956,7 +5970,7 @@ class Nprob:
         self.df.at[self.nf, "nfset"] = self.nfset
         self.df.at[self.nf, "Add_Prf"] = self.Add_Prf
 
-        # print("14")
+        print("14")
 
         ###############################
         # hit_peak setting
@@ -6121,7 +6135,7 @@ class Nprob:
                         self.bns_check_4 = -1.4
         self.df.at[self.nf, "bns_check_4"] = self.bns_check_4
 
-        # print("15")
+        print("15")
 
         ###############################
         #  // Out Decision //
@@ -6238,7 +6252,7 @@ class Nprob:
                 if 1 == 1 and (self.prf_able + self.prf_hit) >= 1 and (price - self.ave_prc) / prc_std >= 0.5:
 
                     if self.std_prc_peak == 2 and cvol_t > 0 and (
-                            ema_25_count_m == 1 or prc_s < 0):  # and dxy_med_std !=0 cvol_t_ave > self.cvol_t_cri_ave_p * 100
+                            self.ema_25_count_m == 1 or prc_s < 0):  # and dxy_med_std !=0 cvol_t_ave > self.cvol_t_cri_ave_p * 100
                         self.peak_touch = 1
                         self.out_type = "b_at_peak"
 
@@ -6345,7 +6359,7 @@ class Nprob:
                                 # self.cover_out_prc = price
 
                     if 1 == 0 and cvol_t < 0 and self.prf_hit == 1:  # self.prf_able == 1:
-                        if ema_25 == -1 and ema_25_count_m == 1:  # self.count_m_act:
+                        if ema_25 == -1 and self.ema_25_count_m == 1:  # self.count_m_act:
                             if cvol_s < 0 and cvol_c <= 15 and dxy_20_medi_s < 0 and self.std_prc_peak <= -1:
                                 if self.peak_touch != 1:
                                     self.Profit += ((float(
@@ -6680,7 +6694,7 @@ class Nprob:
                 if 1 == 1 and (self.prf_able + self.prf_hit) >= 1 and (self.ave_prc - price) / prc_std >= 0.5:
 
                     if self.std_prc_peak == -2 and cvol_t < 0 and (
-                            ema_25_count_m == 1 or prc_s > 0):  # and cvol_s_sig == 1
+                            self.ema_25_count_m == 1 or prc_s > 0):  # and cvol_s_sig == 1
                         self.peak_touch = -1
                         self.out_type = "s_at_peak"
 
@@ -6786,7 +6800,7 @@ class Nprob:
                                 # self.cover_out_prc = price
 
                     if 1 == 0 and cvol_t > 0 and self.prf_hit == 1:  #:and self.prf_able == 1
-                        if ema_25 == -1 and ema_25_count_m == 1:  # self.count_m_act:
+                        if ema_25 == -1 and self.ema_25_count_m == 1:  # self.count_m_act:
                             if cvol_s < 0 and cvol_c >= 5 and dxy_20_medi_s > 0 and self.std_prc_peak >= 1:
                                 if self.peak_touch != -1:
                                     self.Profit += ((self.inp - float(
@@ -7087,7 +7101,7 @@ class Nprob:
         # if self.add == -1:
         #     self.d_OMain = -3
 
-        # print("16")
+        print("16")
 
         ############
         # add_signal
@@ -8183,7 +8197,7 @@ class Nprob:
         if self.cover_ordered != 0 and (self.which_market != 3 or self.cover_order_exed != 0 or self.chkForb == 1 or self.acc_uninfied == 1):
             self.prf_cover = (self.cover_in_prc - price) / prc_std
 
-            # print("17")
+            print("17")
 
             if self.df.loc[self.nf - 25: self.nf - 1, "cover_ordered"].mean() == -1:# and (self.which_market==3 or abs(self.prf_cover)>=1.5):
 
@@ -9312,7 +9326,7 @@ class Nprob:
                             self.peak_block = 0
 
 
-                # print("18")
+                print("18")
 
                 # OLD
                 if 1 == 1:
@@ -9812,7 +9826,7 @@ class Nprob:
             print('-----------')
             # print("chkCoverSig_2: ", self.chkCoverSig_2)
 
-        # print("20")
+        print("20")
 
         elap = time.time() - t_start
         self.df.at[self.nf, "elap"] = elap
@@ -9836,7 +9850,7 @@ class Nprob:
         if len(self.df) >= self.partition_size:
             self.save_partition()
             self.partition_index += 1
-            self.df = self.df.iloc[-211:-1] #self.df.tail(200)#.reset_index(drop=False)
+            self.df = self.df.iloc[-200:] #self.df.tail(200)#.reset_index(drop=False)
             self.nfset = self.df['nf'].iloc[-1]
             print(self.df)
 
@@ -9879,19 +9893,20 @@ class Nprob:
         print("Partitions cleaned up")
 
     def merge_partitions(self):
-        # 모든 파티션 파일을 하나로 병합
-        merged_df = pd.DataFrame()
-        for file_name in os.listdir(self.partition_dir):
-            file_path = os.path.join(self.partition_dir, file_name)
-            partition_df = pd.read_csv(file_path)
-            merged_df = merged_df.append(partition_df, ignore_index=True)
-
-        # 병합된 파일 저장
-        merged_path = f"{self.merged_dir}/merged_data.csv"
-        # merged_df.to_csv(merged_path, index=False)
-        print(f"Partitions merged and saved to {merged_path}")
-
-        return merged_df
+        print("merge_")
+        csv_files = [file for file in os.listdir(self.partition_dir) if file.endswith(".csv")]
+        sorted_files = sorted(csv_files, key=lambda x: int(x.split("_")[1].split(".")[0]))
+        print("merge_1")
+        df_list = []
+        for file in sorted_files:
+            file_path = os.path.join(self.partition_dir, file)
+            df = pd.read_csv(file_path)
+            df_list.append(df)
+        print("merge_2")
+        merged_df = pd.concat(df_list, ignore_index=True)
+        print("merge_3")
+        merged_df.to_csv(f"{self.merged_dir}/merged_data.csv", index=False)
+        print("merge_finish")
 
     #################################
 
@@ -9953,6 +9968,7 @@ class Nprob:
     def btnSave_Clicked(self):
         # df.to_sql("Main_DB", con, if_exists='replace', index=True) #, index_label=None, chunksize=None, dtype=None)
 
+        print("save_clicked")
         ts = datetime.now().strftime("%m-%d-%H-%M")
         if self.which_market == 1 or self.which_market == 2:  # Bit
             filename = "EDB_2__%s.csv" % (ts)
@@ -9970,8 +9986,9 @@ class Nprob:
         filename_hist = "Hist_%s.csv" % (ts)
 
         # self.df.to_csv('%s' % filename)  # + time.strftime("%m-%d") + '.csv')
-        mgd_df = merge_partitions()
-        mgd_df.to_csv('%s' % filename)
+        print("merge")
+        self.merge_partitions() #mgd_df = self.merge_partitions()
+        # mgd_df.to_csv('%s' % filename)
 
         if self.which_market == 3:
             self.hist.to_csv('%s' % filename_hist)
