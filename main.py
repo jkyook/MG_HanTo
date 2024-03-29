@@ -240,7 +240,7 @@ orders_che = {}
 unexecuted_orders = {}
 df_npp_m = pd.DataFrame()
 ord_sent = 0
-
+reordered = 0
 
 global price, lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
 
@@ -721,6 +721,7 @@ async def place_order():
     print("[sys] Exed: ", ExedQty)
 
 #####################################################################
+# 일반 주문
 
 async def send_order(bns):
     global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
@@ -787,8 +788,8 @@ async def update_order_list():
 # 미체결 주문 확인 및 처리
 
 async def check_unexecuted_orders(session):
-    global access_token
-    global unexecuted_orders, orders, orders_che
+    global access_token, prc_o1
+    global unexecuted_orders, orders, orders_che, reordered
 
     # (1) 시스템상
     for ord_no, order_info in orders.items():
@@ -833,12 +834,69 @@ async def check_unexecuted_orders(session):
             df = pd.DataFrame(data["output1"])
             # filtered_df = df[df['ord_qty'].astype(int) >= 1]
             filtered_df = df[df['tot_ccld_qty'] != df['ord_qty']][['odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
-            print(filtered_df)
+            print("증권사 미체결 주문:", filtered_df)
+
+            # 미체결 주문 정정
+            if reordered == 0:
+                for _, row in filtered_df.iterrows():
+                    odno = row['odno']
+                    ord_qty = row['ord_qty']
+                    ord_idx = row['ord_idx']
+
+                    # 현재 가격으로 정정주문 요청
+                    await modify_order(odno, ord_qty, prc_o1)
 
         except Exception as e:
             logger.error(f"미체결 주문 확인 중 오류 발생: {e}")
 
-        await asyncio.sleep(5)  # 1초 간격으로 미체결 주문 확인
+        await asyncio.sleep(5)  # 5초 간격으로 미체결 주문 확인
+
+#####################################################################
+# 정정주문
+
+async def modify_order(odno, ord_qty, prc_o1):
+
+    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+
+    payload = {
+        "CANO": account,
+        "ACNT_PRDT_CD": "03",
+        "KRX_FWDG_ORD_ORGNO": odno,
+        "ORD_DVSN": "02", # (01: 정상, 02: 정정, 03: 취소)
+        "ORD_PRDT_CD": "03", # (03: 선물옵션)
+        "UNIT_PRICE": str(prc_o1),
+        "ORD_PRCS_DVSN_CD": "02", # (02: 지정가)
+        "NMPR_TYPE_CD": "01", # (01: 보통)
+        "FUOP_CLSF_CNTG_QTY": str(ord_qty),
+        "KRX_NMPR_CNDT_CD": "0", # (0: 없음)
+        "CTAC_TLNO": "",
+        "FUOP_ITEM_DVSN_CD": "01", # (01: 선물)
+        "SHTN_PDNO": code,
+        "ORD_QTY": str(ord_qty),
+        "ORD_TMD": "0"
+    }
+
+    headers = {
+        'content-type': 'application/json',
+        'authorization': 'Bearer ' + str(access_token),
+        'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+        'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+        'tr_id': 'VTTC0802U'
+    }
+
+    try:
+        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+        data = response.json()
+
+        if data["rt_cd"] == "0":
+            logger.info(f"주문 정정 성공: {odno}")
+            # 주문 정정 성공 시 추가 작업 수행
+        else:
+            logger.error(f"주문 정정 실패: {odno}, 실패 사유: {data['msg1']}")
+            # 주문 정정 실패 시 추가 작업 수행
+
+    except Exception as e:
+        logger.error(f"주문 정정 중 오류 발생: {e}")
 
 #####################################################################
 # 선물옵션 체결통보 출력라이브러리
