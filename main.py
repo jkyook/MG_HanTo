@@ -170,10 +170,14 @@ class AutoTradeGUI(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def select_buy(self):
-        self.buy_sell_selection = 2  # 매수
+        self.buy_sell_selection = "2"  # 매수
+        self.buy_button.setStyleSheet("background-color: red")  # 매수 버튼 색상을 빨간색으로 변경
+        self.sell_button.setStyleSheet("")  # 매도 버튼 색상을 기본색으로 변경
 
     def select_sell(self):
-        self.buy_sell_selection = 1  # 매도
+        self.buy_sell_selection = "1"  # 매도
+        self.sell_button.setStyleSheet("background-color: blue")  # 매도 버튼 색상을 파란색으로 변경
+        self.buy_button.setStyleSheet("")  # 매수 버튼 색상을 기본색으로 변경
 
     # def place_order(self):
     #     # qty = self.order_qty_edit.text()
@@ -184,6 +188,7 @@ class AutoTradeGUI(QMainWindow):
 
     def place_order(self):
         asyncio.create_task(send_order(bns=self.buy_sell_selection))  # 주문 요청
+        self.order_button.setStyleSheet("background-color: green")  # 주문 버튼 색상을 녹색으로 변경
 
     def open_gui(self):
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -205,7 +210,7 @@ class AutoTradeGUI(QMainWindow):
         self.stock_open_label.setText(f'시가: {price}')
         self.stock_bid_label.setText(f'매수호가 잔량: {lblBqty1v}')
         self.stock_ask_label.setText(f'매도호가 잔량: {lblSqty1v}')
-        self.order_list_text.setText(str(orders))  # 주문 내역 표시
+        # self.order_list_text.setText(str(orders))  # 주문 내역 표시
 
         # 주문 상태 업데이트
         self.cover_ordered_label.setText(f'커버주문: {NP.cover_ordered}, {NP2.cover_ordered}')
@@ -296,7 +301,8 @@ except:
 async def create_session():
     return aiohttp.ClientSession()
 
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjQ1MmE4MWRjLTg3NTYtNDU2OC1hMGI4LTM5NGVmYjI5ODBmZSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwODk4NzE0LCJpYXQiOjE3MTA4MTIzMTQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.hk35jZCGQTnjNDhEXdm_vA59TdF-Rqhj8jwQHdoNA1YMep23g9l7eAmzlOB9nX0O7eYM9tYL34NaR_0fZKxxyg"
+# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjQ1MmE4MWRjLTg3NTYtNDU2OC1hMGI4LTM5NGVmYjI5ODBmZSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwODk4NzE0LCJpYXQiOjE3MTA4MTIzMTQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.hk35jZCGQTnjNDhEXdm_vA59TdF-Rqhj8jwQHdoNA1YMep23g9l7eAmzlOB9nX0O7eYM9tYL34NaR_0fZKxxyg"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU1MTUwZDJiLTY5ZTQtNDhjMi04MjlmLTU4NmM3NTJlZTFkOCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzExNzU1OTI2LCJpYXQiOjE3MTE2Njk1MjYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.rtHYmcveAU3WR_wBizX00bb0vheW0v9yWmgXfUaL53onHAbkYhtGbtaYolM2ff4bxurcNcS0Np6BBf4z_11nUQ"
 
 
 # 토큰 발급 함수
@@ -720,6 +726,7 @@ async def place_order():
 
 async def send_order(bns):
     global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
+    global gui
 
     if auto_time == 1:
         url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
@@ -756,8 +763,27 @@ async def send_order(bns):
                         orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"))
                         bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}")
                         ord_sent = 1
+                        await update_order_list()  # 주문 내역 업데이트
                     else:
                         logger.error("주문 요청 실패")
+    # gui.order_button.setStyleSheet("")
+
+#####################################################################
+
+async def update_order_list():
+    global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
+    global gui
+
+    order_text = ""
+    for ord_no, order_info in orders.items():
+        bns, qty, price, prc_o1, time = order_info
+        # order_text += f"{ord_no[-5:]}, {'매수' if bns == '02' else '매도'}, {prc_o1}, @ {time}\n" #수량: {qty},
+        if bns == '2':
+            order_text += f"{ord_no[-5:]}, <span style='color:red;'>매수</span>, {prc_o1}, @ {time}\n"
+        else:
+            order_text += f"{ord_no[-5:]}, <span style='color:blue;'>매도</span>, {prc_o1}, @ {time}\n"
+    gui.order_list_text.setText(order_text)
+    gui.order_button.setStyleSheet("")
 
 #####################################################################
 
@@ -1121,6 +1147,7 @@ def aes_cbc_base64_dec(key, iv, cipher_text):
 
 async def main():
     # loop = asyncio.get_event_loop()
+    global gui
 
     app = QApplication(sys.argv)
     loop = QEventLoop(app)

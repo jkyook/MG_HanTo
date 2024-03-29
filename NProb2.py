@@ -9971,7 +9971,8 @@ class Nprob:
         timestamp = now.strftime("%Y%m%d_%H%M")
 
         # 파일명에 날짜와 시각(분) 포함하여 저장
-        merged_df.to_csv(f"{self.merged_dir}/merged_data_{timestamp}.csv", index=False)
+        # merged_df.to_csv(f"{self.merged_dir}/merged_data_{timestamp}.csv", index=False)
+        merged_df.to_csv(f"{self.merged_dir}/NP_{NP.auto_cover}_merged_data_{timestamp}.csv", index=False)
 
     #################################
 
