@@ -940,7 +940,7 @@ class Nprob:
         print('nf: %d  //prc: %0.2f/ /in: %d /out: %0.1f /prf: %d /last_o %0.2f  /turn: %d' % (
             self.nf, price, self.in_str, self.piox, self.prf_able, self.last_o, self.turnover))
 
-        if self.nf != 0 and ((self.auto_cover == 1 and self.nf % 800 == 0) or (self.auto_cover == 2 and self.nf % 2100 == 0)):
+        if self.nf != 0 and ((self.auto_cover == 1 and self.nf % 2000 == 0) or (self.auto_cover == 2 and self.nf % 2100 == 0)):
 
             # try:
             #     self.start_data_index += 1
