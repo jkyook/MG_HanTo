@@ -777,11 +777,10 @@ async def update_order_list():
     order_text = ""
     for ord_no, order_info in orders.items():
         bns, qty, price, prc_o1, time = order_info
-        # order_text += f"{ord_no[-5:]}, {'매수' if bns == '02' else '매도'}, {prc_o1}, @ {time}\n" #수량: {qty},
         if bns == '2':
-            order_text += f"{ord_no[-5:]}, <span style='color:red;'>매수</span>, {prc_o1}, @ {time}\n"
+            order_text += f"{ord_no[-5:]}, <span style='color:red;'>매수</span>, {prc_o1}, @ {time}<br>"
         else:
-            order_text += f"{ord_no[-5:]}, <span style='color:blue;'>매도</span>, {prc_o1}, @ {time}\n"
+            order_text += f"{ord_no[-5:]}, <span style='color:blue;'>매도</span>, {prc_o1}, @ {time}<br>"
     gui.order_list_text.setText(order_text)
     gui.order_button.setStyleSheet("")
 
