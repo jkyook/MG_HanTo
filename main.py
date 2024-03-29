@@ -20,6 +20,7 @@ import telegram
 from config import api_key, secret_key, telegram_token, chat_id, account, code, qty
 from tkinter import filedialog  # //Python 3
 import matplotlib.pyplot as plt
+import subprocess  # subprocess 모듈 import 추가
 import MyWindow2
 
 from PyQt5.QtWidgets import *
@@ -30,7 +31,6 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from qasync import QEventLoop
 # from qasync import asyncSlot, QThreadExecutor
 # from quamash import QEventLoop
-
 
 import NProb
 import NProb2
@@ -76,10 +76,12 @@ class AutoTradeGUI(QMainWindow):
         self.stock_open_label = QLabel('시가: ')
         self.stock_bid_label = QLabel('매수호가 잔량: ')
         self.stock_ask_label = QLabel('매도호가 잔량: ')
+        self.open_gui_button = QPushButton('Graph')  # GUI 열기 버튼 추가
         self.market_layout.addWidget(self.stock_code_label)
         self.market_layout.addWidget(self.stock_open_label)
         self.market_layout.addWidget(self.stock_bid_label)
         self.market_layout.addWidget(self.stock_ask_label)
+        self.market_layout.addWidget(self.open_gui_button)  # GUI 열기 버튼 추가
         self.market_group.setLayout(self.market_layout)
 
         # 주문 입력 구획
@@ -159,6 +161,7 @@ class AutoTradeGUI(QMainWindow):
         self.setLayout(main_layout)
 
         # 버튼 클릭 이벤트 연결
+        self.open_gui_button.clicked.connect(self.open_gui)
         self.order_button.clicked.connect(self.place_order)
         self.buy_button.clicked.connect(self.select_buy)
         self.sell_button.clicked.connect(self.select_sell)
@@ -182,6 +185,10 @@ class AutoTradeGUI(QMainWindow):
     def place_order(self):
         asyncio.create_task(send_order(bns=self.buy_sell_selection))  # 주문 요청
 
+    def open_gui(self):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        gui_path = os.path.join(script_dir, 'gui.py')
+        subprocess.Popen(['python', gui_path])
 
     def update_gui(self):
         # while True:
