@@ -650,34 +650,35 @@ async def place_order():
         await send_order(bns = "01")
 
     # 기록
-    try:
-        # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
-        file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
-        f1 = open(file_path, 'r')
-        f1_r = f1.readline()
-        np1, prf1, chkForb = f1_r.strip().split(',')
-        NP.np1 = int(np1)
-        print("NP1 (-):", np1, prf1)
-        f1.close()
+    if 1==0:
+        try:
+            # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+            file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
+            f1 = open(file_path, 'r')
+            f1_r = f1.readline()
+            np1, prf1, chkForb = f1_r.strip().split(',')
+            NP.np1 = int(np1)
+            print("NP1 (-):", np1, prf1)
+            f1.close()
 
-        # (cover_b) -> cover_ordered = 1/0
-        # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
-        file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
-        f2 = open(file_path, 'r')
-        f2_r = f2.readline()
-        np2, prf2 = f2_r.strip().split(',')
-        NP.np2 = int(np2)
-        print("NP2 (+):", np2, prf2)
-        f2.close()
+            # (cover_b) -> cover_ordered = 1/0
+            # file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+            file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
+            f2 = open(file_path, 'r')
+            f2_r = f2.readline()
+            np2, prf2 = f2_r.strip().split(',')
+            NP.np2 = int(np2)
+            print("NP2 (+):", np2, prf2)
+            f2.close()
 
-        if np1 == "":
-            np1 = 0
-        if np2 == "":
-            np2 = 0
-        np_qty = int(np1) + int(np2)
+            if np1 == "":
+                np1 = 0
+            if np2 == "":
+                np2 = 0
+            np_qty = int(np1) + int(np2)
 
-    except:
-        pass
+        except:
+            pass
 
     np1 = NP.cover_ordered
     prf1 = NP.profit_opt
