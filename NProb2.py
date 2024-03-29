@@ -9965,7 +9965,13 @@ class Nprob:
         merged_df = pd.concat(df_list, ignore_index=True)
         # nf 값을 기준으로 정렬
         merged_df = merged_df.sort_values('nf')
-        merged_df.to_csv(f"{self.merged_dir}/merged_data.csv", index=False)
+
+        # 현재 날짜와 시각(분) 가져오기
+        now = datetime.now()
+        timestamp = now.strftime("%Y%m%d_%H%M")
+
+        # 파일명에 날짜와 시각(분) 포함하여 저장
+        merged_df.to_csv(f"{self.merged_dir}/merged_data_{timestamp}.csv", index=False)
 
     #################################
 
