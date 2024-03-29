@@ -860,10 +860,10 @@ async def modify_order(odno, ord_qty, prc_o1):
 
     payload = {
         "CANO": account,
-        "ACNT_PRDT_CD": "03",
+        "ACNT_PRDT_CD": "03", # 계좌상품코드
         "KRX_FWDG_ORD_ORGNO": odno,
         "ORD_DVSN": "02", # (01: 정상, 02: 정정, 03: 취소)
-        "ORD_PRDT_CD": "03", # (03: 선물옵션)
+        "ORD_PRDT_CD": "03", # 주문상품코드 (03: 선물옵션)
         "UNIT_PRICE": str(prc_o1),
         "ORD_PRCS_DVSN_CD": "02", # (02: 지정가)
         "NMPR_TYPE_CD": "01", # (01: 보통)
