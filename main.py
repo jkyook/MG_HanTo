@@ -287,8 +287,9 @@ print("NP..Laoded")
 # account = "60025978"
 # qty =1
 
-
+#####################################################################
 # 텔레그램 봇 정보
+
 bot = telegram.Bot(token=telegram_token)
 text1 = " *** (MG7) 시스템 가동 시작 ***, Start == 0"
 try:
@@ -304,6 +305,30 @@ async def create_session():
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjQ1MmE4MWRjLTg3NTYtNDU2OC1hMGI4LTM5NGVmYjI5ODBmZSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwODk4NzE0LCJpYXQiOjE3MTA4MTIzMTQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.hk35jZCGQTnjNDhEXdm_vA59TdF-Rqhj8jwQHdoNA1YMep23g9l7eAmzlOB9nX0O7eYM9tYL34NaR_0fZKxxyg"
 access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU1MTUwZDJiLTY5ZTQtNDhjMi04MjlmLTU4NmM3NTJlZTFkOCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzExNzU1OTI2LCJpYXQiOjE3MTE2Njk1MjYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.rtHYmcveAU3WR_wBizX00bb0vheW0v9yWmgXfUaL53onHAbkYhtGbtaYolM2ff4bxurcNcS0Np6BBf4z_11nUQ"
 
+#####################################################################
+# 토큰 갱신 함수
+
+async def refresh_token(session):
+    global token_update_time
+
+    try:
+        # 파일에서 읽어들이기
+        with open('token_update_time.txt', 'r') as f:
+            token_update_time_str = f.read().strip()
+
+        # 문자열을 datetime 객체로 변환
+        token_update_time = datetime.strptime(token_update_time_str, '%Y-%m-%d %H:%M:%S')
+    except:
+        pass
+
+    while True:
+        try:
+            if token_update_time is None or datetime.now() >= token_update_time + token_refresh_interval:
+                await get_access_token(session)
+        except Exception as e:
+            logger.error(f"토큰 갱신 중 오류 발생: {e}")
+
+        await asyncio.sleep(60)  # 60초마다 토큰 갱신 체크
 
 # 토큰 발급 함수
 async def get_access_token(session):
@@ -332,7 +357,9 @@ async def get_access_token(session):
     except Exception as e:
         logger.error(f"액세스 토큰 발급 중 오류 발생: {e}")
 
+#####################################################################
 # 웹소켓 접속키 발급
+
 async def get_approval():
     global approval_key
 
@@ -349,7 +376,9 @@ async def get_approval():
 
     return approval_key
 
+#####################################################################
 # 웹소켓 접속 및 데이터 수신
+
 async def connect_websocket(session):
     global ord_sent, npp
 
@@ -388,53 +417,21 @@ async def connect_websocket(session):
                     if trid0 == "H0IFASP0":  # 지수선물호가 tr 일경우의 처리 단계
                         # print("#### 지수선물호가 ####")
                         stockhoka_futs(recvstr[3])
-                        # await asyncio.sleep(0.2)
                         pass
 
                     elif trid0 == "H0IFCNT0":  # 지수선물체결 데이터 처리
                         # print("#### 지수선물체결 ####")
                         data_cnt = int(recvstr[2])  # 체결데이터 개수
 
-                        # # npp 계산
-                        # stockspurchase_futs(data_cnt, recvstr[3]) # price 출력
                         # npp 계산
                         asyncio.create_task(stockspurchase_futs(data_cnt, recvstr[3]))  # price 출력
-
-                        # 테스트
-                        # if ord_sent == 0:
-                        #     print("process_order")
-                        #     ord_sent = 1
-                        # await asyncio.sleep(0.2)
 
             except Exception as e:
                 logger.error(f"Error while receiving data from websocket: {e}")
 
+#####################################################################
+# file_check
 
-# 토큰 갱신 함수
-async def refresh_token(session):
-    global token_update_time
-
-    try:
-        # 파일에서 읽어들이기
-        with open('token_update_time.txt', 'r') as f:
-            token_update_time_str = f.read().strip()
-
-        # 문자열을 datetime 객체로 변환
-        token_update_time = datetime.strptime(token_update_time_str, '%Y-%m-%d %H:%M:%S')
-    except:
-        pass
-
-    while True:
-        try:
-            if token_update_time is None or datetime.now() >= token_update_time + token_refresh_interval:
-                await get_access_token(session)
-        except Exception as e:
-            logger.error(f"토큰 갱신 중 오류 발생: {e}")
-
-        await asyncio.sleep(60)  # 60초마다 토큰 갱신 체크
-
-
-# order from file
 async def file_check():
     global price, now_prc, npp, npp2
 
@@ -496,6 +493,7 @@ async def file_check():
 
 #####################################################################
 # 지수선물호가 출력라이브러리
+
 def stockhoka_futs(data):
     global lblSqty2v, lblSqty1v,lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v
 
@@ -512,8 +510,8 @@ def stockhoka_futs(data):
         lblBhoga1v = float(recvvalue[7])
 
 #####################################################################
-
 # 지수선물체결처리 출력라이브러리
+
 async def stockspurchase_futs(data_cnt, data):
     global price, volume, cvolume, cgubun, count, npp, npp2, elap
     global last_time, last_volume, cgubun_sum, cvolume_mid, cvolume_sum, count_mid, nf, ExedQty
@@ -637,8 +635,8 @@ async def stockspurchase_futs(data_cnt, data):
 
 
 #####################################################################
-
 # 주문 처리 함수
+
 async def place_order():
     global npp, npp2, nf, np_count, cum_qty
 
@@ -785,8 +783,8 @@ async def update_order_list():
     gui.order_button.setStyleSheet("")
 
 #####################################################################
-
 # 미체결 주문 확인 및 처리
+
 async def check_unexecuted_orders(session):
     global access_token
     global unexecuted_orders, orders, orders_che
@@ -842,10 +840,12 @@ async def check_unexecuted_orders(session):
         await asyncio.sleep(1)  # 1초 간격으로 미체결 주문 확인
 
 #####################################################################
-
 # 선물옵션 체결통보 출력라이브러리
+
 def stocksigningnotice_futsoptn(data, key, iv):
     global orders, orders_che, price, qty, code, account, cum_qty
+    global bns_che, qty_che, prc_o1_che, time_che
+    global gui
 
     # AES256 처리 단계
     aes_dec_str = aes_cbc_base64_dec(key, iv, data)
@@ -853,7 +853,8 @@ def stocksigningnotice_futsoptn(data, key, iv):
     pValue = aes_dec_str.split('^')
     # print(pValue)
 
-    if pValue[6] == '0':  # 체결통보
+    # 정상 체결 통보
+    if pValue[6] == '0':
         print("#### 지수선물옵션 체결 통보 ####")
         menulist_sign = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|체결수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|주문수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
         menustr = menulist_sign.split('|')
@@ -867,16 +868,19 @@ def stocksigningnotice_futsoptn(data, key, iv):
         ord_no_che = pValue[3]  # 원주문번호
         prc_o1_che = pValue[9]  # 체결단가
         time_che = pValue[10]  # 체결시간
+
+        # 체결내역 결과 집계
         orders_che[ord_no_che] = (bns_che, qty_che, price, prc_o1_che, time_che)
+        asyncio.create_task(update_execution_list())  # 체결 내역 업데이트
+
         i = 0
         for menu in menustr:
             print("%s  [%s]" % (menu, pValue[i]))
             i += 1
-
         print(orders_che)
 
-
-    else:  # pValue[6] == 'L', 주문·정정·취소·거부 접수 통보
+    # 주문·정정·취소·거부 접수 통보
+    else:  # pValue[6] == 'L',
 
         if pValue[5] == '1':  # 정정 접수 통보 (정정구분이 1일 경우)
             print("#### 지수선물옵션 정정 접수 통보 ####")
@@ -914,8 +918,22 @@ def stocksigningnotice_futsoptn(data, key, iv):
                 print("%s  [%s]" % (menu, pValue[i]))
                 i += 1
 
+#####################################################################
+
+async def update_execution_list():
+    global orders_che, gui
+
+    execution_text = ""
+    for ord_no, execution_info in orders_che.items():
+        bns_che, qty_che, price, prc_o1_che, time_che = execution_info
+        if bns_che == '매수':
+            execution_text += f"{ord_no[-5:]}, <span style='color:red;'>{bns_che}</span>, {prc_o1_che}, {qty_che}, @ {time_che}<br>"
+        else:
+            execution_text += f"{ord_no[-5:]}, <span style='color:blue;'>{bns_che}</span>, {prc_o1_che}, {qty_che}, @ {time_che}<br>"
+    gui.execution_list_text.setHtml(execution_text)
 
 #####################################################################
+# 텔레그램 메시지 관리
 
 async def msg():
     global bot, df, nf, df1, msg_now, msg_last, msg_last_sent, bot_alive, OrgOrdNo
@@ -1142,7 +1160,7 @@ def aes_cbc_base64_dec(key, iv, cipher_text):
 
 
 # #####################################################################
-# GUI
+# 메인
 
 async def main():
     # loop = asyncio.get_event_loop()
