@@ -724,7 +724,7 @@ async def place_order():
 
 async def send_order(bns):
     global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
-    global gui
+    global gui, NP
 
     if auto_time == 1:
         url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
@@ -757,6 +757,7 @@ async def send_order(bns):
                     result = await response.json()
                     if result["rt_cd"] == "0":
                         ord_no = result["output"]["ODNO"]
+                        NP.OrgOrdNo = str(ord_no)
                         logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
                         orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"))
                         bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}")
@@ -789,14 +790,14 @@ async def check_unexecuted_orders(session):
     global access_token
     global unexecuted_orders, orders, orders_che
 
-    # 시스템상
+    # (1) 시스템상
     for ord_no, order_info in orders.items():
         if ord_no not in orders_che:
             unexecuted_orders[ord_no] = order_info
 
-    print(unexecuted_orders)
+    print("unexecuted_orders : ", unexecuted_orders)
 
-    # 조회
+    # (2) 증권사 조회
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
     payload = {
@@ -837,7 +838,7 @@ async def check_unexecuted_orders(session):
         except Exception as e:
             logger.error(f"미체결 주문 확인 중 오류 발생: {e}")
 
-        await asyncio.sleep(1)  # 1초 간격으로 미체결 주문 확인
+        await asyncio.sleep(5)  # 1초 간격으로 미체결 주문 확인
 
 #####################################################################
 # 선물옵션 체결통보 출력라이브러리
@@ -878,6 +879,12 @@ def stocksigningnotice_futsoptn(data, key, iv):
             print("%s  [%s]" % (menu, pValue[i]))
             i += 1
         print(orders_che)
+
+        bns_che = pValue[4]  # 매도매수구분
+        if bns_che == "매수":
+            NP.cover_ordered_exed = 1
+        elif bns_che == "매도":
+            NP.cover_ordered_exed = -1
 
     # 주문·정정·취소·거부 접수 통보
     else:  # pValue[6] == 'L',
@@ -1182,6 +1189,7 @@ async def run_async_tasks(gui, loop):
         await asyncio.gather(
             connect_websocket(session),
             refresh_token(session),
+            check_unexecuted_orders(session),
             msg(),
             # loop=loop
         )
