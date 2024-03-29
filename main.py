@@ -676,33 +676,40 @@ async def place_order():
             np2 = 0
         np_qty = int(np1) + int(np2)
 
-        now = datetime.now()
-
-        print("********")
-        print(np_count, np_qty, int(cum_qty))
-        print("********")
-        ##
-        np_count += 1
-        df_npp_m.at[np_count, 'np1'] = int(np1)
-        df_npp_m.at[np_count, 'np2'] = int(np2)
-        df_npp_m.at[np_count, 'np_sum'] = np_qty
-        df_npp_m.at[np_count, 'real_sum'] = int(cum_qty)
-        df_npp_m.at[np_count, 'now_prc'] = price
-        df_npp_m.at[np_count, 'prf1'] = float(prf1)
-        df_npp_m.at[np_count, 'prf2'] = float(prf2)
-        df_npp_m.at[np_count, 'prf'] = float(prf1) + float(prf2)
-        df_npp_m.at[np_count, 'time'] = str(now.hour) + str(now.minute) + str(now.second)
-        # df_npp_m에 차이값 계산 및 저장
-        df_npp_m['difference'] = (df_npp_m['np_sum'] - df_npp_m['real_sum']).abs()
-
-        if np_count % 1000 == 0 and NP.auto_cover == 1:
-            ts = datetime.now().strftime("%m-%d-%H-%M")
-            filename = "(e)df_npp_%s.csv" % (ts)
-            if NP.which_market == 4:
-                filename = "(e4)df_npp_%s.csv" % (ts)
-            df_npp_m.to_csv('%s' % filename)  # + time.strftime("%m-%d") + '.csv')
     except:
         pass
+
+    np1 = NP.cover_ordered
+    prf1 = NP.profit_opt
+    np2 = NP2.cover_ordered
+    prf2 = NP2.profit_opt
+    np_qty = int(np1) + int(np2)
+
+    now = datetime.now()
+
+    print("********")
+    print(np_count, np_qty, int(cum_qty))
+    print("********")
+    ##
+    np_count += 1
+    df_npp_m.at[np_count, 'np1'] = int(np1)
+    df_npp_m.at[np_count, 'np2'] = int(np2)
+    df_npp_m.at[np_count, 'np_sum'] = np_qty
+    df_npp_m.at[np_count, 'real_sum'] = int(cum_qty)
+    df_npp_m.at[np_count, 'now_prc'] = price
+    df_npp_m.at[np_count, 'prf1'] = float(prf1)
+    df_npp_m.at[np_count, 'prf2'] = float(prf2)
+    df_npp_m.at[np_count, 'prf'] = float(prf1) + float(prf2)
+    df_npp_m.at[np_count, 'time'] = str(now.hour) + str(now.minute) + str(now.second)
+    # df_npp_m에 차이값 계산 및 저장
+    df_npp_m['difference'] = (df_npp_m['np_sum'] - df_npp_m['real_sum']).abs()
+
+    if np_count % 1000 == 0 and NP.auto_cover == 1:
+        ts = datetime.now().strftime("%m-%d-%H-%M")
+        filename = "(e)df_npp_%s.csv" % (ts)
+        if NP.which_market == 4:
+            filename = "(e4)df_npp_%s.csv" % (ts)
+        df_npp_m.to_csv('%s' % filename)  # + time.strftime("%m-%d") + '.csv')
 
     print('NP: ', npp, npp2)
     print("[sys] ****** np.exed : ", NP.exed_qty, NP2.exed_qty)
