@@ -704,8 +704,8 @@ async def place_order():
     except:
         pass
 
-    print('NP: ', npp)
-    print("[sys] ****** np.exed : ", NP.exed_qty)
+    print('NP: ', npp, npp2)
+    print("[sys] ****** np.exed : ", NP.exed_qty, NP2.exed_qty)
     print("[sys] Exed: ", ExedQty)
 
 #####################################################################
