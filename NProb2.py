@@ -67,17 +67,14 @@ class Nprob:
         self.partition_size = 400  # 파티션 크기 (예: 1000개의 데이터씩 파티셔닝)
         self.partition_index = 0  # 현재 파티션 인덱스
         # self.df = pd.DataFrame()  # 현재 파티션의 데이터프레임
-        self.partition_dir = "./partitions"  # 파티션 파일이 저장될 디렉토리
+        self.partition_dir_1 = "./partitions_1"  # 파티션 파일이 저장될 디렉토리
+        self.partition_dir_2 = "./partitions_2"  # 파티션 파일이 저장될 디렉토리
         self.merged_dir = "./merged"  # 병합된 파일이 저장될 디렉토리
 
-        # 파티션 디렉토리 생성
-        if not os.path.exists(self.partition_dir):
-            os.makedirs(self.partition_dir)
-
         # 파티션 디렉토리 파일 제거
-        if os.path.exists(self.partition_dir):
-            for filename in os.listdir(self.partition_dir):
-                file_path = os.path.join(self.partition_dir, filename)
+        if os.path.exists(self.partition_dir_1):
+            for filename in os.listdir(self.partition_dir_1):
+                file_path = os.path.join(self.partition_dir_1, filename)
                 try:
                     if os.path.isfile(file_path) or os.path.islink(file_path):
                         os.unlink(file_path)
@@ -86,7 +83,21 @@ class Nprob:
                 except Exception as e:
                     print(f"Failed to delete {file_path}. Reason: {e}")
         else:
-            os.makedirs(self.partition_dir)
+            os.makedirs(self.partition_dir_1)
+
+        # 파티션 디렉토리 파일 제거
+        if os.path.exists(self.partition_dir_2):
+            for filename in os.listdir(self.partition_dir_2):
+                file_path = os.path.join(self.partition_dir_2, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print(f"Failed to delete {file_path}. Reason: {e}")
+        else:
+            os.makedirs(self.partition_dir_2)
 
         # 병합된 파일 디렉토리 생성
         if not os.path.exists(self.merged_dir):
@@ -157,11 +168,13 @@ class Nprob:
             self.OrgMain = "b"
             self.stat_in_org = "111"
             self.stat_out_org = "000"
+            self.partition_dir = self.partition_dir_1  # 파티션 파일이 저장될 디렉토리
             # self.chkForb = 1
         if self.auto_cover == 2:
             self.OrgMain = "s"
             self.stat_in_org = "111"
             self.stat_out_org = "000"
+            self.partition_dir = self.partition_dir_2  # 파티션 파일이 저장될 디렉토리
 
         self.max_e_qty = 3
         self.dynamic_cover = 1  # Cover-Up in Dynamic mode  0:N/A, 1:Cover
@@ -590,6 +603,7 @@ class Nprob:
         self.aa = a
         self.df = pd.DataFrame()
         self.df = pd.DataFrame(index=range(0, 1), columns=a)
+        self.merged_df = pd.DataFrame()
         self.no = 0
         self.hist = pd.DataFrame()
         self.hist = pd.DataFrame(index=range(0, 1),
@@ -942,7 +956,7 @@ class Nprob:
         print('nf: %d  //prc: %0.2f/ /in: %d /out: %0.1f /prf: %d /last_o %0.2f  /turn: %d' % (
             self.nf, price, self.in_str, self.piox, self.prf_able, self.last_o, self.turnover))
 
-        if self.nf != 0 and ((self.auto_cover == 1 and self.nf % 2000 == 0) or (self.auto_cover == 2 and self.nf % 2100 == 0)):
+        if self.nf != 0 and ((self.auto_cover == 1 and self.nf % 1000 == 0) or (self.auto_cover == 2 and self.nf % 1100 == 0)):
             # try:
             #     self.start_data_index += 1
             #     self.para.at[self.start_data_index, "cvol_m"] = self.cvol_m_cri_ave
@@ -9949,30 +9963,11 @@ class Nprob:
 
     #################################
 
-    # def add_data(self, data):
-    #     # 데이터를 현재 파티션에 추가
-    #     self.df = self.df.append(data, ignore_index=True)
-    #
-    #     # 파티션 크기를 초과하면 새로운 파티션 생성
-    #     if len(self.df) >= self.partition_size:
-    #         self.save_partition()
-    #         self.partition_index += 1
-    #         self.df = pd.DataFrame()
-
     def save_partition(self):
         # 현재 파티션을 파일로 저장
         partition_path = f"{self.partition_dir}/partition_{self.partition_index}.csv"
         self.df.to_csv(partition_path, index=False)
         print(f"Partition {self.partition_index} saved to {partition_path}")
-
-    # def load_partition(self, index):
-    #     # 특정 파티션을 메모리에 로드
-    #     partition_path = f"{self.partition_dir}/partition_{index}.csv"
-    #     if os.path.exists(partition_path):
-    #         self.df = pd.read_csv(partition_path)
-    #         print(f"Partition {index} loaded from {partition_path}")
-    #     else:
-    #         print(f"Partition {index} does not exist")
 
     def cleanup(self):
         # 모든 파티션 파일 삭제
@@ -9981,12 +9976,34 @@ class Nprob:
             os.remove(file_path)
         print("Partitions cleaned up")
 
-    def merge_partitions(self):
+    # def merge_partitions(self):
+    #
+    #     csv_files = [file for file in os.listdir(self.partition_dir) if file.endswith(".csv")]
+    #     sorted_files = sorted(csv_files, key=lambda x: int(x.split("_")[1].split(".")[0]))
+    #     df_list = []
+    #     unique_nf_values = set()
+    #     for file in sorted_files:
+    #         file_path = os.path.join(self.partition_dir, file)
+    #         df = pd.read_csv(file_path)
+    #         # nf 값을 기준으로 중복 제거
+    #         df = df[~df['nf'].isin(unique_nf_values)]
+    #         unique_nf_values.update(df['nf'].tolist())
+    #         df_list.append(df)
+    #     self.merged_df = pd.concat(df_list, ignore_index=True)
+    #     # nf 값을 기준으로 정렬
+    #     self.merged_df = self.merged_df.sort_values('nf')
 
+    def merge_partitions(self):
         csv_files = [file for file in os.listdir(self.partition_dir) if file.endswith(".csv")]
         sorted_files = sorted(csv_files, key=lambda x: int(x.split("_")[1].split(".")[0]))
         df_list = []
         unique_nf_values = set()
+
+        # self.df를 DataFrame으로 변환하여 df_list에 추가
+        if self.df is not None:
+            df_list.append(self.df)
+            unique_nf_values.update(self.df['nf'].tolist())
+
         for file in sorted_files:
             file_path = os.path.join(self.partition_dir, file)
             df = pd.read_csv(file_path)
@@ -9994,9 +10011,10 @@ class Nprob:
             df = df[~df['nf'].isin(unique_nf_values)]
             unique_nf_values.update(df['nf'].tolist())
             df_list.append(df)
-        merged_df = pd.concat(df_list, ignore_index=True)
+
+        self.merged_df = pd.concat(df_list, ignore_index=True)
         # nf 값을 기준으로 정렬
-        merged_df = merged_df.sort_values('nf')
+        self.merged_df = self.merged_df.sort_values('nf')
 
         # 현재 날짜와 시각(분) 가져오기
         now = datetime.now()
@@ -10004,7 +10022,7 @@ class Nprob:
 
         # 파일명에 날짜와 시각(분) 포함하여 저장
         # merged_df.to_csv(f"{self.merged_dir}/merged_data_{timestamp}.csv", index=False)
-        merged_df.to_csv(f"{self.merged_dir}/NP_{auto_cover}_merged_data_{timestamp}.csv", index=False)
+        self.merged_df.to_csv(f"{self.merged_dir}/{self.auto_cover}_merged_{timestamp}.csv", index=False)
 
     #################################
 
