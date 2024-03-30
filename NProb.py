@@ -9981,18 +9981,8 @@ class Nprob:
             os.remove(file_path)
         print("Partitions cleaned up")
 
-    # def merge_partitions(self):
-    #     csv_files = [file for file in os.listdir(self.partition_dir) if file.endswith(".csv")]
-    #     sorted_files = sorted(csv_files, key=lambda x: int(x.split("_")[1].split(".")[0]))
-    #     df_list = []
-    #     for file in sorted_files:
-    #         file_path = os.path.join(self.partition_dir, file)
-    #         df = pd.read_csv(file_path)
-    #         df_list.append(df)
-    #     merged_df = pd.concat(df_list, ignore_index=True)
-    #     merged_df.to_csv(f"{self.merged_dir}/merged_data.csv", index=False)
-
     def merge_partitions(self):
+
         csv_files = [file for file in os.listdir(self.partition_dir) if file.endswith(".csv")]
         sorted_files = sorted(csv_files, key=lambda x: int(x.split("_")[1].split(".")[0]))
         df_list = []
@@ -10014,7 +10004,7 @@ class Nprob:
 
         # 파일명에 날짜와 시각(분) 포함하여 저장
         # merged_df.to_csv(f"{self.merged_dir}/merged_data_{timestamp}.csv", index=False)
-        merged_df.to_csv(f"{self.merged_dir}/NP_{NP.auto_cover}_merged_data_{timestamp}.csv", index=False)
+        merged_df.to_csv(f"{self.merged_dir}/NP_{auto_cover}_merged_data_{timestamp}.csv", index=False)
 
     #################################
 
