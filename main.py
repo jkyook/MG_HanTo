@@ -951,20 +951,20 @@ async def check_unexecuted_orders(session):
 
     while True:
 
-        # (1) 시스템상
-        try:
-            for ord_no, order_info in orders.items():
-                if ord_no not in orders_che:
-                    unexecuted_orders[ord_no] = order_info
-            print("unexecuted_orders(시스템) : ", unexecuted_orders)
-        except Exception as e:
-            logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
+        # #(1) 시스템상
+        # try:
+        #     for ord_no, order_info in orders.items():
+        #         if ord_no not in orders_che:
+        #             unexecuted_orders[ord_no] = order_info
+        #     print("unexecuted_orders(시스템) : ", unexecuted_orders)
+        # except Exception as e:
+        #     logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
 
         # (2) 증권사 조회
         try:
             response = requests.request("GET", url, headers=headers, params=payload)
             data = response.json()
-            print("API 응답:", data)  # 응답 데이터 출력
+            # print("API 응답:", data)  # 응답 데이터 출력
 
             if "output1" in data:
                 df = pd.DataFrame(data["output1"])
@@ -972,11 +972,13 @@ async def check_unexecuted_orders(session):
                 df['ord_idx'] = df['ord_idx'].astype(float)
                 # 미체결 주문 필터링
                 filtered_df = df[(df['qty'] > 0) & (df['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+                if filtered_df.empty:
+                    unexecuted_orders = {}
                 try:
                     for _, order in filtered_df.iterrows():
                         ord_no = order['odno']
                         if ord_no not in orders_che:
-                            order_info = (order['ord_dt'], order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
+                            order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
                             unexecuted_orders[ord_no] = order_info
                     print("unexecuted_orders(증권사) : ", unexecuted_orders)
                 except Exception as e:
@@ -985,11 +987,10 @@ async def check_unexecuted_orders(session):
                 # 미체결 주문 정정
                 if reordered == 0:
                     for _, row in filtered_df.iterrows():
-                        odno = str(row['odno'])#row['odno']
-                        ord_qty = "0" #row['ord_qty']
+                        odno = int(row['odno'])#row['odno']
+                        ord_qty = "1" #row['ord_qty']
                         # [Header tr_id TTTO1103U(선물옵션 정정취소 주간)] 전량일경우 0으로 입력
                         # [Header tr_id JTCE1002U(선물옵션 정정취소 야간)] 일부수량 정정 및 취소 불가, 주문수량 반드시 입력 (공백 불가)
-                        # ord_idx = row['ord_idx']
 
                         # 현재 가격으로 정정주문 요청
                         print("odno, ord_qty, prc_o1 :", odno, ord_qty, prc_o1)
@@ -1046,6 +1047,38 @@ async def modify_order(odno, ord_qty, prc_o1):
         'hashkey': ''
     }
 
+    # account = "60025978"
+    # code = "105V04"
+    # qty = "1"
+    # prc = "375.20"
+    # OrdNo_org = "4229"
+    # bns = "02"  # 01:sell, 02:buy
+    # mode = 2  # new_ord, 2:reord/cancel, 3:che
+    #
+    # odno = OrdNo_org
+    #
+    # payload = json.dumps({
+    #     "ORD_PRCS_DVSN_CD": "02",
+    #     "CANO": account,
+    #     "ACNT_PRDT_CD": "03",
+    #     "RVSE_CNCL_DVSN_CD": "01",
+    #     "ORGN_ODNO": odno,
+    #     "ORD_QTY": qty,
+    #     "UNIT_PRICE": prc,
+    #     "NMPR_TYPE_CD": "01",
+    #     "KRX_NMPR_CNDT_CD": "0",
+    #     "RMN_QTY_YN": "Y",
+    #     "ORD_DVSN_CD": "01"
+    # })
+    # headers = {
+    #     'Content-Type': 'application/json',
+    #     'authorization': 'Bearer ' + str(access_token),
+    #     'appKey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+    #     'appSecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+    #     'tr_id': 'VTTO1103U',
+    #     'hashkey': ''
+    # }
+
     # [실전투자]
     # TTTO1103U: 선물옵션정정취소주문 주간
     # JTCE1002U: 선물옵션정정취소주문 야간
@@ -1053,9 +1086,16 @@ async def modify_order(odno, ord_qty, prc_o1):
     # VTTO1103U: 선물옵션정정취소주문 주간
     # VTCE1002U: 선물옵션정정취소주문 야간
 
+    # response = requests.request("POST", url, headers=headers, data=payload)
+    #
+    # print(response.text)
+
+
     try:
-        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+        response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
+        print(data)
+
 
         if data["rt_cd"] == "0":
             logger.info(f"주문 정정 성공: {odno}")
@@ -1415,7 +1455,7 @@ async def run_async_tasks(gui, loop):
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
             connect_websocket(session),
-            refresh_token(session),
+            # refresh_token(session),
             check_unexecuted_orders(session),
             msg(),
             # loop=loop
