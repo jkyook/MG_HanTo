@@ -1047,49 +1047,12 @@ async def modify_order(odno, ord_qty, prc_o1):
         'hashkey': ''
     }
 
-    # account = "60025978"
-    # code = "105V04"
-    # qty = "1"
-    # prc = "375.20"
-    # OrdNo_org = "4229"
-    # bns = "02"  # 01:sell, 02:buy
-    # mode = 2  # new_ord, 2:reord/cancel, 3:che
-    #
-    # odno = OrdNo_org
-    #
-    # payload = json.dumps({
-    #     "ORD_PRCS_DVSN_CD": "02",
-    #     "CANO": account,
-    #     "ACNT_PRDT_CD": "03",
-    #     "RVSE_CNCL_DVSN_CD": "01",
-    #     "ORGN_ODNO": odno,
-    #     "ORD_QTY": qty,
-    #     "UNIT_PRICE": prc,
-    #     "NMPR_TYPE_CD": "01",
-    #     "KRX_NMPR_CNDT_CD": "0",
-    #     "RMN_QTY_YN": "Y",
-    #     "ORD_DVSN_CD": "01"
-    # })
-    # headers = {
-    #     'Content-Type': 'application/json',
-    #     'authorization': 'Bearer ' + str(access_token),
-    #     'appKey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-    #     'appSecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-    #     'tr_id': 'VTTO1103U',
-    #     'hashkey': ''
-    # }
-
     # [실전투자]
     # TTTO1103U: 선물옵션정정취소주문 주간
     # JTCE1002U: 선물옵션정정취소주문 야간
     # [모의투자]
     # VTTO1103U: 선물옵션정정취소주문 주간
     # VTCE1002U: 선물옵션정정취소주문 야간
-
-    # response = requests.request("POST", url, headers=headers, data=payload)
-    #
-    # print(response.text)
-
 
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
