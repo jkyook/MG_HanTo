@@ -961,6 +961,45 @@ async def check_unexecuted_orders(session):
         #     logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
 
         # (2) 증권사 조회
+        # try:
+        #     response = requests.request("GET", url, headers=headers, params=payload)
+        #     data = response.json()
+        #     # print("API 응답:", data)  # 응답 데이터 출력
+        #
+        #     if "output1" in data:
+        #         df = pd.DataFrame(data["output1"])
+        #         df['qty'] = df['qty'].astype(int)
+        #         df['ord_idx'] = df['ord_idx'].astype(float)
+        #         # 미체결 주문 필터링
+        #         filtered_df = df[(df['qty'] > 0) & (df['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+        #         if filtered_df.empty:
+        #             unexecuted_orders = {}
+        #         try:
+        #             for _, order in filtered_df.iterrows():
+        #                 ord_no = order['odno']
+        #                 if ord_no not in orders_che:
+        #                     order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
+        #                     unexecuted_orders[ord_no] = order_info
+        #             print("unexecuted_orders(증권사) : ", unexecuted_orders)
+        #         except Exception as e:
+        #             logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
+        #
+        #         # 미체결 주문 정정
+        #         if reordered == 0:
+        #             for _, row in filtered_df.iterrows():
+        #                 odno = int(row['odno'])#row['odno']
+        #                 ord_qty = "1" #row['ord_qty']
+        #                 # [Header tr_id TTTO1103U(선물옵션 정정취소 주간)] 전량일경우 0으로 입력
+        #                 # [Header tr_id JTCE1002U(선물옵션 정정취소 야간)] 일부수량 정정 및 취소 불가, 주문수량 반드시 입력 (공백 불가)
+        #
+        #                 # 현재 가격으로 정정주문 요청
+        #                 print("odno, ord_qty, prc_o1 :", odno, ord_qty, prc_o1)
+        #                 await modify_order(odno, ord_qty, prc_o1)
+        #
+        #     else:
+        #         print("증권사 API 응답에 'output1' 키가 없습니다.")
+
+        # (2) 증권사 조회
         try:
             response = requests.request("GET", url, headers=headers, params=payload)
             data = response.json()
@@ -986,15 +1025,28 @@ async def check_unexecuted_orders(session):
 
                 # 미체결 주문 정정
                 if reordered == 0:
-                    for _, row in filtered_df.iterrows():
-                        odno = int(row['odno'])#row['odno']
-                        ord_qty = "1" #row['ord_qty']
-                        # [Header tr_id TTTO1103U(선물옵션 정정취소 주간)] 전량일경우 0으로 입력
-                        # [Header tr_id JTCE1002U(선물옵션 정정취소 야간)] 일부수량 정정 및 취소 불가, 주문수량 반드시 입력 (공백 불가)
+                    current_time = datetime.now().strftime('%H%M%S')  # 현재시각을 'HHMMSS' 형식으로 변환
+                    for order_info in unexecuted_orders.values():
+                        ord_dt = order_info[0]
+                        odno = int(order_info[1])
+                        ord_tmd = order_info[2]
+                        ord_qty = order_info[3]
+                        ord_idx = order_info[4]
 
-                        # 현재 가격으로 정정주문 요청
-                        print("odno, ord_qty, prc_o1 :", odno, ord_qty, prc_o1)
-                        await modify_order(odno, ord_qty, prc_o1)
+                        # 주문시각과 현재시각 비교
+                        if ord_tmd <= current_time:
+                            time_diff = (int(current_time[:2]) - int(ord_tmd[:2])) * 3600 + \
+                                        (int(current_time[2:4]) - int(ord_tmd[2:4])) * 60 + \
+                                        (int(current_time[4:6]) - int(ord_tmd[4:6]))
+                            if time_diff > 20:
+                                # 현재 가격으로 정정주문 요청
+                                print("odno, ord_qty, prc_o1 :", odno, ord_qty, prc_o1)
+                                await modify_order(odno, ord_qty, prc_o1)
+                            else:
+                                print(f"주문번호 {odno}은 주문시각으로부터 20초 이내입니다. 정정주문 미실행.")
+                        else:
+                            print(f"주문번호 {odno}은 주문시각이 현재시각보다 늦습니다. 정정주문 미실행.")
+
 
             else:
                 print("증권사 API 응답에 'output1' 키가 없습니다.")
