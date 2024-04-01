@@ -28,6 +28,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import Qt
 from qasync import QEventLoop
 # from qasync import asyncSlot, QThreadExecutor
 # from quamash import QEventLoop
@@ -48,41 +49,55 @@ class AutoTradeGUI(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_gui)
         self.timer.start(500)  # 1초마다 update_gui 호출
-        self.buy_sell_selection = 2  # 초기값은 매수
+        self.buy_sell_selection = "BUY"  # 초기값은 매수
         self.resize(1000, 800)  # 초기 창 크기 설정
 
     def initUI(self):
         central_widget = QWidget()
-        self.setWindowTitle('Auto Trade System')
+        self.setWindowTitle('[KOSPI] Auto Trade System')
 
         # 계좌 정보 구획
         self.account_group = QGroupBox('계좌 정보 등')
         self.account_layout = QVBoxLayout()
         self.account_num_label = QLabel('계좌번호: ')
         self.login_status_label = QLabel('로그인 상태: ')
-        self.order_ban_label = QLabel('주문금지: ')
         self.elap_label = QLabel('nf, elap: ')
-        self.order_ban_label.setStyleSheet("background-color: white;")  # 초기 배경색은 흰색
         self.account_layout.addWidget(self.account_num_label)
         self.account_layout.addWidget(self.login_status_label)
-        self.account_layout.addWidget(self.order_ban_label)
         self.account_layout.addWidget(self.elap_label)
+
+        # 주문금지 버튼 추가
+        self.order_ban_button = QPushButton('주문가능')
+        self.order_ban_button.setStyleSheet("background-color: green;")  # 초기 배경색은 녹색
+        self.order_ban_button.clicked.connect(self.toggle_order_ban)  # 버튼 클릭 이벤트 연결
+        self.account_layout.addWidget(self.order_ban_button)
+
         self.account_group.setLayout(self.account_layout)
 
-        # 시세 정보 구획
+        # 시세 내역 구획
         self.market_group = QGroupBox('시세 정보')
         self.market_layout = QVBoxLayout()
         self.stock_code_label = QLabel('종목코드: ')
         self.stock_open_label = QLabel('시가: ')
         self.stock_bid_label = QLabel('매수호가 잔량: ')
         self.stock_ask_label = QLabel('매도호가 잔량: ')
-        self.open_gui_button = QPushButton('Graph')  # GUI 열기 버튼 추가
         self.market_layout.addWidget(self.stock_code_label)
         self.market_layout.addWidget(self.stock_open_label)
         self.market_layout.addWidget(self.stock_bid_label)
         self.market_layout.addWidget(self.stock_ask_label)
-        self.market_layout.addWidget(self.open_gui_button)  # GUI 열기 버튼 추가
         self.market_group.setLayout(self.market_layout)
+
+        # 그래프 구획
+        self.grpah_group = QGroupBox('그래프')
+        self.grpah_layout = QHBoxLayout()
+        self.open_gui_button = QPushButton('Files')  # GUI 열기 버튼 추가
+        self.open_mer_df_button = QPushButton('merge_df')  # GUI 열기 버튼 추가
+        self.open_df_button = QPushButton('df')  # GUI 열기 버튼 추가
+        self.grpah_layout.addWidget(self.open_gui_button)  # GUI 열기 버튼 추가
+        self.grpah_layout.addWidget(self.open_mer_df_button)  # GUI 열기 버튼 추가
+        self.grpah_layout.addWidget(self.open_df_button)  # GUI 열기 버튼 추가
+        self.grpah_group.setLayout(self.grpah_layout)
+
 
         # 주문 입력 구획
         self.order_group = QGroupBox('주문 입력')
@@ -92,6 +107,7 @@ class AutoTradeGUI(QMainWindow):
         self.order_button = QPushButton('주문')
         self.buy_button = QPushButton('매수')
         self.sell_button = QPushButton('매도')
+        self.modify_order_button = QPushButton('정정주문')  # 정정주문 버튼 추가
         self.order_layout.addWidget(QLabel('주문수량: '))
         self.order_layout.addWidget(self.order_qty_edit)
         self.order_layout.addWidget(QLabel('주문가격: '))
@@ -100,19 +116,20 @@ class AutoTradeGUI(QMainWindow):
         order_selection_layout = QHBoxLayout()
         order_selection_layout.addWidget(self.buy_button)
         order_selection_layout.addWidget(self.sell_button)
+        order_selection_layout.addWidget(self.modify_order_button)  # 정정주문 버튼 추가
         self.order_layout.addLayout(order_selection_layout)
         self.order_layout.addWidget(self.order_button)
         self.order_group.setLayout(self.order_layout)
 
         # 누적수익 구획
-        self.profit_group = QGroupBox('누적수익')
+        self.profit_group = QGroupBox('수익 등')
         self.profit_layout = QHBoxLayout()
         self.npp_label = QLabel('NPPs: ')
         self.profit_layout.addWidget(self.npp_label)
         self.profit_label = QLabel('누적수익: ')
         self.profit_layout.addWidget(self.profit_label)
         self.profit_group.setLayout(self.profit_layout)
-        self.profit_group.setFixedSize(420,70)  # 누적수익 구획 크기 지정
+        self.profit_group.setFixedSize(420, 70)  # 누적수익 구획 크기 지정
 
         # 주문 상태 구획
         self.order_status_group = QGroupBox('주문 상태')
@@ -135,6 +152,14 @@ class AutoTradeGUI(QMainWindow):
         self.order_list_layout.addWidget(self.order_list_text)
         self.order_list_group.setLayout(self.order_list_layout)
 
+        # 미체결 주문 내역 구획
+        self.unexecuted_order_list_group = QGroupBox('미체결 주문 내역')
+        self.unexecuted_order_list_layout = QVBoxLayout()
+        self.unexecuted_order_list_text = QTextEdit()
+        self.unexecuted_order_list_text.setReadOnly(True)
+        self.unexecuted_order_list_layout.addWidget(self.unexecuted_order_list_text)
+        self.unexecuted_order_list_group.setLayout(self.unexecuted_order_list_layout)
+
         # 체결 내역 구획
         self.execution_list_group = QGroupBox('체결 내역')
         self.execution_list_layout = QVBoxLayout()
@@ -148,26 +173,101 @@ class AutoTradeGUI(QMainWindow):
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.account_group)
         left_layout.addWidget(self.market_group)
-        left_layout.addWidget(self.order_group)
+        left_layout.addWidget(self.grpah_group)
         left_layout.addWidget(self.profit_group)
+        left_layout.addWidget(self.order_group)
         left_layout.addWidget(self.order_status_group)
         main_layout.addLayout(left_layout)
 
+        mid_splitter = QSplitter(Qt.Vertical)
+        mid_splitter.addWidget(self.order_list_group)
+        mid_splitter.addWidget(self.unexecuted_order_list_group)
+        mid_splitter.setStretchFactor(0, 4)
+        mid_splitter.setStretchFactor(1, 1)
+        main_layout.addWidget(mid_splitter)
+
         right_layout = QHBoxLayout()
-        right_layout.addWidget(self.order_list_group)
         right_layout.addWidget(self.execution_list_group)
         main_layout.addLayout(right_layout)
 
-        self.setLayout(main_layout)
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
         # 버튼 클릭 이벤트 연결
         self.open_gui_button.clicked.connect(self.open_gui)
+        # self.open_mer_df_button.clicked.connect(self.open_df(self, mer=1))
+        self.open_mer_df_button.clicked.connect(lambda: self.open_df(mer=1))
+        # self.open_df_button.clicked.connect(self.open_df(self, mer=0))
+        self.open_df_button.clicked.connect(lambda: self.open_df(mer=0))
         self.order_button.clicked.connect(self.place_order)
         self.buy_button.clicked.connect(self.select_buy)
         self.sell_button.clicked.connect(self.select_sell)
+        self.modify_order_button.clicked.connect(self.modify_order)  # 정정주문 버튼 클릭 이벤트 연결
 
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
+
+    def open_gui(self):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        gui_path = os.path.join(script_dir, 'gui.py')
+        subprocess.Popen(['python', gui_path])
+
+    def open_df(self, mer = 0):
+        print("mer: ",mer)
+        try:
+            if NP.nf <= NP.partition_size or mer == 0:
+                df1 = NP.df
+                df2 = NP2.df
+            else:
+                NP.merge_partitions()
+                df1 = NP.merged_df
+                NP2.merge_partitions()
+                df2 = NP2.merged_df
+
+            # 2x1 형식으로 그래프 그리기
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 10))
+
+            # 첫 번째 그래프
+            ax1_price = ax1.twinx()
+
+            ax1.plot(df1['nf'], df1['cover_ordered'], color='red', label='Cover Ordered (NP)')
+            ax1.plot(df2['nf'], df2['cover_ordered'], color='orange', label='Cover Ordered (NP2)')
+            ax1_price.plot(df1['nf'], df1['price'], color='blue', label='Price')
+
+            ax1.set_xlabel('nf')
+            ax1.set_ylabel('Cover Ordered', color='red')
+            ax1_price.set_ylabel('Price', color='blue')
+
+            ax1.tick_params(axis='y', labelcolor='red')
+            ax1_price.tick_params(axis='y', labelcolor='blue')
+
+            ax1.set_title('Price and Cover Ordered (NP and NP2)')
+            ax1.grid(True)
+            ax1.legend()
+
+            # 두 번째 그래프
+            ax2_price = ax2.twinx()
+
+            ax2.plot(df1['nf'], df1['profit_opt'], color='green', label='Profit Opt (NP)')
+            ax2.plot(df2['nf'], df2['profit_opt'], color='lime', label='Profit Opt (NP2)')
+            ax2_price.plot(df1['nf'], df1['price'], color='blue', label='Price')
+
+            ax2.set_xlabel('nf')
+            ax2.set_ylabel('Profit Opt', color='green')
+            ax2_price.set_ylabel('Price', color='blue')
+
+            ax2.tick_params(axis='y', labelcolor='green')
+            ax2_price.tick_params(axis='y', labelcolor='blue')
+
+            ax2.set_title('Price and Profit Opt (NP and NP2)')
+            ax2.grid(True)
+            ax2.legend()
+
+            plt.tight_layout()
+            plt.show()
+
+        except Exception as e:
+            print(f"Error opening NP.df or NP2.df file: {e}")
 
     def select_buy(self):
         self.buy_sell_selection = "2"  # 매수
@@ -179,33 +279,55 @@ class AutoTradeGUI(QMainWindow):
         self.sell_button.setStyleSheet("background-color: blue")  # 매도 버튼 색상을 파란색으로 변경
         self.buy_button.setStyleSheet("")  # 매수 버튼 색상을 기본색으로 변경
 
-    # def place_order(self):
-    #     # qty = self.order_qty_edit.text()
-    #     # price = prc_o1
-    #     # price = self.order_price_edit.text()
-    #     # if qty and price:
-    #     asyncio.create_task(send_order(bns=2))  # 주문 요청
-
     def place_order(self):
         asyncio.create_task(send_order(bns=self.buy_sell_selection))  # 주문 요청
         self.order_button.setStyleSheet("background-color: green")  # 주문 버튼 색상을 녹색으로 변경
 
-    def open_gui(self):
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        gui_path = os.path.join(script_dir, 'gui.py')
-        subprocess.Popen(['python', gui_path])
+    def modify_order(self):
+        selected_order_id = self.get_selected_order_id()  # 선택된 주문 ID 가져오는 메서드 호출
+        if selected_order_id:
+            try:
+                new_price = self.order_price_edit.text()  # 주문가격 입력창에서 새로운 가격 가져오기
+            except:
+                new_price = prc_o1
+
+            if new_price:
+                new_price = float(new_price)
+                # modify_order(selected_order_id, new_price)  # BFut
+                modify_order(odno = selected_order_id, ord_qty = qty, prc_o1=new_price)
+            else:
+                print("정정주문 가격을 입력하세요.")
+        else:
+            print("정정할 주문을 선택하세요.")
+
+    def get_selected_order_id(self):
+        selected_order = self.unexecuted_order_list_text.textCursor().selectedText()
+        if selected_order:
+            order_id = selected_order.split(',')[0].strip()  # 주문 ID 추출
+            return order_id
+        return None
+
+    def toggle_order_ban(self):
+        global chkForb
+
+        if chkForb == 0:
+            chkForb = 1
+            self.order_ban_button.setText('주문금지')  # 버튼 텍스트 변경
+            self.order_ban_button.setStyleSheet("background-color: red;")  # 주문금지 시 배경색을 빨간색으로 변경
+        else:
+            chkForb = 0
+            self.order_ban_button.setText('주문가능')  # 버튼 텍스트 변경
+            self.order_ban_button.setStyleSheet("background-color: green;")  # 주문가능 시 배경색을 녹색으로 변경
 
     def update_gui(self):
-        # while True:
+        global elap, orders, unexecuted_orders
+
+        # 계좌 정보 업데이트
         self.account_num_label.setText(f'계좌번호: {account}')
         self.login_status_label.setText(f'로그인 상태: {access_token != ""}')  # 토큰 존재 여부로 로그인 상태 표시
-        self.order_ban_label.setText(f'주문금지: {chkForb}')
-        if chkForb == 1:
-            self.order_ban_label.setStyleSheet("background-color: red;")  # 주문금지 시 배경색을 빨간색으로 변경
-        else:
-            self.order_ban_label.setStyleSheet("background-color: green;")  # 주문가능 시 배경색을 흰색으로 변경
         self.elap_label.setText(f'nf, elap: {nf}, {elap:.1f}')
 
+        # 시가 등
         self.stock_code_label.setText(f'종목코드: {code}')
         self.stock_open_label.setText(f'시가: {price}')
         self.stock_bid_label.setText(f'매수호가 잔량: {lblBqty1v}')
@@ -221,6 +343,14 @@ class AutoTradeGUI(QMainWindow):
         # 누적수익 업데이트
         self.profit_label.setText(f'누적수익: {NP.profit_opt:.1f}, {NP2.profit_opt:.1f}')
         self.npp_label.setText(f'NPPs: {npp}, {npp2}')
+
+        # 미체결 내역 업데이트
+        self.unexecuted_order_list_text.setText(str(unexecuted_orders))  # 미체결 내역 표시
+
+        # 미체결내역 조회  => main에서 처리
+        # now = datetime.now()
+        # if now.second % 5 == 0:
+        #     check_unexecuted_orders('BTC/USDT')
 
 #####################################################################
 
@@ -302,8 +432,8 @@ except:
 async def create_session():
     return aiohttp.ClientSession()
 
-# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjQ1MmE4MWRjLTg3NTYtNDU2OC1hMGI4LTM5NGVmYjI5ODBmZSIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEwODk4NzE0LCJpYXQiOjE3MTA4MTIzMTQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.hk35jZCGQTnjNDhEXdm_vA59TdF-Rqhj8jwQHdoNA1YMep23g9l7eAmzlOB9nX0O7eYM9tYL34NaR_0fZKxxyg"
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU1MTUwZDJiLTY5ZTQtNDhjMi04MjlmLTU4NmM3NTJlZTFkOCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzExNzU1OTI2LCJpYXQiOjE3MTE2Njk1MjYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.rtHYmcveAU3WR_wBizX00bb0vheW0v9yWmgXfUaL53onHAbkYhtGbtaYolM2ff4bxurcNcS0Np6BBf4z_11nUQ"
+# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU1MTUwZDJiLTY5ZTQtNDhjMi04MjlmLTU4NmM3NTJlZTFkOCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzExNzU1OTI2LCJpYXQiOjE3MTE2Njk1MjYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.rtHYmcveAU3WR_wBizX00bb0vheW0v9yWmgXfUaL53onHAbkYhtGbtaYolM2ff4bxurcNcS0Np6BBf4z_11nUQ"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZjZGI1MGI3LTM4M2MtNDNjZC1hMWQzLWMxNGViYmRjYmZmMCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMDE1MzM0LCJpYXQiOjE3MTE5Mjg5MzQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.jcS36NyXpJ6ne31FfZ5QSOxbgs90OX6fJzsVLIJFgCKI-jF4zA3GQ3A8s9tCYw6IrP_AKArJTWGmt0jD3519uw"
 
 #####################################################################
 # 토큰 갱신 함수
@@ -640,7 +770,8 @@ async def stockspurchase_futs(data_cnt, data):
 async def place_order():
     global npp, npp2, nf, np_count, cum_qty
 
-    if nf == 10:
+    # test 주문
+    if 1==0 and nf == 10:
         await send_order(bns = "02")
 
     if npp ==  4:
@@ -791,21 +922,15 @@ async def check_unexecuted_orders(session):
     global access_token, prc_o1
     global unexecuted_orders, orders, orders_che, reordered
 
-    # (1) 시스템상
-    for ord_no, order_info in orders.items():
-        if ord_no not in orders_che:
-            unexecuted_orders[ord_no] = order_info
-
-    print("unexecuted_orders : ", unexecuted_orders)
-
-    # (2) 증권사 조회
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
+
+    today = datetime.now().strftime("%Y%m%d")
 
     payload = {
         "CANO": account,
         "ACNT_PRDT_CD": "03",
-        "STRT_ORD_DT": "20240313",
-        "END_ORD_DT": "20240313",
+        "STRT_ORD_DT": today,
+        "END_ORD_DT": today,
         "SLL_BUY_DVSN_CD": "00",
         "CCLD_NCCS_DVSN": "00",
         "SORT_SQN": "DS",
@@ -815,6 +940,7 @@ async def check_unexecuted_orders(session):
         "CTX_AREA_FK200": "",
         "CTX_AREA_NK200": ""
     }
+
     headers = {
         'content-type': 'application/json',
         'authorization': 'Bearer ' + str(access_token),
@@ -824,30 +950,56 @@ async def check_unexecuted_orders(session):
     }
 
     while True:
+
+        # (1) 시스템상
         try:
-            # async with session.get(url, headers=headers, params=payload) as response:
+            for ord_no, order_info in orders.items():
+                if ord_no not in orders_che:
+                    unexecuted_orders[ord_no] = order_info
+            print("unexecuted_orders(시스템) : ", unexecuted_orders)
+        except Exception as e:
+            logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
+
+        # (2) 증권사 조회
+        try:
             response = requests.request("GET", url, headers=headers, params=payload)
-
             data = response.json()
-            # print(data)
+            print("API 응답:", data)  # 응답 데이터 출력
 
-            df = pd.DataFrame(data["output1"])
-            # filtered_df = df[df['ord_qty'].astype(int) >= 1]
-            filtered_df = df[df['tot_ccld_qty'] != df['ord_qty']][['odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
-            print("증권사 미체결 주문:", filtered_df)
+            if "output1" in data:
+                df = pd.DataFrame(data["output1"])
+                df['qty'] = df['qty'].astype(int)
+                df['ord_idx'] = df['ord_idx'].astype(float)
+                # 미체결 주문 필터링
+                filtered_df = df[(df['qty'] > 0) & (df['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+                try:
+                    for _, order in filtered_df.iterrows():
+                        ord_no = order['odno']
+                        if ord_no not in orders_che:
+                            order_info = (order['ord_dt'], order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
+                            unexecuted_orders[ord_no] = order_info
+                    print("unexecuted_orders(증권사) : ", unexecuted_orders)
+                except Exception as e:
+                    logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
 
-            # 미체결 주문 정정
-            if reordered == 0:
-                for _, row in filtered_df.iterrows():
-                    odno = row['odno']
-                    ord_qty = row['ord_qty']
-                    ord_idx = row['ord_idx']
+                # 미체결 주문 정정
+                if reordered == 0:
+                    for _, row in filtered_df.iterrows():
+                        odno = str(row['odno'])#row['odno']
+                        ord_qty = "0" #row['ord_qty']
+                        # [Header tr_id TTTO1103U(선물옵션 정정취소 주간)] 전량일경우 0으로 입력
+                        # [Header tr_id JTCE1002U(선물옵션 정정취소 야간)] 일부수량 정정 및 취소 불가, 주문수량 반드시 입력 (공백 불가)
+                        # ord_idx = row['ord_idx']
 
-                    # 현재 가격으로 정정주문 요청
-                    await modify_order(odno, ord_qty, prc_o1)
+                        # 현재 가격으로 정정주문 요청
+                        print("odno, ord_qty, prc_o1 :", odno, ord_qty, prc_o1)
+                        await modify_order(odno, ord_qty, prc_o1)
+
+            else:
+                print("증권사 API 응답에 'output1' 키가 없습니다.")
 
         except Exception as e:
-            logger.error(f"미체결 주문 확인 중 오류 발생: {e}")
+            logger.error(f"미체결 주문 확인 중 오류 발생(증권사): {e}")
 
         await asyncio.sleep(5)  # 5초 간격으로 미체결 주문 확인
 
@@ -856,33 +1008,50 @@ async def check_unexecuted_orders(session):
 
 async def modify_order(odno, ord_qty, prc_o1):
 
-    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
 
-    payload = {
+    # ORD_PRCS_DVSN_CD: 주문처리구분코드(02: 실전투자)
+    # CANO: 계좌번호
+    # ACNT_PRDT_CD: 계좌상품코드(03: 선물옵션)
+    # RVSE_CNCL_DVSN_CD: 정정취소구분코드(01:정정, 02: 취소)
+    # ORGN_ODNO: 원주문번호
+    # ORD_QTY: 주문수량, TTTO1103U(선물옵션 정정취소 주간) 사용 중 전량 취소일 경우 0(혹은 아무 숫자)로 입력 부탁드립니다.
+    # UNIT_PRICE: 주문가격
+    # NMPR_TYPE_CD: 호가유형코드(01: 지정가)
+    # KRX_NMPR_CNDT_CD: KRX호가조건코드(0: 없음)
+    # RMN_QTY_YN: 잔량처리여부(Y: 잔량전부)
+    # ORD_DVSN_CD: 주문구분코드(01: 일반주문)
+
+    payload = json.dumps({
+        "ORD_PRCS_DVSN_CD": "02",
         "CANO": account,
-        "ACNT_PRDT_CD": "03", # 계좌상품코드
-        "KRX_FWDG_ORD_ORGNO": odno,
-        "ORD_DVSN": "02", # (01: 정상, 02: 정정, 03: 취소)
-        "ORD_PRDT_CD": "03", # 주문상품코드 (03: 선물옵션)
-        "UNIT_PRICE": str(prc_o1),
-        "ORD_PRCS_DVSN_CD": "02", # (02: 지정가)
-        "NMPR_TYPE_CD": "01", # (01: 보통)
-        "FUOP_CLSF_CNTG_QTY": str(ord_qty),
-        "KRX_NMPR_CNDT_CD": "0", # (0: 없음)
-        "CTAC_TLNO": "",
-        "FUOP_ITEM_DVSN_CD": "01", # (01: 선물)
-        "SHTN_PDNO": code,
+        "ACNT_PRDT_CD": "03",
+        "RVSE_CNCL_DVSN_CD": "01",
+        "ORGN_ODNO": str(odno), #"000000" +
         "ORD_QTY": str(ord_qty),
-        "ORD_TMD": "0"
+        "UNIT_PRICE": str(prc_o1),
+        "NMPR_TYPE_CD": "01",
+        "KRX_NMPR_CNDT_CD": "0",
+        "RMN_QTY_YN": "Y",
+        "ORD_DVSN_CD": "01"
+    })
+
+    # ; charset=utf-8
+    headers = {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer ' + str(access_token),
+        'appKey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+        'appSecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+        'tr_id': 'VTTO1103U',
+        'hashkey': ''
     }
 
-    headers = {
-        'content-type': 'application/json',
-        'authorization': 'Bearer ' + str(access_token),
-        'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-        'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        'tr_id': 'VTTC0802U'
-    }
+    # [실전투자]
+    # TTTO1103U: 선물옵션정정취소주문 주간
+    # JTCE1002U: 선물옵션정정취소주문 야간
+    # [모의투자]
+    # VTTO1103U: 선물옵션정정취소주문 주간
+    # VTCE1002U: 선물옵션정정취소주문 야간
 
     try:
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))

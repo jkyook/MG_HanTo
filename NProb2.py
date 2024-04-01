@@ -158,7 +158,7 @@ class Nprob:
         # self.which_market = 1
         # if self.which_market == 4:
         #     chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
-        # self.which_market = 1
+        self.which_market = 3
 
         # self.auto
         self.auto_cover = 2  # 0:off, 1:sell, 2:buy
