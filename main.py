@@ -344,8 +344,21 @@ class AutoTradeGUI(QMainWindow):
         self.profit_label.setText(f'누적수익: {NP.profit_opt:.1f}, {NP2.profit_opt:.1f}')
         self.npp_label.setText(f'NPPs: {npp}, {npp2}')
 
+        # # 미체결 내역 업데이트
+        # self.unexecuted_order_list_text.setText(str(unexecuted_orders))  # 미체결 내역 표시
+
         # 미체결 내역 업데이트
-        self.unexecuted_order_list_text.setText(str(unexecuted_orders))  # 미체결 내역 표시
+        unexecuted_order_text = ""
+        for order_no, order_info in unexecuted_orders.items():
+            odno, ord_tmd, trad_dvsn_name, ord_qty, ord_idx = order_info
+            if trad_dvsn_name == '매수':
+                unexecuted_order_text += f"{odno[-5:]}, <span style='color:red;'>{trad_dvsn_name}</span>, {ord_idx}, @ {ord_tmd}<br>"
+            elif trad_dvsn_name == '매도':
+                unexecuted_order_text += f"{odno[-5:]}, <span style='color:blue;'>{trad_dvsn_name}</span>, {ord_idx}, @ {ord_tmd}<br>"
+            else:
+                unexecuted_order_text += f"{odno[-5:]}, {trad_dvsn_name}, {ord_idx}, @ {ord_tmd}<br>"
+
+        self.unexecuted_order_list_text.setHtml(unexecuted_order_text)  # HTML 형식으로 표시
 
         # 미체결내역 조회  => main에서 처리
         # now = datetime.now()
@@ -432,8 +445,6 @@ except:
 async def create_session():
     return aiohttp.ClientSession()
 
-# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU1MTUwZDJiLTY5ZTQtNDhjMi04MjlmLTU4NmM3NTJlZTFkOCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzExNzU1OTI2LCJpYXQiOjE3MTE2Njk1MjYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.rtHYmcveAU3WR_wBizX00bb0vheW0v9yWmgXfUaL53onHAbkYhtGbtaYolM2ff4bxurcNcS0Np6BBf4z_11nUQ"
-# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZjZGI1MGI3LTM4M2MtNDNjZC1hMWQzLWMxNGViYmRjYmZmMCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMDE1MzM0LCJpYXQiOjE3MTE5Mjg5MzQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.jcS36NyXpJ6ne31FfZ5QSOxbgs90OX6fJzsVLIJFgCKI-jF4zA3GQ3A8s9tCYw6IrP_AKArJTWGmt0jD3519uw"
 access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijk0MmRjM2Q2LTQzM2ItNGYwNC1iMGM1LTFjZWYzNmM0MDM0YyIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMTAyMzYyLCJpYXQiOjE3MTIwMTU5NjIsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.PfwGZRQvRySvRH7FS8kwd_7sbIMovfuZnXHqtEgAFZoHB29gRquMOtEZC_opGGX2JQNnQwCJHl4N91SQn3XCSg"
 
 #####################################################################
@@ -883,21 +894,6 @@ async def send_order(bns):
             'tr_id': 'VTTO1101U',
             'hashkey': ''
         }
-        #
-        # if chkForb != 1:
-        #     async with aiohttp.ClientSession() as session:
-        #         async with session.post(url, headers=headers, data=payload) as response:
-        #             result = await response.json()
-        #             if result["rt_cd"] == "0":
-        #                 ord_no = result["output"]["ODNO"]
-        #                 NP.OrgOrdNo = str(ord_no)
-        #                 logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
-        #                 orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"))
-        #                 bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}")
-        #                 ord_sent = 1
-        #                 await update_order_list()  # 주문 내역 업데이트
-        #             else:
-        #                 logger.error("주문 요청 실패")
 
         if chkForb != 1:
             async with aiohttp.ClientSession() as session:
@@ -923,7 +919,7 @@ async def update_order_list():
 
     order_text = ""
     for ord_no, order_info in orders.items():
-        print("order_info : ", order_info)
+        print("order_info : ", ord_no, order_info)
         bns, qty, price, prc_o1, time, is_modified = order_info
         if bns == '2':
             order_text += f"{ord_no[-5:]}, <span style='color:red;'>매수</span>, {prc_o1}, @ {time}<br>"
@@ -1049,7 +1045,7 @@ async def check_unexecuted_orders(session):
 # 정정주문
 
 async def modify_order(odno, ord_qty, prc_o1):
-    global price
+    global price, gui
 
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
 
@@ -1102,16 +1098,24 @@ async def modify_order(odno, ord_qty, prc_o1):
         print("주문 data: ", data)
 
         if data["rt_cd"] == "0":
+            new_odno = data['output']['ODNO']
             logger.info(f"주문 정정 성공: {odno}")
-            if odno in orders:
-                # 주문 정정 성공 시 주문내역 업데이트
-                side = orders[odno][0]  # 기존 주문의 side 값 가져오기
-                orders[odno] = (side, ord_qty, price, prc_o1, datetime.now().strftime("%H:%M"), True)
+            str_odno = str(odno).zfill(10)  # odno를 문자열로 변환하고 10자리로 맞춤
+            if str_odno in orders:
+                side = orders[str_odno][0]  # 기존 주문의 side 값 가져오기
+                orders[new_odno] = (side, ord_qty, price, prc_o1, datetime.now().strftime("%H:%M"), True)
+                del orders[str_odno]  # 기존 주문번호 삭제
                 await update_order_list()
                 # 정정된 주문을 미체결주문 목록에 추가
-                unexecuted_orders[odno] = (side, ord_qty, prc_o1, datetime.now().strftime("%H:%M"))
+                # unexecuted_orders[new_odno] = (new_odno, datetime.now().strftime("%H:%M:%S"), "", ord_qty, prc_o1)
+                # if str_odno in unexecuted_orders or odno in unexecuted_orders: #
+                #     del unexecuted_orders[str_odno]  # 기존 미체결주문 삭제
+                #     del unexecuted_orders[odno]  # 기존 미체결주문 삭제
+                #     gui.unexecuted_order_list_text.setText(str(unexecuted_orders))
+                # print("unexecuted_orders_new :", unexecuted_orders)
             else:
                 logger.warning(f"주문번호 {odno}에 해당하는 주문이 orders에 존재하지 않습니다.")
+                print("orders : ", orders)
         else:
             logger.error(f"주문 정정 실패: {odno}, 실패 사유: {data['msg1']}")
 
