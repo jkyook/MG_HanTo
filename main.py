@@ -433,7 +433,8 @@ async def create_session():
     return aiohttp.ClientSession()
 
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU1MTUwZDJiLTY5ZTQtNDhjMi04MjlmLTU4NmM3NTJlZTFkOCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzExNzU1OTI2LCJpYXQiOjE3MTE2Njk1MjYsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.rtHYmcveAU3WR_wBizX00bb0vheW0v9yWmgXfUaL53onHAbkYhtGbtaYolM2ff4bxurcNcS0Np6BBf4z_11nUQ"
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZjZGI1MGI3LTM4M2MtNDNjZC1hMWQzLWMxNGViYmRjYmZmMCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMDE1MzM0LCJpYXQiOjE3MTE5Mjg5MzQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.jcS36NyXpJ6ne31FfZ5QSOxbgs90OX6fJzsVLIJFgCKI-jF4zA3GQ3A8s9tCYw6IrP_AKArJTWGmt0jD3519uw"
+# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjZjZGI1MGI3LTM4M2MtNDNjZC1hMWQzLWMxNGViYmRjYmZmMCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMDE1MzM0LCJpYXQiOjE3MTE5Mjg5MzQsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.jcS36NyXpJ6ne31FfZ5QSOxbgs90OX6fJzsVLIJFgCKI-jF4zA3GQ3A8s9tCYw6IrP_AKArJTWGmt0jD3519uw"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijk0MmRjM2Q2LTQzM2ItNGYwNC1iMGM1LTFjZWYzNmM0MDM0YyIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMTAyMzYyLCJpYXQiOjE3MTIwMTU5NjIsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.PfwGZRQvRySvRH7FS8kwd_7sbIMovfuZnXHqtEgAFZoHB29gRquMOtEZC_opGGX2JQNnQwCJHl4N91SQn3XCSg"
 
 #####################################################################
 # 토큰 갱신 함수
@@ -882,6 +883,21 @@ async def send_order(bns):
             'tr_id': 'VTTO1101U',
             'hashkey': ''
         }
+        #
+        # if chkForb != 1:
+        #     async with aiohttp.ClientSession() as session:
+        #         async with session.post(url, headers=headers, data=payload) as response:
+        #             result = await response.json()
+        #             if result["rt_cd"] == "0":
+        #                 ord_no = result["output"]["ODNO"]
+        #                 NP.OrgOrdNo = str(ord_no)
+        #                 logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
+        #                 orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"))
+        #                 bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}")
+        #                 ord_sent = 1
+        #                 await update_order_list()  # 주문 내역 업데이트
+        #             else:
+        #                 logger.error("주문 요청 실패")
 
         if chkForb != 1:
             async with aiohttp.ClientSession() as session:
@@ -891,7 +907,7 @@ async def send_order(bns):
                         ord_no = result["output"]["ODNO"]
                         NP.OrgOrdNo = str(ord_no)
                         logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
-                        orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"))
+                        orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"), False)
                         bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}")
                         ord_sent = 1
                         await update_order_list()  # 주문 내역 업데이트
@@ -907,7 +923,8 @@ async def update_order_list():
 
     order_text = ""
     for ord_no, order_info in orders.items():
-        bns, qty, price, prc_o1, time = order_info
+        print("order_info : ", order_info)
+        bns, qty, price, prc_o1, time, is_modified = order_info
         if bns == '2':
             order_text += f"{ord_no[-5:]}, <span style='color:red;'>매수</span>, {prc_o1}, @ {time}<br>"
         else:
@@ -925,6 +942,7 @@ async def check_unexecuted_orders(session):
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
     today = datetime.now().strftime("%Y%m%d")
+    print("today :",today)
 
     payload = {
         "CANO": account,
@@ -961,45 +979,6 @@ async def check_unexecuted_orders(session):
         #     logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
 
         # (2) 증권사 조회
-        # try:
-        #     response = requests.request("GET", url, headers=headers, params=payload)
-        #     data = response.json()
-        #     # print("API 응답:", data)  # 응답 데이터 출력
-        #
-        #     if "output1" in data:
-        #         df = pd.DataFrame(data["output1"])
-        #         df['qty'] = df['qty'].astype(int)
-        #         df['ord_idx'] = df['ord_idx'].astype(float)
-        #         # 미체결 주문 필터링
-        #         filtered_df = df[(df['qty'] > 0) & (df['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
-        #         if filtered_df.empty:
-        #             unexecuted_orders = {}
-        #         try:
-        #             for _, order in filtered_df.iterrows():
-        #                 ord_no = order['odno']
-        #                 if ord_no not in orders_che:
-        #                     order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
-        #                     unexecuted_orders[ord_no] = order_info
-        #             print("unexecuted_orders(증권사) : ", unexecuted_orders)
-        #         except Exception as e:
-        #             logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
-        #
-        #         # 미체결 주문 정정
-        #         if reordered == 0:
-        #             for _, row in filtered_df.iterrows():
-        #                 odno = int(row['odno'])#row['odno']
-        #                 ord_qty = "1" #row['ord_qty']
-        #                 # [Header tr_id TTTO1103U(선물옵션 정정취소 주간)] 전량일경우 0으로 입력
-        #                 # [Header tr_id JTCE1002U(선물옵션 정정취소 야간)] 일부수량 정정 및 취소 불가, 주문수량 반드시 입력 (공백 불가)
-        #
-        #                 # 현재 가격으로 정정주문 요청
-        #                 print("odno, ord_qty, prc_o1 :", odno, ord_qty, prc_o1)
-        #                 await modify_order(odno, ord_qty, prc_o1)
-        #
-        #     else:
-        #         print("증권사 API 응답에 'output1' 키가 없습니다.")
-
-        # (2) 증권사 조회
         try:
             response = requests.request("GET", url, headers=headers, params=payload)
             data = response.json()
@@ -1025,28 +1004,38 @@ async def check_unexecuted_orders(session):
 
                 # 미체결 주문 정정
                 if reordered == 0:
-                    current_time = datetime.now().strftime('%H%M%S')  # 현재시각을 'HHMMSS' 형식으로 변환
-                    for order_info in unexecuted_orders.values():
-                        ord_dt = order_info[0]
-                        odno = int(order_info[1])
-                        ord_tmd = order_info[2]
-                        ord_qty = order_info[3]
-                        ord_idx = order_info[4]
+                    current_time = datetime.now()
+                    for _, row in filtered_df.iterrows():
+                        odno = int(row['odno'])
+                        ord_qty = int(row['ord_qty'])
+                        ord_dt = row['ord_dt']  # 주문일자 추출
+                        ord_tmd = row['ord_tmd']
+
+                        # 주문일자와 주문시각을 조합하여 datetime 객체 생성
+                        ord_datetime = datetime.strptime(ord_dt + ord_tmd, '%Y%m%d%H%M%S')
 
                         # 주문시각과 현재시각 비교
-                        if ord_tmd <= current_time:
-                            time_diff = (int(current_time[:2]) - int(ord_tmd[:2])) * 3600 + \
-                                        (int(current_time[2:4]) - int(ord_tmd[2:4])) * 60 + \
-                                        (int(current_time[4:6]) - int(ord_tmd[4:6]))
-                            if time_diff > 20:
-                                # 현재 가격으로 정정주문 요청
-                                print("odno, ord_qty, prc_o1 :", odno, ord_qty, prc_o1)
-                                await modify_order(odno, ord_qty, prc_o1)
-                            else:
-                                print(f"주문번호 {odno}은 주문시각으로부터 20초 이내입니다. 정정주문 미실행.")
-                        else:
-                            print(f"주문번호 {odno}은 주문시각이 현재시각보다 늦습니다. 정정주문 미실행.")
+                        elapsed_time = (current_time - ord_datetime).total_seconds()
+                        print("times : ", elapsed_time, current_time, ord_datetime)  # 수정된 부분
 
+                        if elapsed_time > 20:
+                            # 현재 가격으로 정정주문 요청
+                            print(f"주문번호 {odno} - 주문 시간 경과({elapsed_time}초), 정정 주문 실행")
+                            await modify_order(odno, ord_qty, prc_o1)
+                        else:
+                            print(f"주문번호 {odno}은 주문시각으로부터 20초 이내입니다. 정정주문 미실행.")
+
+                    # 기존 미체결주문 목록 삭제
+                    unexecuted_orders.clear()
+
+                    # 새로운 미체결주문 목록 업데이트
+                    for _, order in filtered_df.iterrows():
+                        ord_no = order['odno']
+                        if ord_no not in orders_che:
+                            order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
+                            unexecuted_orders[ord_no] = order_info
+
+                    print("unexecuted_orders(증권사) : ", unexecuted_orders)
 
             else:
                 print("증권사 API 응답에 'output1' 키가 없습니다.")
@@ -1060,6 +1049,7 @@ async def check_unexecuted_orders(session):
 # 정정주문
 
 async def modify_order(odno, ord_qty, prc_o1):
+    global price
 
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
 
@@ -1109,15 +1099,21 @@ async def modify_order(odno, ord_qty, prc_o1):
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
-        print(data)
-
+        print("주문 data: ", data)
 
         if data["rt_cd"] == "0":
             logger.info(f"주문 정정 성공: {odno}")
-            # 주문 정정 성공 시 추가 작업 수행
+            if odno in orders:
+                # 주문 정정 성공 시 주문내역 업데이트
+                side = orders[odno][0]  # 기존 주문의 side 값 가져오기
+                orders[odno] = (side, ord_qty, price, prc_o1, datetime.now().strftime("%H:%M"), True)
+                await update_order_list()
+                # 정정된 주문을 미체결주문 목록에 추가
+                unexecuted_orders[odno] = (side, ord_qty, prc_o1, datetime.now().strftime("%H:%M"))
+            else:
+                logger.warning(f"주문번호 {odno}에 해당하는 주문이 orders에 존재하지 않습니다.")
         else:
             logger.error(f"주문 정정 실패: {odno}, 실패 사유: {data['msg1']}")
-            # 주문 정정 실패 시 추가 작업 수행
 
     except Exception as e:
         logger.error(f"주문 정정 중 오류 발생: {e}")
@@ -1470,7 +1466,7 @@ async def run_async_tasks(gui, loop):
     async with aiohttp.ClientSession() as session:
         await asyncio.gather(
             connect_websocket(session),
-            # refresh_token(session),
+            refresh_token(session),
             check_unexecuted_orders(session),
             msg(),
             # loop=loop
