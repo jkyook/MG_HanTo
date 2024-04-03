@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPalette, QColor
 from qasync import QEventLoop
 # from qasync import asyncSlot, QThreadExecutor
 # from quamash import QEventLoop
@@ -204,6 +205,9 @@ class AutoTradeGUI(QMainWindow):
         self.sell_button.clicked.connect(self.select_sell)
         self.modify_order_button.clicked.connect(self.modify_order)  # 정정주문 버튼 클릭 이벤트 연결
 
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(255, 255, 204))  # 연한 노랑색 설정
+        self.setPalette(palette)
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
@@ -784,17 +788,17 @@ async def place_order():
 
     # test 주문
     if 1==0 and nf == 10:
-        await send_order(bns = "02")
+        await send_order(bns = "2")
 
     if npp ==  4:
-        await send_order(bns = "02")
+        await send_order(bns = "2")
     elif npp ==  -4:
-        await send_order(bns = "01")
+        await send_order(bns = "1")
 
     if npp2 ==  4:
-        await send_order(bns = "02")
+        await send_order(bns = "2")
     elif npp2 ==  -4:
-        await send_order(bns = "01")
+        await send_order(bns = "1")
 
     # 기록
     if 1==0:

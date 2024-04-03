@@ -33,6 +33,7 @@ import telegram
 import ssl
 import gc
 import sys
+from memory_profiler import profile, memory_usage
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -55,6 +56,7 @@ chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
 
 if bot_alive == 1:
     bot1 = telegram.Bot(token=chat_token)
+
 
 # 테스트 ####
 class Nprob:
@@ -157,7 +159,7 @@ class Nprob:
         # self.which_market = 1
         # if self.which_market == 4:
         #     chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
-        # self.which_market = 3
+        # self.which_market = 1
 
         # self.auto
         self.auto_cover = 1  # 0:off, 1:sell, 2:buy
@@ -493,6 +495,25 @@ class Nprob:
                                  columns=["no", "nf", "time", "bns", 'prc', 'prc_o', 'ap', 'qty', 'type', 'profit',
                                           'prf_opt', 'mode'])
 
+        self.df_prc_s = None
+        self.df_std_prc = None
+        self.df_std_std = None
+        self.df_std_std_s = None
+        self.cvol_m_peak = None
+        self.df_rsi = None
+        self.df_test_signal = None
+        self.df_gray_strong = None
+        self.df_bns2 = None
+        self.df_bns_check = None
+        self.df_bns_check_s = None
+        self.df_bns_check_ss = None
+        self.df_bns_check2 = None
+        self.df_rsi_peak = None
+        self.df_rsi_peak_s = None
+        self.df_sum_peak = None
+        self.df_triple = None
+        merged_df = None
+
         # AI
 
         self.ai_ = pd.read_csv("index_ai_sshort.csv").columns.values.tolist()
@@ -547,6 +568,7 @@ class Nprob:
 
         # self.lstm()
 
+    # @profile
     def nprob(self, price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v, lblShoga1v,
               lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1):  # lblShoga2v,, lblBhoga2v
 
@@ -588,7 +610,6 @@ class Nprob:
         #     for i, obj in enumerate(sorted_objects[:10], 1):
         #         print(f"{i}. {obj['type']}: {obj['size']} bytes, referrers: {obj['referrers']}")
 
-
         if self.nf != 0 and ((self.auto_cover == 1 and self.nf % 1000 == 0) or (self.auto_cover == 2 and self.nf % 1100 == 0)):
             self.btnSave_Clicked()
 
@@ -619,7 +640,7 @@ class Nprob:
 
         # init_prc
         # if self.nf == 200:
-            # self.init_prc = self.df.loc[self.nf - 200:self.nf - 1, "px1"].mean()
+        # self.init_prc = self.df.loc[self.nf - 200:self.nf - 1, "px1"].mean()
 
         if self.nf > 200:
             try:
@@ -655,7 +676,7 @@ class Nprob:
             prc_std_1000 = self.df.loc[self.nf - min(1000, self.nf):self.nf - 1, "px1"].std() * (
                     1000 / min(self.nf, 1000)) ** 0.5
         else:
-            prc_std_1000 = self.tick #self.prc_std_1000_ave
+            prc_std_1000 = self.tick  # self.prc_std_1000_ave
         self.df.at[self.nf, "prc_std_1000"] = prc_std_1000
 
         ######## prc_std
@@ -663,7 +684,7 @@ class Nprob:
             prc_std = self.df.loc[self.nf - min(500, self.nf) + 1:self.nf - 1, "price"].std() * (
                     1000 / min(self.nf, 500)) ** 0.5
         else:
-            prc_std = self.tick #self.prc_std_ave
+            prc_std = self.tick  # self.prc_std_ave
         self.df.at[self.nf, "prc_std"] = prc_std
 
         if self.nf >= 101:  # and prc_avg != 0:
@@ -844,7 +865,7 @@ class Nprob:
         if self.nf >= 51:  # and std_prc != 0:
             std_std_prc = self.df.loc[self.nf - 20: self.nf - 1, "std_prc"].std()
         else:
-            std_std_prc = self.tick/2 #self.std_std_prc_ave
+            std_std_prc = self.tick / 2  # self.std_std_prc_ave
         self.df.at[self.nf, "std_std_prc"] = std_std_prc
 
         ####### self.prc_std_per_cri
@@ -1057,9 +1078,9 @@ class Nprob:
         ###### (1) dxy med_200_sig
         med_200_sig = 0
         if self.nf >= self.min_1 * 3 / 2 + 1:
-            if dxy_20_medi > 0 and dxy_20_medi > self.dxy_200_medi:# and self.dxy_200_medi > self.dxy_200_cri_ave_p:
+            if dxy_20_medi > 0 and dxy_20_medi > self.dxy_200_medi:  # and self.dxy_200_medi > self.dxy_200_cri_ave_p:
                 med_200_sig = 1
-            if dxy_20_medi < 0 and dxy_20_medi < self.dxy_200_medi:# and self.dxy_200_medi < self.dxy_200_cri_ave_m:
+            if dxy_20_medi < 0 and dxy_20_medi < self.dxy_200_medi:  # and self.dxy_200_medi < self.dxy_200_cri_ave_m:
                 med_200_sig = -1
         self.df.at[self.nf, "med_200_sig"] = med_200_sig
 
@@ -1093,6 +1114,42 @@ class Nprob:
                 if self.dxy_decay < 0:
                     self.dxy_decay += dxy
         self.df.at[self.nf, "dxy_decay"] = self.dxy_decay
+
+        ### data ###
+        if self.nf > 250:
+            self.df_prc_s = self.df.iloc[self.nf - 200: self.nf - 1, self.df.columns.get_loc("prc_s")]
+            self.df_std_prc = self.df.iloc[self.nf - 150: self.nf - 1, self.df.columns.get_loc("std_prc_cvol_m")]
+            self.df_std_std = self.df.iloc[self.nf - 200: self.nf - 1, self.df.columns.get_loc("std_std_prc_cvol_m")]
+            self.df_std_std_s = self.df.iloc[self.nf - 75: self.nf - 1, self.df.columns.get_loc("std_std_prc_cvol_m")]
+            if self.nf > 500:
+                self.cvol_m_peak = self.df.iloc[self.nf - 100: self.nf - 1, self.df.columns.get_loc("std_std_prc_cvol_m_peak")]
+            self.df_rsi = self.df.iloc[self.nf - 200: self.nf - 1, self.df.columns.get_loc("rsi")]
+            self.df_test_signal = self.df.iloc[self.nf - 100: self.nf - 1, self.df.columns.get_loc("test_signal")]
+            if self.nf > 500:
+                self.df_gray_strong = self.df.iloc[self.nf - 350: self.nf - 1, self.df.columns.get_loc("gray_strong")]
+        if self.nf > 250:
+            if self.nf > 310:
+                self.df_bns2 = self.df.iloc[self.nf - 300: self.nf - 1, self.df.columns.get_loc("dOrgMain_new_bns2")]
+            self.df_bns_check = self.df.iloc[self.nf - 100: self.nf - 1, self.df.columns.get_loc("bns_check")]
+            self.df_bns_check_s = self.df.iloc[self.nf - 50: self.nf - 1, self.df.columns.get_loc("bns_check")]
+            self.df_bns_check_ss = self.df.iloc[self.nf - 75: self.nf - 25, self.df.columns.get_loc("bns_check")]
+            self.df_bns_check2 = self.df.iloc[self.nf - 100: self.nf - 1, self.df.columns.get_loc("bns_check_2")]
+            if self.nf > 500:
+                self.df_rsi_peak = self.df.iloc[self.nf - 500: self.nf - 1, self.df.columns.get_loc("rsi_peak")]
+            self.df_rsi_peak_s = self.df.iloc[self.nf - 75: self.nf - 1, self.df.columns.get_loc("rsi_peak")]
+            self.df_sum_peak = self.df.iloc[self.nf - 250: self.nf - 1, self.df.columns.get_loc("sum_peak")]
+
+            self.df_triple = self.df.iloc[self.nf - 100: self.nf - 1, self.df.columns.get_loc("triple_last")]
+
+            self.std_std_prc_cvol_m_peak = 0
+            if self.df_std_std[self.df_std_std >= self.std_std_prc_cvol_m_limit].count() >= 1:
+                if self.std_std_prc_cvol_m < self.std_std_prc_cvol_m_limit * 0.5:
+                    self.std_std_prc_cvol_m_peak = 1
+                if self.std_std_prc_cvol_m >= self.std_std_prc_cvol_m_limit * 1.5:
+                    self.std_std_prc_cvol_m_peak = 2
+                if self.std_std_prc_cvol_m >= self.std_std_prc_cvol_m_limit * 2:
+                    self.std_std_prc_cvol_m_peak = 3
+            self.df.at[self.nf, "std_std_prc_cvol_m_peak"] = self.std_std_prc_cvol_m_peak
 
         # EMA
         if self.nf < 400 + 11:
@@ -1819,7 +1876,7 @@ class Nprob:
         ###### (3) cvol_m_sig
         cvol_m_sig = 0
         if self.nf >= self.sec_15 + 51:
-            if self.cvol_m > cvol_m_ave:# and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave:
+            if self.cvol_m > cvol_m_ave:  # and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave:
                 cvol_m_sig = 1
             else:
                 cvol_m_sig = 0
@@ -1828,7 +1885,7 @@ class Nprob:
         ###### (3) cvol_m_sig_ave
         self.cvol_m_sig = 0
         if self.nf >= self.sec_15 + 51:
-            if self.cvol_m > cvol_m_ave:# and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave:
+            if self.cvol_m > cvol_m_ave:  # and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave:
                 self.cvol_m_sig = 1
             else:
                 self.cvol_m_sig = 0
@@ -1837,9 +1894,9 @@ class Nprob:
         ###### (3) cvol_m_sig_a  # good index
         cvol_m_sig_a = 0
         if self.nf >= self.sec_15 + 51:
-            if self.cvol_m > cvol_m_ave:# and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave * 1.25:
+            if self.cvol_m > cvol_m_ave:  # and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave * 1.25:
                 cvol_m_sig_a = 1
-            elif self.cvol_m > cvol_m_ave:# and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave * 2:
+            elif self.cvol_m > cvol_m_ave:  # and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave * 2:
                 cvol_m_sig_a = 2
             if self.cvol_m < cvol_m_ave:
                 cvol_m_sig_a = 0
@@ -1848,7 +1905,7 @@ class Nprob:
         ###### (3-1) cvol_m_peak
         cvol_m_peak = 0
         if self.nf >= self.sec_15 + 51:
-            if self.cvol_m > cvol_m_ave * 2:# and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave:  # and self.cvol_m > self.cvol_m_start * 0.3:
+            if self.cvol_m > cvol_m_ave * 2:  # and self.cvol_m_cri_ave != 0 and self.cvol_m > self.cvol_m_cri_ave:  # and self.cvol_m > self.cvol_m_start * 0.3:
                 if self.dxy_200_medi > 0:
                     self.cvol_m_peak_ox = 1
                     cvol_m_peak = 1
@@ -1863,7 +1920,7 @@ class Nprob:
         cvol_m_inv_peak = 0
         if self.nf >= self.sec_15 + 51:
             if self.cvol_m_peak_ox == 1 or self.cvol_m_peak_ox == -1:
-                if self.cvol_m < cvol_m_ave * 2:# and self.cvol_m_cri_ave != 0 and self.cvol_m < self.cvol_m_cri_ave:
+                if self.cvol_m < cvol_m_ave * 2:  # and self.cvol_m_cri_ave != 0 and self.cvol_m < self.cvol_m_cri_ave:
                     cvol_m_inv_peak = -1
                     if self.cvol_m_peak_ox == 1:
                         self.cvol_m_peak_ox = 0
@@ -2061,7 +2118,7 @@ class Nprob:
         ###### (3-5) cvol_s_sig
         cvol_s_sig = 0
         if self.nf >= self.sec_15 + 51:
-            if cvol_s_std > cvol_s_ave_long * 2:# and self.cvol_s_cri_ave_p != 0:  # and abs(cvol_s) > abs(self.cvol_s_cri_ave_p):
+            if cvol_s_std > cvol_s_ave_long * 2:  # and self.cvol_s_cri_ave_p != 0:  # and abs(cvol_s) > abs(self.cvol_s_cri_ave_p):
                 cvol_s_sig = 1
         self.df.at[self.nf, "cvol_s_sig"] = cvol_s_sig
 
@@ -2121,10 +2178,10 @@ class Nprob:
         ###### (4) cvol_t_ox
         cvol_t_ox = 0
         if self.nf >= self.sec_15 + 51:
-            if cvol_t_ave > 0:# and self.cvol_t_cri_ave_p != 0 and cvol_t > self.cvol_t_cri_ave_p:
+            if cvol_t_ave > 0:  # and self.cvol_t_cri_ave_p != 0 and cvol_t > self.cvol_t_cri_ave_p:
                 if cvol_t_ave > (cvol_t_ave_long) * 2 and cvol_t > (cvol_t_ave_long) * 100:
                     cvol_t_ox = 1
-            if cvol_t_ave < 0:# and self.cvol_t_cri_ave_m != 0 and cvol_t < self.cvol_t_cri_ave_m:
+            if cvol_t_ave < 0:  # and self.cvol_t_cri_ave_m != 0 and cvol_t < self.cvol_t_cri_ave_m:
                 if cvol_t_ave < (cvol_t_ave_long) * 2 and cvol_t < (cvol_t_ave_long) * 100:
                     cvol_t_ox = -1
         self.df.at[self.nf, "cvol_t_ox"] = cvol_t_ox
@@ -2554,7 +2611,7 @@ class Nprob:
             self.df.at[11, "piox"] = -2
 
         if self.nf > 101:
-            if self.df.loc[self.nf - 5:self.nf - 1, "d_OMain"].sum() == 0: #count_m < self.count_m_act_ave * 2 and
+            if self.df.loc[self.nf - 5:self.nf - 1, "d_OMain"].sum() == 0:  # count_m < self.count_m_act_ave * 2 and
                 if self.piox > 0:
                     if dxy_20_medi < 0 and self.cover_signal_2 <= 0:
                         self.piox = 0
@@ -2614,7 +2671,6 @@ class Nprob:
                         self.df.at[self.nf, "ai_dbns"] = self.ai_dbns
                         print("             *** AI_BNS *** : ", self.ai_bns)
 
-
                 # LONG mode
                 print("***************/// AI_LONG ///***************  ")
                 if self.ai_mode == 2 or self.ai_mode == 3:
@@ -2638,6 +2694,11 @@ class Nprob:
                         self.df.at[self.nf, "ai_long_dbns"] = self.ai_long_dbns
                         print("             *** AI_long_BNS *** : ", self.ai_long_bns)
 
+                del df_ai
+                del nX
+                del rX
+                del lstm_t
+                del lstm_long_t
 
         ###############################
         #  // In Decision - pre //
@@ -2832,41 +2893,41 @@ class Nprob:
             if pr_error == 1:
                 print("8")
 
-            ### data ###
-            if self.nf > 250:
-                self.df_prc_s = self.df.iloc[self.nf - 200: self.nf, self.df.columns.get_loc("prc_s")]
-                self.df_std_prc = self.df.iloc[self.nf - 150: self.nf, self.df.columns.get_loc("std_prc_cvol_m")]
-                self.df_std_std = self.df.iloc[self.nf - 200: self.nf, self.df.columns.get_loc("std_std_prc_cvol_m")]
-                self.df_std_std_s = self.df.iloc[self.nf - 75: self.nf, self.df.columns.get_loc("std_std_prc_cvol_m")]
-                if self.nf > 500:
-                    self.cvol_m_peak = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("std_std_prc_cvol_m_peak")]
-                self.df_rsi = self.df.iloc[self.nf - 200: self.nf, self.df.columns.get_loc("rsi")]
-                self.df_test_signal = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("test_signal")]
-                if self.nf > 500:
-                    self.df_gray_strong = self.df.iloc[self.nf - 350: self.nf, self.df.columns.get_loc("gray_strong")]
-            if self.nf > 250:
-                if self.nf > 310:
-                    self.df_bns2 = self.df.iloc[self.nf - 300: self.nf, self.df.columns.get_loc("dOrgMain_new_bns2")]
-                self.df_bns_check = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("bns_check")]
-                self.df_bns_check_s = self.df.iloc[self.nf - 50: self.nf, self.df.columns.get_loc("bns_check")]
-                self.df_bns_check_ss = self.df.iloc[self.nf - 75: self.nf - 25, self.df.columns.get_loc("bns_check")]
-                self.df_bns_check2 = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("bns_check_2")]
-                if self.nf > 500:
-                    self.df_rsi_peak = self.df.iloc[self.nf - 500: self.nf, self.df.columns.get_loc("rsi_peak")]
-                self.df_rsi_peak_s = self.df.iloc[self.nf - 75: self.nf, self.df.columns.get_loc("rsi_peak")]
-                self.df_sum_peak = self.df.iloc[self.nf - 250: self.nf, self.df.columns.get_loc("sum_peak")]
-
-                self.df_triple = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("triple_last")]
-
-                self.std_std_prc_cvol_m_peak = 0
-                if self.df_std_std[self.df_std_std >= self.std_std_prc_cvol_m_limit].count() >= 1:
-                    if self.std_std_prc_cvol_m < self.std_std_prc_cvol_m_limit * 0.5:
-                        self.std_std_prc_cvol_m_peak = 1
-                    if self.std_std_prc_cvol_m >= self.std_std_prc_cvol_m_limit * 1.5:
-                        self.std_std_prc_cvol_m_peak = 2
-                    if self.std_std_prc_cvol_m >= self.std_std_prc_cvol_m_limit * 2:
-                        self.std_std_prc_cvol_m_peak = 3
-                self.df.at[self.nf, "std_std_prc_cvol_m_peak"] = self.std_std_prc_cvol_m_peak
+            # ### data ###
+            # if self.nf > 250:
+            #     self.df_prc_s = self.df.iloc[self.nf - 200: self.nf, self.df.columns.get_loc("prc_s")]
+            #     self.df_std_prc = self.df.iloc[self.nf - 150: self.nf, self.df.columns.get_loc("std_prc_cvol_m")]
+            #     self.df_std_std = self.df.iloc[self.nf - 200: self.nf, self.df.columns.get_loc("std_std_prc_cvol_m")]
+            #     self.df_std_std_s = self.df.iloc[self.nf - 75: self.nf, self.df.columns.get_loc("std_std_prc_cvol_m")]
+            #     if self.nf > 500:
+            #         self.cvol_m_peak = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("std_std_prc_cvol_m_peak")]
+            #     self.df_rsi = self.df.iloc[self.nf - 200: self.nf, self.df.columns.get_loc("rsi")]
+            #     self.df_test_signal = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("test_signal")]
+            #     if self.nf > 500:
+            #         self.df_gray_strong = self.df.iloc[self.nf - 350: self.nf, self.df.columns.get_loc("gray_strong")]
+            # if self.nf > 250:
+            #     if self.nf > 310:
+            #         self.df_bns2 = self.df.iloc[self.nf - 300: self.nf, self.df.columns.get_loc("dOrgMain_new_bns2")]
+            #     self.df_bns_check = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("bns_check")]
+            #     self.df_bns_check_s = self.df.iloc[self.nf - 50: self.nf, self.df.columns.get_loc("bns_check")]
+            #     self.df_bns_check_ss = self.df.iloc[self.nf - 75: self.nf - 25, self.df.columns.get_loc("bns_check")]
+            #     self.df_bns_check2 = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("bns_check_2")]
+            #     if self.nf > 500:
+            #         self.df_rsi_peak = self.df.iloc[self.nf - 500: self.nf, self.df.columns.get_loc("rsi_peak")]
+            #     self.df_rsi_peak_s = self.df.iloc[self.nf - 75: self.nf, self.df.columns.get_loc("rsi_peak")]
+            #     self.df_sum_peak = self.df.iloc[self.nf - 250: self.nf, self.df.columns.get_loc("sum_peak")]
+            #
+            #     self.df_triple = self.df.iloc[self.nf - 100: self.nf, self.df.columns.get_loc("triple_last")]
+            #
+            #     self.std_std_prc_cvol_m_peak = 0
+            #     if self.df_std_std[self.df_std_std >= self.std_std_prc_cvol_m_limit].count() >= 1:
+            #         if self.std_std_prc_cvol_m < self.std_std_prc_cvol_m_limit * 0.5:
+            #             self.std_std_prc_cvol_m_peak = 1
+            #         if self.std_std_prc_cvol_m >= self.std_std_prc_cvol_m_limit * 1.5:
+            #             self.std_std_prc_cvol_m_peak = 2
+            #         if self.std_std_prc_cvol_m >= self.std_std_prc_cvol_m_limit * 2:
+            #             self.std_std_prc_cvol_m_peak = 3
+            #     self.df.at[self.nf, "std_std_prc_cvol_m_peak"] = self.std_std_prc_cvol_m_peak
 
             ##########################
             # // In Decision - main //
@@ -4409,7 +4470,7 @@ class Nprob:
         # prf_able
         self.prf_able = 0
 
-        profit_band = self.profit_min_tick * 2 # self.cvol_m / self.cvol_m_cri_ave * 2  # * ee_s ** 0.6 # * ee_s
+        profit_band = self.profit_min_tick * 2  # self.cvol_m / self.cvol_m_cri_ave * 2  # * ee_s ** 0.6 # * ee_s
         loss_band = self.loss_max_tick  # * ee_s
 
         if profit_band > self.profit_min_tick * 2:
@@ -5469,7 +5530,6 @@ class Nprob:
                                     self.cover_by_opt = 0
                                     self.hist_rec(self.nf, lblShoga1v, lblBhoga1v, self.exed_qty, self.OrgMain, self.type,
                                                   self.profit, self.profit_opt, self.mode, self.ave_prc, prc_o1)
-
 
             # triple + p1000
             self.bns_triple = 0
@@ -6614,7 +6674,6 @@ class Nprob:
                         except:
                             pass
 
-
             if self.df.loc[self.nf - 25: self.nf - 1, "cover_ordered"].mean() == 1:  # and (self.which_market==3 or abs(self.prf_cover)>=1.5):
 
                 self.prf_cover = (price - self.cover_in_prc) / prc_std
@@ -7316,7 +7375,8 @@ class Nprob:
 
             # telegram
             if 1 == 1:  # or (self.which_market == 3 and now.hour <= 11) or self.OrgMain != "n":
-                c = ["time", "bns", "qty", "prc_o", "type"]  # , "profit", "prf_opt"]
+                # c = ["time", "bns", "qty", "prc_o", "type", "prf_opt"]  # , "profit", "prf_opt"]
+                c = ["prf_opt", "prc_o", "type"]  # , "profit", "prf_opt"]
                 d = ["bns", "qty", "time", "profit", "prf_opt"]  # ["nf", "time", "bns", "prc", "type", "ap", "qty"]
                 e = ["bns", "qty", "prc", "ap"]
                 if 1 == 1:
@@ -7329,11 +7389,14 @@ class Nprob:
                     text3 = 'bns: ' + self.OrgMain + '  qty: ' + str(self.exed_qty) + '  now: ' + str(
                         price) + ',  ap: ' + str(round(self.ave_prc, 2))
 
+                    self.text1 = text1
+                    # self.text2 = text2
+                    # self.text3 = text3
+
                 if 1 == 1 and bot_alive == 1:  ##
                     bot1.sendMessage(chat_id="322233222", text=text1)
-                    time.sleep(0.1)
-                    bot1.sendMessage(chat_id="322233222", text=text2)
-                    bot1.sendMessage(chat_id="322233222", text=text3)
+                    # bot1.sendMessage(chat_id="322233222", text=text2)
+                    # bot1.sendMessage(chat_id="322233222", text=text3)
 
                     self.msg_sent = 1
 
@@ -7375,6 +7438,8 @@ class Nprob:
 
         print('-----------')
 
+        print(f"Memory usage: {memory_usage()[0]} MB")
+
         # 파티션 크기를 초과하면 새로운 파티션 생성
         if len(self.df) >= self.partition_size:
             self.save_partition()
@@ -7382,6 +7447,38 @@ class Nprob:
             self.df = self.df.iloc[-1000:]  # self.df.tail(200)#.reset_index(drop=False)
             self.nfset = self.df['nf'].iloc[-1]
             print(self.df)
+
+        if self.nf > 250:
+            try:
+
+                del self.df_prc_s
+                del self.df_std_prc
+                del self.df_std_std
+                del self.df_std_std_s
+                if self.nf > 500:
+                    del self.cvol_m_peak
+
+                del self.df_rsi
+                del self.df_test_signal
+                if self.nf > 500:
+                    del self.df_gray_strong
+                if self.nf > 250:
+                    if self.nf > 310:
+                        del self.df_bns2
+                    del self.df_bns_check
+                    del self.df_bns_check_s
+                    del self.df_bns_check_ss
+                    del self.df_bns_check2
+                    if self.nf > 500:
+                        del self.df_rsi_peak
+                    del self.df_rsi_peak_s
+                    del self.df_sum_peak
+                    del self.df_triple
+
+            except:
+                print("del error")
+
+        gc.collect()
 
         ######################
         return self.d_OMain
@@ -7403,6 +7500,8 @@ class Nprob:
         print("Partitions cleaned up")
 
     def merge_partitions(self):
+        global merged_df
+
         csv_files = [file for file in os.listdir(self.partition_dir) if file.endswith(".csv")]
         sorted_files = sorted(csv_files, key=lambda x: int(x.split("_")[1].split(".")[0]))
         df_list = []
@@ -7421,16 +7520,19 @@ class Nprob:
             unique_nf_values.update(df['nf'].tolist())
             df_list.append(df)
 
-        self.merged_df = pd.concat(df_list, ignore_index=True)
+        merged_df = pd.concat(df_list, ignore_index=True)
         # nf 값을 기준으로 정렬
-        self.merged_df = self.merged_df.sort_values('nf')
+        merged_df = merged_df.sort_values('nf')
 
         # 현재 날짜와 시각(분) 가져오기
         now = datetime.now()
         timestamp = now.strftime("%m%d_%H%M")
 
         # 파일명에 날짜와 시각(분) 포함하여 저장
-        self.merged_df.to_csv(f"{self.merged_dir}/{self.auto_cover}_merged_{timestamp}.csv", index=False)
+        merged_df.to_csv(f"{self.merged_dir}/{self.auto_cover}_merged_{timestamp}.csv", index=False)
+
+        # 병합된 데이터프레임 반환
+        return merged_df
 
     #################################
 
@@ -7503,6 +7605,9 @@ class Nprob:
         print("merge")
         self.merge_partitions()  # mgd_df = self.merge_partitions()
         # mgd_df.to_csv('%s' % filename)
+
+        # # 사용이 끝난 후 메모리에서 해제
+        # del merged_df
 
         if self.which_market == 3:
             self.hist.to_csv('%s' % filename_hist)
