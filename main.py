@@ -659,7 +659,7 @@ def stockhoka_futs(data):
 # 지수선물체결처리 출력라이브러리
 
 async def stockspurchase_futs(data_cnt, data):
-    global price, volume, cvolume, cgubun, count, npp, npp2, elap
+    global price, volume, cvolume, cgubun, count, npp, npp2, elap, NP, NP2
     global last_time, last_volume, cgubun_sum, cvolume_mid, cvolume_sum, count_mid, nf, ExedQty
     global lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
 
@@ -731,8 +731,6 @@ async def stockspurchase_futs(data_cnt, data):
                            lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
             npp2 = NP2.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
                            lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
-
-
 
             # 기록
             if 1==0:

@@ -33,7 +33,7 @@ import telegram
 import ssl
 import gc
 import sys
-from memory_profiler import profile, memory_usage
+# from memory_profiler import profile, memory_usage
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -7438,7 +7438,7 @@ class Nprob:
 
         print('-----------')
 
-        print(f"Memory usage: {memory_usage()[0]} MB")
+        # print(f"Memory usage: {memory_usage()[0]} MB")
 
         # 파티션 크기를 초과하면 새로운 파티션 생성
         if len(self.df) >= self.partition_size:
