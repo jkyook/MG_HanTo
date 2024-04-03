@@ -33,7 +33,8 @@ import telegram
 import ssl
 import gc
 import sys
-# from memory_profiler import profile, memory_usage
+from memory_profiler import profile, memory_usage
+import weakref
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -57,6 +58,95 @@ chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
 if bot_alive == 1:
     bot1 = telegram.Bot(token=chat_token)
 
+class AIModel:
+
+    def __init__(self):
+
+        now = datetime.now()
+        if now.hour >= 8 and now.hour <= 15:
+            self.which_market = 3  # (1:bitmex, 2:upbit, 3:kospi, 4:e-mini, 5:A50, 6:Micro, 7:HS)
+        else:
+            self.which_market = 4
+        self.which_market = 1
+        self.ai_mode = 3
+
+        self.ai_ = pd.read_csv("index_ai_sshort.csv").columns.values.tolist()
+        self.ai_x = ['cvolume', 'std_prc', 'prc_s', 'rsi', 'count', 'cvol_c', 'cvol_m', 'cvol_s', 'cvol_t', 'y_1',
+                     'y_2', 'y_3']
+        self.time_span_lstm = 10
+        self.time_span_lstm_c = 20  #
+        self.time_span_lstm_alt = 50
+        nb_features = len(self.ai_)
+        self.force_on = 0
+        self.force = 0
+
+        self.model = self.load_model()  # 모델 로드
+
+    def load_model(self):
+
+        # BNS mode
+        if self.ai_mode == 1 or self.ai_mode == 3:
+
+            # primary model(rsi포함)
+            if self.which_market == 1:
+                json_file = open('model_1.json', 'r')
+            if self.which_market == 3:
+                json_file = open('model_3.json', 'r')
+            if self.which_market == 4:
+                json_file = open('model_4.json', 'r')
+            loaded_model_json = json_file.read()
+            json_file.close()
+            self.loaded_model = model_from_json(loaded_model_json)
+            if self.which_market == 1:
+                self.loaded_model.load_weights("model_1.h5")
+            if self.which_market == 4:
+                self.loaded_model.load_weights("model_4.h5")
+            if self.which_market == 3:
+                self.loaded_model.load_weights("model_3.h5")
+            print("BNS model")
+            self.loaded_model.summary()
+
+        # LONG mode
+        if self.ai_mode == 2 or self.ai_mode == 3:
+            if 1 == 1:  # h5 file
+                if self.which_market == 1:
+                    # json_file_long = open('model.json', 'r')
+                    self.loaded_long_model = load_model('model_long_1.h5')
+                if self.which_market == 4:
+                    # json_file_long = open('model.json', 'r')
+                    self.loaded_long_model = load_model('model_long_4.h5')
+                if self.which_market == 3:
+                    # json_file_long = open('model_long_3.json', 'r')
+                    self.loaded_long_model = load_model('model_long_3.h5')
+            print("BNS_long model")
+            self.loaded_long_model.summary()
+
+    def predict(self, df, nf):
+
+        # DATA_PREPARATION
+        df_ai = df.loc[nf - self.time_span_lstm - 50: nf - 1, self.ai_x]
+        try:
+            df_ai = df_ai.dropna(subset=['y_3'])
+        except:
+            pass
+        nX = np.array(df_ai).astype(np.float32)
+        rX = []
+        rX.append(nX[len(nX) - 1 - self.time_span_lstm:len(nX) - 1])
+        rX = np.array(rX)
+
+        # SHORT MODE
+        print("***************/// AI_SHORT ///***************  ")
+        if self.ai_mode == 1 or self.ai_mode == 3:
+            lstm_t = self.loaded_model.predict(rX)
+
+        # LONG mode
+        print("***************/// AI_LONG ///***************  ")
+        if self.ai_mode == 2 or self.ai_mode == 3:
+            lstm_long_t = self.loaded_long_model.predict(rX)
+
+        ks.backend.clear_session()
+
+        return lstm_t, lstm_long_t
 
 # 테스트 ####
 class Nprob:
@@ -514,54 +604,7 @@ class Nprob:
         self.df_triple = None
         merged_df = None
 
-        # AI
-
-        self.ai_ = pd.read_csv("index_ai_sshort.csv").columns.values.tolist()
-        self.ai_x = ['cvolume', 'std_prc', 'prc_s', 'rsi', 'count', 'cvol_c', 'cvol_m', 'cvol_s', 'cvol_t', 'y_1',
-                     'y_2', 'y_3']
-        self.time_span_lstm = 10
-        self.time_span_lstm_c = 20  #
-        self.time_span_lstm_alt = 50
-        nb_features = len(self.ai_)
-        self.force_on = 0
-        self.force = 0
-
-        # BNS mode
-        if self.ai_mode == 1 or self.ai_mode == 3:
-
-            # primary model(rsi포함)
-            if self.which_market == 1:
-                json_file = open('model_1.json', 'r')
-            if self.which_market == 3:
-                json_file = open('model_3.json', 'r')
-            if self.which_market == 4:
-                json_file = open('model_4.json', 'r')
-            loaded_model_json = json_file.read()
-            json_file.close()
-            self.loaded_model = model_from_json(loaded_model_json)
-            if self.which_market == 1:
-                self.loaded_model.load_weights("model_1.h5")
-            if self.which_market == 4:
-                self.loaded_model.load_weights("model_4.h5")
-            if self.which_market == 3:
-                self.loaded_model.load_weights("model_3.h5")
-            print("BNS model")
-            self.loaded_model.summary()
-
-        # LONG mode
-        if self.ai_mode == 2 or self.ai_mode == 3:
-            if 1 == 1:  # h5 file
-                if self.which_market == 1:
-                    # json_file_long = open('model.json', 'r')
-                    self.loaded_long_model = load_model('model_long_1.h5')
-                if self.which_market == 4:
-                    # json_file_long = open('model.json', 'r')
-                    self.loaded_long_model = load_model('model_long_4.h5')
-                if self.which_market == 3:
-                    # json_file_long = open('model_long_3.json', 'r')
-                    self.loaded_long_model = load_model('model_long_3.h5')
-            print("BNS_long model")
-            self.loaded_long_model.summary()
+        self.ai_model = AIModel()
 
         print(self.df)
         print(self.hist)
@@ -2626,79 +2669,50 @@ class Nprob:
         ###############################
 
         if (self.ai_mode == 1 or self.ai_mode == 3) and self.nf > 215:
-            # print("          AI working.....")
 
-            if 1 == 1:
+            # self.cal_ai()
+            lstm_t, lstm_long_t = self.ai_model.predict(df=self.df, nf=self.nf)
 
-                # (1) Trend Model
+            # short mode
+            self.ai_spot = np.argmax(lstm_t)
+            # print("             *** AI_spot *** : ", self.ai_spot)
+            self.df.at[self.nf, "ai_spot"] = self.ai_spot
+            if self.nf > 235:
+                self.ai = self.df.loc[self.nf - 20:self.nf - 1, "ai_spot"].mean()
+                self.df.at[self.nf, "ai"] = self.ai
+                print("             ***    AI    *** : ", self.ai)
+                self.ai_bns = "n"
+                self.ai_dbns = 0
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai"].mean() < 0.2 and self.ai > 0.2:
+                    self.ai_bns = "b"
+                    self.ai_dbns = 1
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai"].mean() > 0.8 and self.ai < 0.8:
+                    self.ai_bns = "s"
+                    self.ai_dbns = -1
+                self.df.at[self.nf, "ai_bns"] = self.ai_bns
+                self.df.at[self.nf, "ai_dbns"] = self.ai_dbns
+                print("             *** AI_BNS *** : ", self.ai_bns)
 
-                # DATA_PREPARATION
-                # x1
-                df_ai = self.df.loc[self.nf - self.time_span_lstm - 50: self.nf - 1, self.ai_x]
-                try:
-                    df_ai = df_ai.dropna(subset=['y_3'])  # 'y1', 'y2', 'y3',
-                except:
-                    pass
-                nX = np.array(df_ai).astype(np.float32)
-                rX = []
-                rX.append(nX[len(nX) - 1 - self.time_span_lstm:len(nX) - 1])
-                rX = np.array(rX)
-                # print(rX.shape)
+            # LONG mode
+            self.ai_long_spot = np.argmax(lstm_long_t)
+            # print("             *** AI_long_spot *** : ", self.ai_long_spot)
+            self.df.at[self.nf, "ai_long_spot"] = self.ai_long_spot
+            if self.nf > 235:
+                self.ai_long = self.df.loc[self.nf - 30:self.nf - 1, "ai_long_spot"].mean()
+                self.df.at[self.nf, "ai_long"] = self.ai_long
+                print("             ***    AI    *** : ", self.ai_long)
+                self.ai_long_bns = "n"
+                self.ai_long_dbns = 0
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai_long"].mean() < 0.4 and self.ai_long > 0.4:
+                    self.ai_long_bns = "b"
+                    self.ai_long_dbns = 1
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai_long"].mean() > 1.6 and self.ai_long < 1.6:
+                    self.ai_long_bns = "s"
+                    self.ai_long_dbns = -1
+                self.df.at[self.nf, "ai_long_bns"] = self.ai_long_bns
+                self.df.at[self.nf, "ai_long_dbns"] = self.ai_long_dbns
+                print("             *** AI_long_BNS *** : ", self.ai_long_bns)
 
-                # Predict
-                # SHORT MODE
-                print("***************/// AI_SHORT ///***************  ")
-                if self.ai_mode == 1 or self.ai_mode == 3:
-
-                    # primary model(x rsi포함)
-                    lstm_t = self.loaded_model.predict(rX)
-                    self.ai_spot = np.argmax(lstm_t)
-                    # print("             *** AI_spot *** : ", self.ai_spot)
-                    self.df.at[self.nf, "ai_spot"] = self.ai_spot
-                    if self.nf > 235:
-                        self.ai = self.df.loc[self.nf - 20:self.nf - 1, "ai_spot"].mean()
-                        self.df.at[self.nf, "ai"] = self.ai
-                        print("             ***    AI    *** : ", self.ai)
-                        self.ai_bns = "n"
-                        self.ai_dbns = 0
-                        if self.df.loc[self.nf - 30:self.nf - 1, "ai"].mean() < 0.2 and self.ai > 0.2:
-                            self.ai_bns = "b"
-                            self.ai_dbns = 1
-                        if self.df.loc[self.nf - 30:self.nf - 1, "ai"].mean() > 0.8 and self.ai < 0.8:
-                            self.ai_bns = "s"
-                            self.ai_dbns = -1
-                        self.df.at[self.nf, "ai_bns"] = self.ai_bns
-                        self.df.at[self.nf, "ai_dbns"] = self.ai_dbns
-                        print("             *** AI_BNS *** : ", self.ai_bns)
-
-                # LONG mode
-                print("***************/// AI_LONG ///***************  ")
-                if self.ai_mode == 2 or self.ai_mode == 3:
-                    lstm_long_t = self.loaded_long_model.predict(rX)
-                    self.ai_long_spot = np.argmax(lstm_long_t)
-                    # print("             *** AI_long_spot *** : ", self.ai_long_spot)
-                    self.df.at[self.nf, "ai_long_spot"] = self.ai_long_spot
-                    if self.nf > 235:
-                        self.ai_long = self.df.loc[self.nf - 30:self.nf - 1, "ai_long_spot"].mean()
-                        self.df.at[self.nf, "ai_long"] = self.ai_long
-                        print("             ***    AI    *** : ", self.ai_long)
-                        self.ai_long_bns = "n"
-                        self.ai_long_dbns = 0
-                        if self.df.loc[self.nf - 30:self.nf - 1, "ai_long"].mean() < 0.4 and self.ai_long > 0.4:
-                            self.ai_long_bns = "b"
-                            self.ai_long_dbns = 1
-                        if self.df.loc[self.nf - 30:self.nf - 1, "ai_long"].mean() > 1.6 and self.ai_long < 1.6:
-                            self.ai_long_bns = "s"
-                            self.ai_long_dbns = -1
-                        self.df.at[self.nf, "ai_long_bns"] = self.ai_long_bns
-                        self.df.at[self.nf, "ai_long_dbns"] = self.ai_long_dbns
-                        print("             *** AI_long_BNS *** : ", self.ai_long_bns)
-
-                del df_ai
-                del nX
-                del rX
-                del lstm_t
-                del lstm_long_t
 
         ###############################
         #  // In Decision - pre //
@@ -7448,7 +7462,7 @@ class Nprob:
             self.nfset = self.df['nf'].iloc[-1]
             print(self.df)
 
-        if self.nf > 250:
+        if 1==0 and self.nf > 250:
             try:
 
                 del self.df_prc_s
@@ -7478,13 +7492,89 @@ class Nprob:
             except:
                 print("del error")
 
-        gc.collect()
+        # gc.collect()
 
         ######################
         return self.d_OMain
         ######################
 
     #################################
+
+    # @profile
+    def cal_ai(self):
+
+        # DATA_PREPARATION
+        # x1
+        df_ai = self.df.loc[self.nf - self.time_span_lstm - 50: self.nf - 1, self.ai_x]
+        try:
+            df_ai = df_ai.dropna(subset=['y_3'])  # 'y1', 'y2', 'y3',
+        except:
+            pass
+        nX = np.array(df_ai).astype(np.float32)
+        rX = []
+        rX.append(nX[len(nX) - 1 - self.time_span_lstm:len(nX) - 1])
+        rX = np.array(rX)
+        # print(rX.shape)
+
+        # Predict
+        # SHORT MODE
+        print("***************/// AI_SHORT ///***************  ")
+        if self.ai_mode == 1 or self.ai_mode == 3:
+
+            # primary model(x rsi포함)
+            lstm_t = self.loaded_model.predict(rX)
+            self.ai_spot = np.argmax(lstm_t)
+            # print("             *** AI_spot *** : ", self.ai_spot)
+            self.df.at[self.nf, "ai_spot"] = self.ai_spot
+            if self.nf > 235:
+                self.ai = self.df.loc[self.nf - 20:self.nf - 1, "ai_spot"].mean()
+                self.df.at[self.nf, "ai"] = self.ai
+                print("             ***    AI    *** : ", self.ai)
+                self.ai_bns = "n"
+                self.ai_dbns = 0
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai"].mean() < 0.2 and self.ai > 0.2:
+                    self.ai_bns = "b"
+                    self.ai_dbns = 1
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai"].mean() > 0.8 and self.ai < 0.8:
+                    self.ai_bns = "s"
+                    self.ai_dbns = -1
+                self.df.at[self.nf, "ai_bns"] = self.ai_bns
+                self.df.at[self.nf, "ai_dbns"] = self.ai_dbns
+                print("             *** AI_BNS *** : ", self.ai_bns)
+
+        # LONG mode
+        print("***************/// AI_LONG ///***************  ")
+        if self.ai_mode == 2 or self.ai_mode == 3:
+            lstm_long_t = self.loaded_long_model.predict(rX)
+            self.ai_long_spot = np.argmax(lstm_long_t)
+            # print("             *** AI_long_spot *** : ", self.ai_long_spot)
+            self.df.at[self.nf, "ai_long_spot"] = self.ai_long_spot
+            if self.nf > 235:
+                self.ai_long = self.df.loc[self.nf - 30:self.nf - 1, "ai_long_spot"].mean()
+                self.df.at[self.nf, "ai_long"] = self.ai_long
+                print("             ***    AI    *** : ", self.ai_long)
+                self.ai_long_bns = "n"
+                self.ai_long_dbns = 0
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai_long"].mean() < 0.4 and self.ai_long > 0.4:
+                    self.ai_long_bns = "b"
+                    self.ai_long_dbns = 1
+                if self.df.loc[self.nf - 30:self.nf - 1, "ai_long"].mean() > 1.6 and self.ai_long < 1.6:
+                    self.ai_long_bns = "s"
+                    self.ai_long_dbns = -1
+                self.df.at[self.nf, "ai_long_bns"] = self.ai_long_bns
+                self.df.at[self.nf, "ai_long_dbns"] = self.ai_long_dbns
+                print("             *** AI_long_BNS *** : ", self.ai_long_bns)
+
+        # 약한 참조 생성
+        lstm_t_ref = weakref.ref(lstm_t)
+        lstm_long_t_ref = weakref.ref(lstm_long_t)
+
+        # del df_ai
+        # del nX
+        # del rX
+        # del lstm_t
+        # del lstm_long_t
+        # gc.collect()
 
     def save_partition(self):
         # 현재 파티션을 파일로 저장

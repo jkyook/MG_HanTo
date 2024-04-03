@@ -41,6 +41,8 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 from base64 import b64decode
 
+real_demo = 1  # 0:demo, 1: real
+
 #####################################################################
 
 class AutoTradeGUI(QMainWindow):
@@ -449,13 +451,13 @@ except:
 async def create_session():
     return aiohttp.ClientSession()
 
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijk0MmRjM2Q2LTQzM2ItNGYwNC1iMGM1LTFjZWYzNmM0MDM0YyIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMTAyMzYyLCJpYXQiOjE3MTIwMTU5NjIsImp0aSI6IlBTTUlENk1vbHpTY25YMHNjUjlXQjdnWlVLM2N4cnVhNEZ3RiJ9.PfwGZRQvRySvRH7FS8kwd_7sbIMovfuZnXHqtEgAFZoHB29gRquMOtEZC_opGGX2JQNnQwCJHl4N91SQn3XCSg"
+# access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRlMGZjYmZlLTU0YzctNDJmMy05Y2VhLTI0ZDM1OTQ0NzRlNCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMjAxNzU5LCJpYXQiOjE3MTIxMTUzNTksImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.KWWBGo5EfVrxNDpFRhezpoWpTY-RUJoN5-HyHT06V7VCCbAPun-4N6Cm6rEVMBLP1QuMeZ-rZfbBOCj6-G2nGQ"
 
 #####################################################################
 # 토큰 갱신 함수
 
 async def refresh_token(session):
-    global token_update_time
+    global token_update_time, access_token
 
     try:
         # 파일에서 읽어들이기
@@ -465,12 +467,20 @@ async def refresh_token(session):
         # 문자열을 datetime 객체로 변환
         token_update_time = datetime.strptime(token_update_time_str, '%Y-%m-%d %H:%M:%S')
     except:
-        pass
+        token_update_time = None
 
     while True:
         try:
             if token_update_time is None or datetime.now() >= token_update_time + token_refresh_interval:
                 await get_access_token(session)
+            else:
+                # 저장된 액세스 토큰 읽어오기
+                try:
+                    with open('access_token.txt', 'r') as f:
+                        access_token = f.read().strip()
+                        logger.info("저장된 액세스 토큰 사용: %s", access_token)
+                except:
+                    await get_access_token(session)
         except Exception as e:
             logger.error(f"토큰 갱신 중 오류 발생: {e}")
 
@@ -494,6 +504,11 @@ async def get_access_token(session):
                 result = await response.json()
                 access_token = result["access_token"]
                 print("access_token: ", access_token)
+
+                # 액세스 토큰을 파일에 저장
+                with open('access_token.txt', 'w') as f:
+                    f.write(access_token)
+
                 token_update_time = datetime.now()
                 with open('token_update_time.txt', 'w') as f:
                     f.write(token_update_time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -509,8 +524,10 @@ async def get_access_token(session):
 async def get_approval():
     global approval_key
 
-    url = 'https://openapivts.koreainvestment.com:29443' # 모의투자계좌
-    # url = 'https://openapi.koreainvestment.com:9443'  # 실전투자계좌
+    # if real_demo == 0:
+        # url = 'https://openapivts.koreainvestment.com:29443' # 모의투자계좌
+    if real_demo == 1:
+        url = 'https://openapi.koreainvestment.com:9443'  # 실전투자계좌
     headers = {"content-type": "application/json"}
     body = {"grant_type": "client_credentials",
             "appkey": api_key,
@@ -530,8 +547,10 @@ async def connect_websocket(session):
 
     await get_approval()
 
-    url = 'ws://ops.koreainvestment.com:31000' # 모의투자계좌
-    # url = 'ws://ops.koreainvestment.com:21000'  # 실전투자계좌
+    if real_demo == 0:
+        url = 'ws://ops.koreainvestment.com:31000' # 모의투자계좌
+    if real_demo == 1:
+        url = 'ws://ops.koreainvestment.com:21000'  # 실전투자계좌
 
     code_list = [['1','H0IFASP0','101V06'],['1','H0IFCNT0','101V06'], # 지수선물호가, 체결가
                  ['1', 'H0IFASP0', '105V04'], ['1', 'H0IFCNT0', '105V04'],
@@ -888,14 +907,28 @@ async def send_order(bns):
             "ORD_DVSN_CD": "01"
         })
 
+        if real_demo == 1:
+            tr_id = 'TTTO1101U'
+        if real_demo == 0:
+            tr_id = 'VTTO1103U'
+
+        # headers = {
+        #     'content-type': 'application/json',
+        #     'authorization': 'Bearer ' + str(access_token),
+        #     'appkey': api_key,#'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+        #     'appsecret': secret_key, #'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+        #     'tr_id': tr_id, #'tr_id': 'VTTO1101U',
+        #     'hashkey': ''
+        # }
         headers = {
             'content-type': 'application/json',
-            'authorization': 'Bearer ' + str(access_token),
-            'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-            'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-            'tr_id': 'VTTO1101U',
-            'hashkey': ''
+            'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
+            'appkey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
+            'appsecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
+            'tr_id': 'TTTO1101U'
         }
+
+        print(account, bns, code, str(qty), str(prc_o1))
 
         if chkForb != 1:
             async with aiohttp.ClientSession() as session:
@@ -934,14 +967,41 @@ async def update_order_list():
 # 미체결 주문 확인 및 처리
 
 async def check_unexecuted_orders(session):
-    global access_token, prc_o1
+    global access_token, prc_o1, api_key, secret_key
     global unexecuted_orders, orders, orders_che, reordered
 
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
     today = datetime.now().strftime("%Y%m%d")
     print("today :",today)
+    print(access_token, account)
 
+    # demo
+    # payload = {
+    #     "CANO": account,
+    #     "ACNT_PRDT_CD": "03",
+    #     "STRT_ORD_DT": today,
+    #     "END_ORD_DT": today,
+    #     "SLL_BUY_DVSN_CD": "00",
+    #     "CCLD_NCCS_DVSN": "00",
+    #     "SORT_SQN": "DS",
+    #     "STRT_ODNO": "",
+    #     "PDNO": "",
+    #     "MKET_ID_CD": "00",
+    #     "CTX_AREA_FK200": "",
+    #     "CTX_AREA_NK200": ""
+    # }
+    #
+
+    # headers = {
+    #     'content-type': 'application/json',
+    #     'authorization': 'Bearer ' + str(access_token),
+    #     'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+    #     'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+    #     'tr_id': 'VTTO5201R' #VTTO5201R
+    # }
+
+    # REAL
     payload = {
         "CANO": account,
         "ACNT_PRDT_CD": "03",
@@ -956,13 +1016,12 @@ async def check_unexecuted_orders(session):
         "CTX_AREA_FK200": "",
         "CTX_AREA_NK200": ""
     }
-
     headers = {
         'content-type': 'application/json',
-        'authorization': 'Bearer ' + str(access_token),
-        'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-        'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        'tr_id': 'VTTO5201R'
+        'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
+        'appkey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
+        'appsecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
+        'tr_id': 'VTTO5201R'  # VTTO5201R
     }
 
     while True:
@@ -980,9 +1039,9 @@ async def check_unexecuted_orders(session):
         try:
             response = requests.request("GET", url, headers=headers, params=payload)
             data = response.json()
-            # print("API 응답:", data)  # 응답 데이터 출력
+            print("API 응답:", data)  # 응답 데이터 출력
 
-            if "output1" in data:
+            if "output1" in data and len(data["output1"]) > 0:
                 df = pd.DataFrame(data["output1"])
                 df['qty'] = df['qty'].astype(int)
                 df['ord_idx'] = df['ord_idx'].astype(float)
@@ -998,7 +1057,7 @@ async def check_unexecuted_orders(session):
                             unexecuted_orders[ord_no] = order_info
                     print("unexecuted_orders(증권사) : ", unexecuted_orders)
                 except Exception as e:
-                    logger.error(f"미체결 주문 확인 중 오류 발생(시스템): {e}")
+                    logger.error(f"미체결 주문 확인 중 오류 발생(증권사): {e}")
 
                 # 미체결 주문 정정
                 if reordered == 0:
@@ -1077,13 +1136,18 @@ async def modify_order(odno, ord_qty, prc_o1):
         "ORD_DVSN_CD": "01"
     })
 
+    if real_demo == 0:
+        tr_id = 'VTTO1103U'
+    if real_demo == 1:
+        tr_id = 'TTTO1103U'
+
     # ; charset=utf-8
     headers = {
         'Content-Type': 'application/json',
         'authorization': 'Bearer ' + str(access_token),
         'appKey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
         'appSecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        'tr_id': 'VTTO1103U',
+        'tr_id': 'TTTO1103U', #'tr_id': 'VTTO1103U',
         'hashkey': ''
     }
 
