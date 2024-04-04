@@ -64,7 +64,6 @@ class UnexecutedOrderListText(QTextEdit):
         if cursor.hasSelection():
             selected_text = cursor.selectedText()
             print("선택되었습니다.")
-            gui.modify_order_button.setStyleSheet("background-color: yellow")
             order_info = self.extract_order_info(selected_text)
             if order_info:
                 self.highlight_order(cursor)
@@ -76,6 +75,7 @@ class UnexecutedOrderListText(QTextEdit):
                 print(f"주문 가격: {order_info['order_price']}")
 
                 temp_id = order_info['order_id'].zfill(10)
+                gui.modify_order_button.setStyleSheet("background-color: yellow")
 
         else:
             super().mouseReleaseEvent(event)
