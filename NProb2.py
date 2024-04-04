@@ -1266,7 +1266,7 @@ class Nprob:
             if self.talib == 1:
                 rsi = talib.RSI(np.array(self.df['price'], dtype=float), timeperiod=200)[-1]
             if self.talib == 0:
-                rsi_value = cal_rsi(pd.Series(self.df['price']), window=200).iloc[-1]
+                rsi = cal_rsi(pd.Series(self.df['price']), window=200).iloc[-1]
             # self.prc_dev = (price - self.init_prc) / self.init_prc * 100
             # self.rsi_init = rsi + self.prc_dev
             # print("rsi: ", rsi)
@@ -7408,9 +7408,12 @@ class Nprob:
                     # self.text3 = text3
 
                 if 1 == 1 and bot_alive == 1:  ##
-                    bot1.sendMessage(chat_id="322233222", text=text1)
+                    try:
+                        bot1.sendMessage(chat_id="322233222", text=text1)
                     # bot1.sendMessage(chat_id="322233222", text=text2)
                     # bot1.sendMessage(chat_id="322233222", text=text3)
+                    except:
+                        pass
 
                     self.msg_sent = 1
 
