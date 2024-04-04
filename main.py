@@ -42,9 +42,64 @@ from Crypto.Util.Padding import unpad
 from base64 import b64decode
 
 real_demo = 1  # 0:demo, 1: real
+temp_id = ""
+manu_reorder = 0
+
 
 #####################################################################
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtGui import QTextCursor, QTextCharFormat, QBrush, QColor
 
+class UnexecutedOrderListText(QTextEdit):
+    global gui
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setReadOnly(True)
+
+    def mouseReleaseEvent(self, event):
+        global temp_id
+
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            selected_text = cursor.selectedText()
+            print("선택되었습니다.")
+            gui.modify_order_button.setStyleSheet("background-color: yellow")
+            order_info = self.extract_order_info(selected_text)
+            if order_info:
+                self.highlight_order(cursor)
+                print("선택된 주문 내역:")
+                print(f"주문 ID: {order_info['order_id'].zfill(10)}")
+                print(f"주문 시간: {order_info['order_time'].replace('@ ', '')}")
+                print(f"주문 구분: {order_info['order_type']}")
+                print(f"주문 수량: {order_info['order_quantity']}")
+                print(f"주문 가격: {order_info['order_price']}")
+
+                temp_id = order_info['order_id'].zfill(10)
+
+        else:
+            super().mouseReleaseEvent(event)
+
+    def extract_order_info(self, selected_text):
+        try:
+            order_details = selected_text.split(',')
+            order_info = {
+                'order_id': order_details[0].strip(),
+                'order_time': order_details[3].strip(),
+                'order_type': order_details[1].strip(),
+                'order_quantity': order_details[2].strip(),
+                'order_price': order_details[2].strip()
+            }
+            return order_info
+        except:
+            return None
+
+    def highlight_order(self, cursor):
+        highlight_format = QTextCharFormat()
+        highlight_format.setBackground(QBrush(QColor("green")))
+        cursor.mergeCharFormat(highlight_format)
+
+#####################################################################
 class AutoTradeGUI(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -158,8 +213,11 @@ class AutoTradeGUI(QMainWindow):
         # 미체결 주문 내역 구획
         self.unexecuted_order_list_group = QGroupBox('미체결 주문 내역')
         self.unexecuted_order_list_layout = QVBoxLayout()
-        self.unexecuted_order_list_text = QTextEdit()
-        self.unexecuted_order_list_text.setReadOnly(True)
+        # self.unexecuted_order_list_text = QTextEdit()
+        # self.unexecuted_order_list_text.setReadOnly(True)
+
+        self.unexecuted_order_list_text = UnexecutedOrderListText()  # UnexecutedOrderListText 클래스 사용
+
         self.unexecuted_order_list_layout.addWidget(self.unexecuted_order_list_text)
         self.unexecuted_order_list_group.setLayout(self.unexecuted_order_list_layout)
 
@@ -205,7 +263,7 @@ class AutoTradeGUI(QMainWindow):
         self.order_button.clicked.connect(self.place_order)
         self.buy_button.clicked.connect(self.select_buy)
         self.sell_button.clicked.connect(self.select_sell)
-        self.modify_order_button.clicked.connect(self.modify_order)  # 정정주문 버튼 클릭 이벤트 연결
+        self.modify_order_button.clicked.connect(self.modify_order_btn)  # 정정주문 버튼 클릭 이벤트 연결
 
         palette = QPalette()
         palette.setColor(QPalette.Window, QColor(255, 255, 204))  # 연한 노랑색 설정
@@ -276,12 +334,12 @@ class AutoTradeGUI(QMainWindow):
             print(f"Error opening NP.df or NP2.df file: {e}")
 
     def select_buy(self):
-        self.buy_sell_selection = "2"  # 매수
+        self.buy_sell_selection = "02"  # 매수
         self.buy_button.setStyleSheet("background-color: red")  # 매수 버튼 색상을 빨간색으로 변경
         self.sell_button.setStyleSheet("")  # 매도 버튼 색상을 기본색으로 변경
 
     def select_sell(self):
-        self.buy_sell_selection = "1"  # 매도
+        self.buy_sell_selection = "01"  # 매도
         self.sell_button.setStyleSheet("background-color: blue")  # 매도 버튼 색상을 파란색으로 변경
         self.buy_button.setStyleSheet("")  # 매수 버튼 색상을 기본색으로 변경
 
@@ -289,29 +347,21 @@ class AutoTradeGUI(QMainWindow):
         asyncio.create_task(send_order(bns=self.buy_sell_selection))  # 주문 요청
         self.order_button.setStyleSheet("background-color: green")  # 주문 버튼 색상을 녹색으로 변경
 
-    def modify_order(self):
-        selected_order_id = self.get_selected_order_id()  # 선택된 주문 ID 가져오는 메서드 호출
-        if selected_order_id:
-            try:
-                new_price = self.order_price_edit.text()  # 주문가격 입력창에서 새로운 가격 가져오기
-            except:
-                new_price = prc_o1
+    def modify_order_btn(self):
+        global temp_id, manu_reorder
 
-            if new_price:
-                new_price = float(new_price)
-                # modify_order(selected_order_id, new_price)  # BFut
-                modify_order(odno = selected_order_id, ord_qty = qty, prc_o1=new_price)
-            else:
-                print("정정주문 가격을 입력하세요.")
-        else:
-            print("정정할 주문을 선택하세요.")
+        try:
+            new_price = self.order_price_edit.text()  # 주문가격 입력창에서 새로운 가격 가져오기
+        except:
+            new_price = prc_o1
 
-    def get_selected_order_id(self):
-        selected_order = self.unexecuted_order_list_text.textCursor().selectedText()
-        if selected_order:
-            order_id = selected_order.split(',')[0].strip()  # 주문 ID 추출
-            return order_id
-        return None
+        try:
+            print("선택된 주문을 정정합니다.", temp_id, new_price)
+            manu_reorder = 1
+            self.modify_order_button.setStyleSheet("background-color: green")  # 주문 버튼 색상을 녹색으로 변경
+            # modify_order(odno=temp_id, ord_qty=str(qty), prc_o1=str(new_price))
+        except:
+            print("정정주문 오류")
 
     def toggle_order_ban(self):
         global chkForb
@@ -357,9 +407,9 @@ class AutoTradeGUI(QMainWindow):
         unexecuted_order_text = ""
         for order_no, order_info in unexecuted_orders.items():
             odno, ord_tmd, trad_dvsn_name, ord_qty, ord_idx = order_info
-            if trad_dvsn_name == '매수':
+            if trad_dvsn_name[-2:] == '매수':
                 unexecuted_order_text += f"{odno[-5:]}, <span style='color:red;'>{trad_dvsn_name}</span>, {ord_idx}, @ {ord_tmd}<br>"
-            elif trad_dvsn_name == '매도':
+            elif trad_dvsn_name[-2:] == '매도':
                 unexecuted_order_text += f"{odno[-5:]}, <span style='color:blue;'>{trad_dvsn_name}</span>, {ord_idx}, @ {ord_tmd}<br>"
             else:
                 unexecuted_order_text += f"{odno[-5:]}, {trad_dvsn_name}, {ord_idx}, @ {ord_tmd}<br>"
@@ -484,19 +534,34 @@ async def refresh_token(session):
         except Exception as e:
             logger.error(f"토큰 갱신 중 오류 발생: {e}")
 
-        await asyncio.sleep(60)  # 60초마다 토큰 갱신 체크
+        await asyncio.sleep(60*5)  # 60초마다 토큰 갱신 체크
 
+#####################################################################
 # 토큰 발급 함수
 async def get_access_token(session):
     global access_token, token_update_time
 
-    url = "https://openapivts.koreainvestment.com:29443/oauth2/tokenP"
-    headers = {"content-type": "application/json"}
-    data = {
-        "grant_type": "client_credentials",
-        "appkey": api_key,
-        "appsecret": secret_key
-    }
+    if real_demo == 1:
+        url = "https://openapi.koreainvestment.com:9443/oauth2/tokenP"
+
+        headers = {"content-type": "application/json"}
+        data = {
+            "grant_type": "client_credentials",
+            "appkey": api_key,
+            "appsecret": secret_key
+        }
+
+        # response = requests.request("POST", url, headers=headers, data=payload)
+
+    if real_demo == 0:
+        url = "https://openapivts.koreainvestment.com:29443/oauth2/tokenP"
+
+        headers = {"content-type": "application/json"}
+        data = {
+            "grant_type": "client_credentials",
+            "appkey": api_key,
+            "appsecret": secret_key
+        }
 
     try:
         async with session.post(url, headers=headers, json=data) as response:
@@ -805,17 +870,17 @@ async def place_order():
 
     # test 주문
     if 1==0 and nf == 10:
-        await send_order(bns = "2")
+        await send_order(bns = "02")
 
     if npp ==  4:
-        await send_order(bns = "2")
+        await send_order(bns = "02")
     elif npp ==  -4:
-        await send_order(bns = "1")
+        await send_order(bns = "01")
 
     if npp2 ==  4:
-        await send_order(bns = "2")
+        await send_order(bns = "02")
     elif npp2 ==  -4:
-        await send_order(bns = "1")
+        await send_order(bns = "01")
 
     # 기록
     if 1==0:
@@ -891,8 +956,13 @@ async def send_order(bns):
     global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
     global gui, NP
 
+    print("주문변수: ", account, bns, code, str(qty), str(prc_o1 - 1))
+
     if auto_time == 1:
-        url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+        if real_demo == 0:
+            url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+        if real_demo == 1:
+            url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/order"
 
         payload = json.dumps({
             "ORD_PRCS_DVSN_CD": "02",
@@ -901,7 +971,7 @@ async def send_order(bns):
             "SLL_BUY_DVSN_CD": bns,
             "SHTN_PDNO": code,
             "ORD_QTY": str(qty),
-            "UNIT_PRICE": str(prc_o1),
+            "UNIT_PRICE": str(prc_o1 - 1),
             "NMPR_TYPE_CD": "01",
             "KRX_NMPR_CNDT_CD": "0",
             "ORD_DVSN_CD": "01"
@@ -912,28 +982,27 @@ async def send_order(bns):
         if real_demo == 0:
             tr_id = 'VTTO1103U'
 
-        # headers = {
-        #     'content-type': 'application/json',
-        #     'authorization': 'Bearer ' + str(access_token),
-        #     'appkey': api_key,#'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-        #     'appsecret': secret_key, #'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        #     'tr_id': tr_id, #'tr_id': 'VTTO1101U',
-        #     'hashkey': ''
-        # }
         headers = {
             'content-type': 'application/json',
-            'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
-            'appkey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
-            'appsecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
-            'tr_id': 'TTTO1101U'
+            'authorization': 'Bearer ' + str(access_token),
+            'appkey': api_key,#'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+            'appsecret': secret_key, #'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+            'tr_id': 'TTTO1101U', #'tr_id': 'VTTO1101U',
+            'hashkey': ''
         }
-
-        print(account, bns, code, str(qty), str(prc_o1))
+        # headers = {
+        #     'content-type': 'application/json',
+        #     'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
+        #     'appkey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
+        #     'appsecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
+        #     'tr_id': 'TTTO1101U'
+        # }
 
         if chkForb != 1:
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, headers=headers, data=payload) as response:
                     result = await response.json()
+                    print("신규주문 회신 data: ", result)
                     if result["rt_cd"] == "0":
                         ord_no = result["output"]["ODNO"]
                         NP.OrgOrdNo = str(ord_no)
@@ -956,7 +1025,7 @@ async def update_order_list():
     for ord_no, order_info in orders.items():
         print("order_info : ", ord_no, order_info)
         bns, qty, price, prc_o1, time, is_modified = order_info
-        if bns == '2':
+        if bns == '02':
             order_text += f"{ord_no[-5:]}, <span style='color:red;'>매수</span>, {prc_o1}, @ {time}<br>"
         else:
             order_text += f"{ord_no[-5:]}, <span style='color:blue;'>매도</span>, {prc_o1}, @ {time}<br>"
@@ -969,8 +1038,12 @@ async def update_order_list():
 async def check_unexecuted_orders(session):
     global access_token, prc_o1, api_key, secret_key
     global unexecuted_orders, orders, orders_che, reordered
+    global temp_id, manu_reorder, gui
 
-    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
+    if real_demo == 0:
+        url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
+    if real_demo == 1:
+        url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
     today = datetime.now().strftime("%Y%m%d")
     print("today :",today)
@@ -1021,7 +1094,7 @@ async def check_unexecuted_orders(session):
         'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
         'appkey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
         'appsecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
-        'tr_id': 'VTTO5201R'  # VTTO5201R
+        'tr_id': 'TTTO5201R'  # VTTO5201R
     }
 
     while True:
@@ -1053,9 +1126,9 @@ async def check_unexecuted_orders(session):
                     for _, order in filtered_df.iterrows():
                         ord_no = order['odno']
                         if ord_no not in orders_che:
-                            order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
+                            order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'][-2:], order['ord_qty'], order['ord_idx'])
                             unexecuted_orders[ord_no] = order_info
-                    print("unexecuted_orders(증권사) : ", unexecuted_orders)
+                    print("unexecuted_orders(정정주문 이전) : ", unexecuted_orders)
                 except Exception as e:
                     logger.error(f"미체결 주문 확인 중 오류 발생(증권사): {e}")
 
@@ -1073,14 +1146,20 @@ async def check_unexecuted_orders(session):
 
                         # 주문시각과 현재시각 비교
                         elapsed_time = (current_time - ord_datetime).total_seconds()
-                        print("times : ", elapsed_time, current_time, ord_datetime)  # 수정된 부분
+                        # print("times : ", elapsed_time, current_time, ord_datetime)  # 수정된 부분
 
-                        if elapsed_time > 20:
+                        if 1==0 and elapsed_time > 20 and datetime.now().second % 5 == 0:
                             # 현재 가격으로 정정주문 요청
                             print(f"주문번호 {odno} - 주문 시간 경과({elapsed_time}초), 정정 주문 실행")
-                            await modify_order(odno, ord_qty, prc_o1)
+                            await modify_order(odno, ord_qty, prc_o1 - 1)
                         else:
                             print(f"주문번호 {odno}은 주문시각으로부터 20초 이내입니다. 정정주문 미실행.")
+
+                        if temp_id != "" and manu_reorder == 1:
+                            await modify_order(temp_id, ord_qty, prc_o1 - 1)
+                            manu_reorder = 0
+                            gui.modify_order_button.setStyleSheet("")
+                            print("manu_reorder : ", manu_reorder)
 
                     # 기존 미체결주문 목록 삭제
                     unexecuted_orders.clear()
@@ -1089,10 +1168,10 @@ async def check_unexecuted_orders(session):
                     for _, order in filtered_df.iterrows():
                         ord_no = order['odno']
                         if ord_no not in orders_che:
-                            order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'], order['ord_qty'], order['ord_idx'])
+                            order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'][-2:], order['ord_qty'], order['ord_idx'])
                             unexecuted_orders[ord_no] = order_info
 
-                    print("unexecuted_orders(증권사) : ", unexecuted_orders)
+                    print("unexecuted_orders(정정주문 이후) : ", unexecuted_orders)
 
             else:
                 print("증권사 API 응답에 'output1' 키가 없습니다.")
@@ -1100,15 +1179,18 @@ async def check_unexecuted_orders(session):
         except Exception as e:
             logger.error(f"미체결 주문 확인 중 오류 발생(증권사): {e}")
 
-        await asyncio.sleep(5)  # 5초 간격으로 미체결 주문 확인
+        await asyncio.sleep(10)  # 5초 간격으로 미체결 주문 확인
 
 #####################################################################
 # 정정주문
 
 async def modify_order(odno, ord_qty, prc_o1):
-    global price, gui
+    global price, gui, access_token
 
-    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
+    if real_demo == 0:
+        url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
+    if real_demo == 1:
+        url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
 
     # ORD_PRCS_DVSN_CD: 주문처리구분코드(02: 실전투자)
     # CANO: 계좌번호
@@ -1147,7 +1229,7 @@ async def modify_order(odno, ord_qty, prc_o1):
         'authorization': 'Bearer ' + str(access_token),
         'appKey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
         'appSecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        'tr_id': 'TTTO1103U', #'tr_id': 'VTTO1103U',
+        'tr_id': tr_id,#: 'VTTO1103U',
         'hashkey': ''
     }
 
@@ -1161,7 +1243,7 @@ async def modify_order(odno, ord_qty, prc_o1):
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
-        print("주문 data: ", data)
+        print("정정주문 회신 data: ", data)
 
         if data["rt_cd"] == "0":
             new_odno = data['output']['ODNO']

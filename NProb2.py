@@ -67,7 +67,7 @@ class AIModel:
             self.which_market = 3  # (1:bitmex, 2:upbit, 3:kospi, 4:e-mini, 5:A50, 6:Micro, 7:HS)
         else:
             self.which_market = 4
-        self.which_market = 1
+        # self.which_market = 1
         self.ai_mode = 3
 
         self.ai_ = pd.read_csv("index_ai_sshort.csv").columns.values.tolist()
