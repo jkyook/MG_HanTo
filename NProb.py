@@ -6845,7 +6845,7 @@ class Nprob:
                             if (self.OrgMain == "s" or self.OrgMain == "n") and self.cover_ordered != 0:
                                 self.d_OMain = -4
                                 self.cover_ordered = 0
-                                self.zx += self.cover_in_prc - price
+                                self.profit_opt += self.cover_in_prc - price
                                 self.cover_in_prc = 0
                                 self.cover_in_nf = 0
                                 self.cover_out_prc = price
