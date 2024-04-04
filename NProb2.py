@@ -67,7 +67,7 @@ class AIModel:
             self.which_market = 3  # (1:bitmex, 2:upbit, 3:kospi, 4:e-mini, 5:A50, 6:Micro, 7:HS)
         else:
             self.which_market = 4
-        # self.which_market = 1
+        self.which_market = 1
         self.ai_mode = 3
 
         self.ai_ = pd.read_csv("index_ai_sshort.csv").columns.values.tolist()
@@ -602,7 +602,7 @@ class Nprob:
         self.df_rsi_peak_s = None
         self.df_sum_peak = None
         self.df_triple = None
-        merged_df = None
+        # merged_df = None
 
         self.ai_model = AIModel()
 
@@ -7590,7 +7590,7 @@ class Nprob:
         print("Partitions cleaned up")
 
     def merge_partitions(self):
-        global merged_df
+        # global merged_df
 
         csv_files = [file for file in os.listdir(self.partition_dir) if file.endswith(".csv")]
         sorted_files = sorted(csv_files, key=lambda x: int(x.split("_")[1].split(".")[0]))
@@ -7610,19 +7610,19 @@ class Nprob:
             unique_nf_values.update(df['nf'].tolist())
             df_list.append(df)
 
-        merged_df = pd.concat(df_list, ignore_index=True)
+        self.merged_df = pd.concat(df_list, ignore_index=True)
         # nf 값을 기준으로 정렬
-        merged_df = merged_df.sort_values('nf')
+        self.merged_df = self.merged_df.sort_values('nf')
 
         # 현재 날짜와 시각(분) 가져오기
         now = datetime.now()
         timestamp = now.strftime("%m%d_%H%M")
 
         # 파일명에 날짜와 시각(분) 포함하여 저장
-        merged_df.to_csv(f"{self.merged_dir}/{self.auto_cover}_merged_{timestamp}.csv", index=False)
+        self.merged_df.to_csv(f"{self.merged_dir}/{self.auto_cover}_merged_{timestamp}.csv", index=False)
 
         # 병합된 데이터프레임 반환
-        return merged_df
+        # return merged_df
 
     #################################
 
