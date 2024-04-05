@@ -450,7 +450,7 @@ lblShoga1v = 0
 lblBqty1v = 0
 lblBqty2v = 0
 prc_o1 = 0
-
+slack = 0.02
 
 nf = 0
 npp = 0
@@ -963,7 +963,7 @@ async def place_order():
 
 async def send_order(bns):
     global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
-    global gui, NP
+    global gui, NP, slack
 
     print("주문변수: ", account, bns, code, str(qty), str(prc_o1 - 1))
 
@@ -973,6 +973,11 @@ async def send_order(bns):
         if real_demo == 1:
             url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/order"
 
+        if bns == "02":
+            adj_prc = float(prc_o1) - slack
+        elif bns == "01":
+            adj_prc = float(prc_o1) + slack
+
         payload = json.dumps({
             "ORD_PRCS_DVSN_CD": "02",
             "CANO": account,
@@ -980,7 +985,7 @@ async def send_order(bns):
             "SLL_BUY_DVSN_CD": bns,
             "SHTN_PDNO": code,
             "ORD_QTY": str(qty),
-            "UNIT_PRICE": str(prc_o1 - 1),
+            "UNIT_PRICE": str(prc_o1 - slack),
             "NMPR_TYPE_CD": "01",
             "KRX_NMPR_CNDT_CD": "0",
             "ORD_DVSN_CD": "01"
@@ -1194,7 +1199,7 @@ async def check_unexecuted_orders(session):
 # 정정주문
 
 async def modify_order(odno, ord_qty, prc_o1):
-    global price, gui, access_token, real_demo
+    global price, gui, access_token, real_demo, slack
 
     # if real_demo == 0:
     #     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
@@ -1222,7 +1227,7 @@ async def modify_order(odno, ord_qty, prc_o1):
         "RVSE_CNCL_DVSN_CD": "01",
         "ORGN_ODNO": str(odno),
         "ORD_QTY": str(ord_qty),
-        "UNIT_PRICE": str(prc_o1 - 1),
+        "UNIT_PRICE": str(prc_o1),
         "NMPR_TYPE_CD": "01",
         "KRX_NMPR_CNDT_CD": "0",
         "RMN_QTY_YN": "Y",
