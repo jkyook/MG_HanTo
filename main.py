@@ -502,7 +502,7 @@ async def create_session():
     return aiohttp.ClientSession()
 
 access_token_issued = 0
-access_token = ""
+# access_token = ""
 
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRlMGZjYmZlLTU0YzctNDJmMy05Y2VhLTI0ZDM1OTQ0NzRlNCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMjAxNzU5LCJpYXQiOjE3MTIxMTUzNTksImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.KWWBGo5EfVrxNDpFRhezpoWpTY-RUJoN5-HyHT06V7VCCbAPun-4N6Cm6rEVMBLP1QuMeZ-rZfbBOCj6-G2nGQ"
 
@@ -524,11 +524,11 @@ async def refresh_token(session):
 
     while True:
 
-        print("refresh_token....access_token_issued = ",access_token_issued )
-        if access_token_issued == 1:
-            with open('access_token.txt', 'r') as f:
-                access_token = f.read().strip()
-                logger.info("저장된 액세스 토큰 사용: %s", access_token)
+        # print("refresh_token....access_token_issued = ",access_token_issued )
+        # if access_token_issued == 1:
+        #     with open('access_token.txt', 'r') as f:
+        #         access_token = f.read().strip()
+        #         logger.info("저장된 액세스 토큰 사용(발급직후): %s", access_token)
 
         try:
             if token_update_time is None or datetime.now() >= token_update_time + token_refresh_interval:
@@ -1060,64 +1060,66 @@ async def check_unexecuted_orders(session):
     global unexecuted_orders, orders, orders_che, reordered
     global temp_id, manu_reorder, gui
 
-    if real_demo == 0:
-        url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
-    if real_demo == 1:
-        url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
-
-    today = datetime.now().strftime("%Y%m%d")
-    # print("today :",today)
-    print(access_token)
-
-    # demo
-    # payload = {
-    #     "CANO": account,
-    #     "ACNT_PRDT_CD": "03",
-    #     "STRT_ORD_DT": today,
-    #     "END_ORD_DT": today,
-    #     "SLL_BUY_DVSN_CD": "00",
-    #     "CCLD_NCCS_DVSN": "00",
-    #     "SORT_SQN": "DS",
-    #     "STRT_ODNO": "",
-    #     "PDNO": "",
-    #     "MKET_ID_CD": "00",
-    #     "CTX_AREA_FK200": "",
-    #     "CTX_AREA_NK200": ""
-    # }
-    #
-
-    # headers = {
-    #     'content-type': 'application/json',
-    #     'authorization': 'Bearer ' + str(access_token),
-    #     'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-    #     'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-    #     'tr_id': 'VTTO5201R' #VTTO5201R
-    # }
-
-    # REAL
-    payload = {
-        "CANO": account,
-        "ACNT_PRDT_CD": "03",
-        "STRT_ORD_DT": today,
-        "END_ORD_DT": today,
-        "SLL_BUY_DVSN_CD": "00",
-        "CCLD_NCCS_DVSN": "00",
-        "SORT_SQN": "DS",
-        "STRT_ODNO": "",
-        "PDNO": "",
-        "MKET_ID_CD": "00",
-        "CTX_AREA_FK200": "",
-        "CTX_AREA_NK200": ""
-    }
-    headers = {
-        'content-type': 'application/json',
-        'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
-        'appkey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
-        'appsecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
-        'tr_id': 'TTTO5201R'  # VTTO5201R
-    }
-
     while True:
+
+        if real_demo == 0:
+            url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
+        if real_demo == 1:
+            url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
+
+        today = datetime.now().strftime("%Y%m%d")
+        # print("today :",today)
+        # print("access_token :", access_token)
+
+        # demo
+        # payload = {
+        #     "CANO": account,
+        #     "ACNT_PRDT_CD": "03",
+        #     "STRT_ORD_DT": today,
+        #     "END_ORD_DT": today,
+        #     "SLL_BUY_DVSN_CD": "00",
+        #     "CCLD_NCCS_DVSN": "00",
+        #     "SORT_SQN": "DS",
+        #     "STRT_ODNO": "",
+        #     "PDNO": "",
+        #     "MKET_ID_CD": "00",
+        #     "CTX_AREA_FK200": "",
+        #     "CTX_AREA_NK200": ""
+        # }
+        #
+
+        # headers = {
+        #     'content-type': 'application/json',
+        #     'authorization': 'Bearer ' + str(access_token),
+        #     'appkey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+        #     'appsecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+        #     'tr_id': 'VTTO5201R' #VTTO5201R
+        # }
+
+        # REAL
+        payload = {
+            "CANO": account,
+            "ACNT_PRDT_CD": "03",
+            "STRT_ORD_DT": today,
+            "END_ORD_DT": today,
+            "SLL_BUY_DVSN_CD": "00",
+            "CCLD_NCCS_DVSN": "00",
+            "SORT_SQN": "DS",
+            "STRT_ODNO": "",
+            "PDNO": "",
+            "MKET_ID_CD": "00",
+            "CTX_AREA_FK200": "",
+            "CTX_AREA_NK200": ""
+        }
+        headers = {
+            'content-type': 'application/json',
+            'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
+            'appkey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
+            'appsecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
+            'tr_id': 'TTTO5201R'  # VTTO5201R
+        }
+
+    # while True:
 
         # #(1) 시스템상
         # try:
@@ -1221,6 +1223,9 @@ async def check_unexecuted_orders(session):
 
             else:
                 print("증권사 API 응답에 'output1' 키가 없습니다.")
+                with open('access_token.txt', 'r') as f:
+                    access_token = f.read().strip()
+                    logger.info("저장된 액세스 토큰 사용(발급직후): %s", access_token)
 
         except Exception as e:
             logger.error(f"미체결 주문 확인 중 오류 발생(증권사): {e}")
@@ -1679,15 +1684,42 @@ async def main():
         loop.run_until_complete(run_async_tasks(gui, loop))
         loop.run_forever()
 
+# async def run_async_tasks(gui, loop):
+#     async with aiohttp.ClientSession() as session:
+#         await asyncio.gather(
+#             connect_websocket(session),
+#             refresh_token(session),
+#             check_unexecuted_orders(session),
+#             msg(),
+#             # loop=loop
+#         )
+
 async def run_async_tasks(gui, loop):
     async with aiohttp.ClientSession() as session:
-        await asyncio.gather(
+        check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
+        tasks = [
             connect_websocket(session),
             refresh_token(session),
-            check_unexecuted_orders(session),
+            check_orders_task,
             msg(),
-            # loop=loop
-        )
+        ]
+
+        while True:
+            done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+
+            for task in done:
+                if task is check_orders_task:
+                    if task.exception():
+                        print(f"check_unexecuted_orders 작업에 예외 발생: {task.exception()}")
+                        check_orders_task.cancel()
+                        check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
+                        tasks.append(check_orders_task)
+                    else:
+                        check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
+                        tasks.append(check_orders_task)
+
+            for task in pending:
+                tasks.remove(task)
 
 # 프로그램 실행
 if __name__ == "__main__":
