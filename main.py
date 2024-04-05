@@ -501,13 +501,16 @@ except:
 async def create_session():
     return aiohttp.ClientSession()
 
+access_token_issued = 0
+access_token = ""
+
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRlMGZjYmZlLTU0YzctNDJmMy05Y2VhLTI0ZDM1OTQ0NzRlNCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyMjAxNzU5LCJpYXQiOjE3MTIxMTUzNTksImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.KWWBGo5EfVrxNDpFRhezpoWpTY-RUJoN5-HyHT06V7VCCbAPun-4N6Cm6rEVMBLP1QuMeZ-rZfbBOCj6-G2nGQ"
 
 #####################################################################
 # 토큰 갱신 함수
 
 async def refresh_token(session):
-    global token_update_time, access_token
+    global token_update_time, access_token, access_token_issued
 
     try:
         # 파일에서 읽어들이기
@@ -520,6 +523,13 @@ async def refresh_token(session):
         token_update_time = None
 
     while True:
+
+        print("refresh_token....access_token_issued = ",access_token_issued )
+        if access_token_issued == 1:
+            with open('access_token.txt', 'r') as f:
+                access_token = f.read().strip()
+                logger.info("저장된 액세스 토큰 사용: %s", access_token)
+
         try:
             if token_update_time is None or datetime.now() >= token_update_time + token_refresh_interval:
                 await get_access_token(session)
@@ -534,12 +544,12 @@ async def refresh_token(session):
         except Exception as e:
             logger.error(f"토큰 갱신 중 오류 발생: {e}")
 
-        await asyncio.sleep(60*5)  # 60초마다 토큰 갱신 체크
+        await asyncio.sleep(30*1)  # 60초마다 토큰 갱신 체크
 
 #####################################################################
 # 토큰 발급 함수
 async def get_access_token(session):
-    global access_token, token_update_time
+    global access_token, token_update_time, access_token_issued
 
     if real_demo == 1:
         url = "https://openapi.koreainvestment.com:9443/oauth2/tokenP"
@@ -550,8 +560,6 @@ async def get_access_token(session):
             "appkey": api_key,
             "appsecret": secret_key
         }
-
-        # response = requests.request("POST", url, headers=headers, data=payload)
 
     if real_demo == 0:
         url = "https://openapivts.koreainvestment.com:29443/oauth2/tokenP"
@@ -569,6 +577,7 @@ async def get_access_token(session):
                 result = await response.json()
                 access_token = result["access_token"]
                 print("access_token: ", access_token)
+                access_token_issued = 1
 
                 # 액세스 토큰을 파일에 저장
                 with open('access_token.txt', 'w') as f:
@@ -1159,7 +1168,7 @@ async def check_unexecuted_orders(session):
                             await modify_order(temp_id, ord_qty, prc_o1 - 1)
                             manu_reorder = 0
                             gui.modify_order_button.setStyleSheet("")
-                            print("manu_reorder : ", manu_reorder)
+                            print("manu_reordered..reset manu_reorder to : ", manu_reorder)
 
                     # 기존 미체결주문 목록 삭제
                     unexecuted_orders.clear()
@@ -1185,12 +1194,12 @@ async def check_unexecuted_orders(session):
 # 정정주문
 
 async def modify_order(odno, ord_qty, prc_o1):
-    global price, gui, access_token
+    global price, gui, access_token, real_demo
 
-    if real_demo == 0:
-        url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
-    if real_demo == 1:
-        url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
+    # if real_demo == 0:
+    #     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
+    # if real_demo == 1:
+    url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/order-rvsecncl"
 
     # ORD_PRCS_DVSN_CD: 주문처리구분코드(02: 실전투자)
     # CANO: 계좌번호
@@ -1204,32 +1213,35 @@ async def modify_order(odno, ord_qty, prc_o1):
     # RMN_QTY_YN: 잔량처리여부(Y: 잔량전부)
     # ORD_DVSN_CD: 주문구분코드(01: 일반주문)
 
+    print(account, str(odno), str(ord_qty), str(prc_o1 - 1))
+
     payload = json.dumps({
         "ORD_PRCS_DVSN_CD": "02",
         "CANO": account,
         "ACNT_PRDT_CD": "03",
         "RVSE_CNCL_DVSN_CD": "01",
-        "ORGN_ODNO": str(odno), #"000000" +
+        "ORGN_ODNO": str(odno),
         "ORD_QTY": str(ord_qty),
-        "UNIT_PRICE": str(prc_o1),
+        "UNIT_PRICE": str(prc_o1 - 1),
         "NMPR_TYPE_CD": "01",
         "KRX_NMPR_CNDT_CD": "0",
         "RMN_QTY_YN": "Y",
         "ORD_DVSN_CD": "01"
     })
 
-    if real_demo == 0:
-        tr_id = 'VTTO1103U'
-    if real_demo == 1:
-        tr_id = 'TTTO1103U'
+    # if real_demo == 0:
+    #     tr_id = 'VTTO1103U'
+    # if real_demo == 1:
+    #     tr_id = 'TTTO1103U'
 
-    # ; charset=utf-8
     headers = {
         'Content-Type': 'application/json',
         'authorization': 'Bearer ' + str(access_token),
-        'appKey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
-        'appSecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
-        'tr_id': tr_id,#: 'VTTO1103U',
+        # 'appKey': 'PSMID6MolzScnX0scR9WB7gZUK3cxrua4FwF',
+        # 'appSecret': 'rTk4mvvNOEnF1iW6KV1/wCYR/ONhS1GjxktQN1YVC7YcguxMKWnin0x1XMfp8ansUwaNAo5a5mDPN+yNwgCc9HUWz5gaTyZWwB4VOCnXoXVjUfmkRzC3DEiyxL34lpPTz3woB7RJbKFKLHmxX7Rd3Iczla0p6y1Fst2TqT+52bN+Lmu1Z3s=',
+        'appKey': "PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC",
+        'appSecret': "KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=",
+        'tr_id': 'TTTO1103U',
         'hashkey': ''
     }
 
