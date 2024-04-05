@@ -277,7 +277,7 @@ class AutoTradeGUI(QMainWindow):
         subprocess.Popen(['python', gui_path])
 
     def open_df(self, mer = 0):
-        print("mer: ",mer)
+        # print("mer: ",mer)
         try:
             if NP.nf <= NP.partition_size or mer == 0:
                 df1 = NP.df
@@ -1066,8 +1066,8 @@ async def check_unexecuted_orders(session):
         url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
     today = datetime.now().strftime("%Y%m%d")
-    print("today :",today)
-    print(access_token, account)
+    # print("today :",today)
+    print(access_token)
 
     # demo
     # payload = {
@@ -1132,11 +1132,11 @@ async def check_unexecuted_orders(session):
         try:
             response = requests.request("GET", url, headers=headers, params=payload)
             data = response.json()
-            print("API 응답:", data)  # 응답 데이터 출력
+            # print("API 응답:", data)  # 응답 데이터 출력
 
             if "output1" in data and len(data["output1"]) > 0:
                 df = pd.DataFrame(data["output1"])
-                print(df)
+                # print(df)
                 df['qty'] = df['qty'].astype(int)
                 df['ord_idx'] = df['ord_idx'].astype(float)
                 df['tot_ccld_qty'] = df['tot_ccld_qty'].astype(float)
@@ -1159,7 +1159,7 @@ async def check_unexecuted_orders(session):
                         order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'][-2:], order['ord_qty'], order['ord_idx'])
                         orders_che[ord_no] = order_info
 
-                    print("orders_che(체결 주문) : ", orders_che)
+                    # print("orders_che(체결 주문) : ", orders_che)
                     asyncio.create_task(update_execution_list())  # 체결 내역 업데이트
                 except Exception as e:
                     logger.error(f"체결 주문 확인 중 오류 발생(증권사): {e}")
@@ -1285,7 +1285,7 @@ async def modify_order(odno, ord_qty, prc_o1):
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
-        print("정정주문 회신 data: ", data)
+        # print("정정주문 회신 data: ", data)
 
         if data["rt_cd"] == "0":
             new_odno = data['output']['ODNO']
@@ -1305,7 +1305,7 @@ async def modify_order(odno, ord_qty, prc_o1):
                 # print("unexecuted_orders_new :", unexecuted_orders)
             else:
                 logger.warning(f"주문번호 {odno}에 해당하는 주문이 orders에 존재하지 않습니다.")
-                print("orders : ", orders)
+                # print("orders : ", orders)
         else:
             logger.error(f"주문 정정 실패: {odno}, 실패 사유: {data['msg1']}")
 
