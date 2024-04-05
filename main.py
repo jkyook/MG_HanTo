@@ -1684,42 +1684,42 @@ async def main():
         loop.run_until_complete(run_async_tasks(gui, loop))
         loop.run_forever()
 
-# async def run_async_tasks(gui, loop):
-#     async with aiohttp.ClientSession() as session:
-#         await asyncio.gather(
-#             connect_websocket(session),
-#             refresh_token(session),
-#             check_unexecuted_orders(session),
-#             msg(),
-#             # loop=loop
-#         )
-
 async def run_async_tasks(gui, loop):
     async with aiohttp.ClientSession() as session:
-        check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
-        tasks = [
+        await asyncio.gather(
             connect_websocket(session),
             refresh_token(session),
-            check_orders_task,
+            check_unexecuted_orders(session),
             msg(),
-        ]
+            # loop=loop
+        )
 
-        while True:
-            done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-
-            for task in done:
-                if task is check_orders_task:
-                    if task.exception():
-                        print(f"check_unexecuted_orders 작업에 예외 발생: {task.exception()}")
-                        check_orders_task.cancel()
-                        check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
-                        tasks.append(check_orders_task)
-                    else:
-                        check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
-                        tasks.append(check_orders_task)
-
-            for task in pending:
-                tasks.remove(task)
+# async def run_async_tasks(gui, loop):
+#     async with aiohttp.ClientSession() as session:
+#         check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
+#         tasks = [
+#             connect_websocket(session),
+#             refresh_token(session),
+#             check_orders_task,
+#             msg(),
+#         ]
+#
+#         while True:
+#             done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+#
+#             for task in done:
+#                 if task is check_orders_task:
+#                     if task.exception():
+#                         print(f"check_unexecuted_orders 작업에 예외 발생: {task.exception()}")
+#                         check_orders_task.cancel()
+#                         check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
+#                         tasks.append(check_orders_task)
+#                     else:
+#                         check_orders_task = asyncio.create_task(check_unexecuted_orders(session))
+#                         tasks.append(check_orders_task)
+#
+#             for task in pending:
+#                 tasks.remove(task)
 
 # 프로그램 실행
 if __name__ == "__main__":
