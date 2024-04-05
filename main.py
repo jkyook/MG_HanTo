@@ -665,6 +665,12 @@ async def connect_websocket(session):
                         # npp 계산
                         asyncio.create_task(stockspurchase_futs(data_cnt, recvstr[3]))  # price 출력
 
+                    elif trid0 == "H0IFCNI0":  # 선물옵션체결통보 데이터 처리
+                        logger.info("#### 선물옵션체결통보 ####")
+                        key = "AES_key"
+                        iv = "AES_iv"
+                        asyncio.create_task(stocksigningnotice_futsoptn(recvstr[3], key, iv))
+
             except Exception as e:
                 logger.error(f"Error while receiving data from websocket: {e}")
 
@@ -1130,8 +1136,34 @@ async def check_unexecuted_orders(session):
 
             if "output1" in data and len(data["output1"]) > 0:
                 df = pd.DataFrame(data["output1"])
+                print(df)
                 df['qty'] = df['qty'].astype(int)
                 df['ord_idx'] = df['ord_idx'].astype(float)
+                df['tot_ccld_qty'] = df['tot_ccld_qty'].astype(float)
+
+                # 정정 및 취소 주문 제외 처리
+                df_che = df[df['tot_ccld_qty'] != 0]
+                revised_canceled_df = df_che[df_che['trad_dvsn_name'].isin(['취소확인'])]
+                revised_canceled_odnos = revised_canceled_df['odno'].tolist()
+                df_che = df_che[~df_che['odno'].isin(revised_canceled_odnos)]
+
+                # 체결 주문 필터링
+                executed_df = df_che[(df_che['qty'] == 0) & (df_che['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+
+                try:
+                    # orders_che 딕셔너리 초기화
+                    orders_che = {}
+
+                    for _, order in executed_df.iterrows():
+                        ord_no = order['odno']
+                        order_info = (order['odno'], order['ord_tmd'], order['trad_dvsn_name'][-2:], order['ord_qty'], order['ord_idx'])
+                        orders_che[ord_no] = order_info
+
+                    print("orders_che(체결 주문) : ", orders_che)
+                    asyncio.create_task(update_execution_list())  # 체결 내역 업데이트
+                except Exception as e:
+                    logger.error(f"체결 주문 확인 중 오류 발생(증권사): {e}")
+
                 # 미체결 주문 필터링
                 filtered_df = df[(df['qty'] > 0) & (df['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
                 if filtered_df.empty:
@@ -1193,7 +1225,7 @@ async def check_unexecuted_orders(session):
         except Exception as e:
             logger.error(f"미체결 주문 확인 중 오류 발생(증권사): {e}")
 
-        await asyncio.sleep(10)  # 5초 간격으로 미체결 주문 확인
+        await asyncio.sleep(2)  # 5초 간격으로 미체결 주문 확인
 
 #####################################################################
 # 정정주문
@@ -1250,13 +1282,6 @@ async def modify_order(odno, ord_qty, prc_o1):
         'hashkey': ''
     }
 
-    # [실전투자]
-    # TTTO1103U: 선물옵션정정취소주문 주간
-    # JTCE1002U: 선물옵션정정취소주문 야간
-    # [모의투자]
-    # VTTO1103U: 선물옵션정정취소주문 주간
-    # VTCE1002U: 선물옵션정정취소주문 야간
-
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
         data = response.json()
@@ -1290,87 +1315,93 @@ async def modify_order(odno, ord_qty, prc_o1):
 #####################################################################
 # 선물옵션 체결통보 출력라이브러리
 
-def stocksigningnotice_futsoptn(data, key, iv):
-    global orders, orders_che, price, qty, code, account, cum_qty
-    global bns_che, qty_che, prc_o1_che, time_che
-    global gui
+# def stocksigningnotice_futsoptn(data, key, iv):
+#     global orders, orders_che, price, qty, code, account, cum_qty
+#     global bns_che, qty_che, prc_o1_che, time_che
+#     global gui
+#
+#     try:
+#         # AES256 처리 단계
+#         aes_dec_str = aes_cbc_base64_dec(key, iv, data)
+#         logger.debug("aes_dec_str: %s", aes_dec_str)
+#         pValue = aes_dec_str.split('^')
+#         logger.debug("pValue: %s", pValue)
+#
+#         # 정상 체결 통보
+#         if pValue[6] == '0':
+#             logger.info("#### 지수선물옵션 체결 통보 ####")
+#             menulist_sign = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|체결수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|주문수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#             menustr = menulist_sign.split('|')
+#
+#             try:
+#                 bns_che = pValue[4]  # 매도매수구분
+#                 qty_che = int(pValue[8])  # 체결수량
+#                 if bns_che == "매도":
+#                     qty_che = -qty_che
+#                 cum_qty += qty_che
+#
+#                 ord_no_che = pValue[3]  # 원주문번호
+#                 prc_o1_che = float(pValue[9])  # 체결단가
+#                 time_che = pValue[10]  # 체결시간
+#
+#                 # 체결내역 결과 집계
+#                 orders_che[ord_no_che] = (bns_che, qty_che, price, prc_o1_che, time_che)
+#                 asyncio.create_task(update_execution_list())  # 체결 내역 업데이트
+#
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#                 logger.debug("orders_che: %s", orders_che)
+#
+#                 if bns_che == "매수":
+#                     NP.cover_ordered_exed = 1
+#                 elif bns_che == "매도":
+#                     NP.cover_ordered_exed = -1
+#             except (IndexError, ValueError) as e:
+#                 logger.error("체결 통보 데이터 처리 중 오류 발생: %s", e)
+#
+#         # 주문·정정·취소·거부 접수 통보
+#         else:  # pValue[6] == 'L',
+#             if pValue[5] == '1':  # 정정 접수 통보 (정정구분이 1일 경우)
+#                 logger.info("#### 지수선물옵션 정정 접수 통보 ####")
+#                 menulist_revise = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|정정수량|정정단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_revise.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#             elif pValue[5] == '2':  # 취소 접수 통보 (정정구분이 2일 경우)
+#                 logger.info("#### 지수선물옵션 취소 접수 통보 ####")
+#                 menulist_cancel = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|취소수량|주문단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_cancel.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#             elif pValue[11] == '1':  # 거부 접수 통보 (거부여부가 1일 경우)
+#                 logger.info("#### 지수선물옵션 거부 접수 통보 ####")
+#                 menulist_refuse = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|주문단가|주문시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_refuse.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#             else:  # 주문 접수 통보
+#                 logger.info("#### 지수선물옵션 주문 접수 통보 ####")
+#                 menulist_order = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_order.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#     except Exception as e:
+#         logger.error("체결 통보 메시지 처리 중 오류 발생: %s", e)
 
-    # AES256 처리 단계
-    aes_dec_str = aes_cbc_base64_dec(key, iv, data)
-    # print(aes_dec_str)
-    pValue = aes_dec_str.split('^')
-    # print(pValue)
-
-    # 정상 체결 통보
-    if pValue[6] == '0':
-        print("#### 지수선물옵션 체결 통보 ####")
-        menulist_sign = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|체결수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|주문수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
-        menustr = menulist_sign.split('|')
-        bns_che = pValue[4]  # 매도매수구분
-
-        qty_che = pValue[8]  # 체결수량
-        if bns_che == "매도":
-            qty_che = int(qty_che) * -1
-        cum_qty += qty_che
-
-        ord_no_che = pValue[3]  # 원주문번호
-        prc_o1_che = pValue[9]  # 체결단가
-        time_che = pValue[10]  # 체결시간
-
-        # 체결내역 결과 집계
-        orders_che[ord_no_che] = (bns_che, qty_che, price, prc_o1_che, time_che)
-        asyncio.create_task(update_execution_list())  # 체결 내역 업데이트
-
-        i = 0
-        for menu in menustr:
-            print("%s  [%s]" % (menu, pValue[i]))
-            i += 1
-        print(orders_che)
-
-        bns_che = pValue[4]  # 매도매수구분
-        if bns_che == "매수":
-            NP.cover_ordered_exed = 1
-        elif bns_che == "매도":
-            NP.cover_ordered_exed = -1
-
-    # 주문·정정·취소·거부 접수 통보
-    else:  # pValue[6] == 'L',
-
-        if pValue[5] == '1':  # 정정 접수 통보 (정정구분이 1일 경우)
-            print("#### 지수선물옵션 정정 접수 통보 ####")
-            menulist_revise = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|정정수량|정정단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
-            menustr = menulist_revise.split('|')
-            i = 0
-            for menu in menustr:
-                print("%s  [%s]" % (menu, pValue[i]))
-                i += 1
-
-        elif pValue[5] == '2':  # 취소 접수 통보 (정정구분이 2일 경우)
-            print("#### 지수선물옵션 취소 접수 통보 ####")
-            menulist_cancel = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|취소수량|주문단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
-            menustr = menulist_cancel.split('|')
-            i = 0
-            for menu in menustr:
-                print("%s  [%s]" % (menu, pValue[i]))
-                i += 1
-
-        elif pValue[11] == '1':  # 거부 접수 통보 (거부여부가 1일 경우)
-            print("#### 지수선물옵션 거부 접수 통보 ####")
-            menulist_refuse = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|주문단가|주문시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
-            menustr = menulist_refuse.split('|')
-            i = 0
-            for menu in menustr:
-                print("%s  [%s]" % (menu, pValue[i]))
-                i += 1
-
-        else:  # 주문 접수 통보
-            print("#### 지수선물옵션 주문 접수 통보 ####")
-            menulist_order = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
-            menustr = menulist_order.split('|')
-            i = 0
-            for menu in menustr:
-                print("%s  [%s]" % (menu, pValue[i]))
-                i += 1
 
 #####################################################################
 
@@ -1378,12 +1409,16 @@ async def update_execution_list():
     global orders_che, gui
 
     execution_text = ""
-    for ord_no, execution_info in orders_che.items():
-        bns_che, qty_che, price, prc_o1_che, time_che = execution_info
-        if bns_che == '매수':
-            execution_text += f"{ord_no[-5:]}, <span style='color:red;'>{bns_che}</span>, {prc_o1_che}, {qty_che}, @ {time_che}<br>"
+    sorted_orders_che = sorted(orders_che.items(), key=lambda x: x[1][1], reverse=False)
+    for ord_no, execution_info in sorted_orders_che:
+        odno, ord_tmd, trad_dvsn_name, ord_qty, ord_idx = execution_info
+        if trad_dvsn_name == '매수':
+            execution_text += f"{ord_no[-5:]}, <span style='color:red;'>{trad_dvsn_name}</span>, {ord_idx}, {ord_qty}, @ {ord_tmd}<br>"
+        elif trad_dvsn_name == '매도':
+            execution_text += f"{ord_no[-5:]}, <span style='color:blue;'>{trad_dvsn_name}</span>, {ord_idx}, {ord_qty}, @ {ord_tmd}<br>"
         else:
-            execution_text += f"{ord_no[-5:]}, <span style='color:blue;'>{bns_che}</span>, {prc_o1_che}, {qty_che}, @ {time_che}<br>"
+            execution_text += f"{ord_no[-5:]}, <span style='color:brown;'>{trad_dvsn_name}</span>, {ord_idx}, {ord_qty}, @ {ord_tmd}<br>"
+
     gui.execution_list_text.setHtml(execution_text)
 
 #####################################################################
@@ -1602,6 +1637,16 @@ async def msg():
 
         await asyncio.sleep(5)
 
+# def aes_cbc_base64_dec(key, iv, cipher_text):
+#     """
+#     :param key:  str type AES256 secret key value
+#     :param iv: str type AES256 Initialize Vector
+#     :param cipher_text: Base64 encoded AES256 str
+#     :return: Base64-AES256 decodec str
+#     """
+#     cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
+#     return bytes.decode(unpad(cipher.decrypt(b64decode(cipher_text)), AES.block_size))
+
 def aes_cbc_base64_dec(key, iv, cipher_text):
     """
     :param key:  str type AES256 secret key value
@@ -1609,9 +1654,12 @@ def aes_cbc_base64_dec(key, iv, cipher_text):
     :param cipher_text: Base64 encoded AES256 str
     :return: Base64-AES256 decodec str
     """
-    cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
-    return bytes.decode(unpad(cipher.decrypt(b64decode(cipher_text)), AES.block_size))
-
+    try:
+        cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
+        return bytes.decode(unpad(cipher.decrypt(b64decode(cipher_text)), AES.block_size))
+    except (ValueError, UnicodeDecodeError) as e:
+        logger.error("AES-256 CBC 복호화 중 오류 발생: %s", e)
+        return ""
 
 # #####################################################################
 # 메인
