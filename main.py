@@ -985,7 +985,7 @@ async def send_order(bns):
             "SLL_BUY_DVSN_CD": bns,
             "SHTN_PDNO": code,
             "ORD_QTY": str(qty),
-            "UNIT_PRICE": str(prc_o1 - slack),
+            "UNIT_PRICE": str(adj_prc),
             "NMPR_TYPE_CD": "01",
             "KRX_NMPR_CNDT_CD": "0",
             "ORD_DVSN_CD": "01"
