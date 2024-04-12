@@ -1092,6 +1092,8 @@ async def check_unexecuted_orders(session):
             url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
         today = datetime.now().strftime("%Y%m%d")
+        access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijc1N2NjNDZkLWJlNTktNGU1OS05MGFlLTFmMTBmNDU1NTY4MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyOTY3MjEzLCJpYXQiOjE3MTI4ODA4MTMsImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.IKmyzWgbcAlefsraDfKnSUMl7fIG0oWYcmgPgp5D6cbDPllomPwCCYJhrNadD1qXpF3dvudkh-_te1JEU69dYw"
+
         # print("today :",today)
         # print("access_token :", access_token)
 
@@ -1121,11 +1123,12 @@ async def check_unexecuted_orders(session):
         # }
 
         # REAL
+
         payload = {
             "CANO": account,
             "ACNT_PRDT_CD": "03",
-            "STRT_ORD_DT": today,
-            "END_ORD_DT": today,
+            "STRT_ORD_DT": "20240412",
+            "END_ORD_DT": "20240412",
             "SLL_BUY_DVSN_CD": "00",
             "CCLD_NCCS_DVSN": "00",
             "SORT_SQN": "DS",
@@ -1135,6 +1138,7 @@ async def check_unexecuted_orders(session):
             "CTX_AREA_FK200": "",
             "CTX_AREA_NK200": ""
         }
+
         headers = {
             'content-type': 'application/json',
             'authorization': 'Bearer ' + access_token,  # 'Bearer ' + str(access_token),
@@ -1245,11 +1249,20 @@ async def check_unexecuted_orders(session):
 
                     print("unexecuted_orders(정정주문 이후) : ", unexecuted_orders)
 
+            # else:
+            #     print("증권사 API 응답에 'output1' 키가 없습니다.")
+            #     with open('access_token.txt', 'r') as f:
+            #         access_token = f.read().strip()
+            #         logger.info("저장된 액세스 토큰 사용(발급직후): %s", access_token)
+            elif "msg1" in data:
+                print("응답 메시지 : ", data["msg1"])
+
             else:
-                print("증권사 API 응답에 'output1' 키가 없습니다.")
+                print("증권사 API 응답에 'output1' 키와 'msg1' 키가 없습니다.")
                 with open('access_token.txt', 'r') as f:
                     access_token = f.read().strip()
                     logger.info("저장된 액세스 토큰 사용(발급직후): %s", access_token)
+
 
         except Exception as e:
             logger.error(f"미체결 주문 확인 중 오류 발생(증권사): {e}")
