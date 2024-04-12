@@ -45,7 +45,25 @@ real_demo = 1  # 0:demo, 1: real
 temp_id = ""
 manu_reorder = 0
 
+#####################################################################
+def calculate_kospi_mini_futures_code():
+    today = datetime.today()
+    # Adjust for the next month if currently trading for the next month's expiry
+    target_month = today.month + 1 if today.month != 12 else 1
+    target_year = today.year if today.month != 12 else today.year + 1
 
+    year_map = {2024: 'V', 2025: 'W'}  # Update and expand as necessary
+    month_map = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: 'A', 11: 'B', 12: 'C'}
+
+    year_code = year_map.get(target_year, 'Unknown year')
+    month_code = month_map.get(target_month, 'Unknown month')
+
+    product_code = f"105{year_code}{month_code}000"
+    return product_code
+
+code = calculate_kospi_mini_futures_code()
+
+print(code)
 #####################################################################
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtGui import QTextCursor, QTextCharFormat, QBrush, QColor
@@ -627,7 +645,7 @@ async def connect_websocket(session):
         url = 'ws://ops.koreainvestment.com:21000'  # 실전투자계좌
 
     code_list = [['1','H0IFASP0','101V06'],['1','H0IFCNT0','101V06'], # 지수선물호가, 체결가
-                 ['1', 'H0IFASP0', '105V04'], ['1', 'H0IFCNT0', '105V04'],
+                 ['1', 'H0IFASP0', code], ['1', 'H0IFCNT0', code],
     #              ['1','H0IOASP0','201T11317'],['1','H0IOCNT0','201T11317'], # 지수옵션호가, 체결가
                  ['1','H0IFCNI0','jika79']] # 선물옵션체결통보
 
