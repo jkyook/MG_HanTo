@@ -252,7 +252,7 @@ class Nprob:
         # self.which_market = 1
 
         # self.auto
-        self.auto_cover = 1  # 0:off, 1:sell, 2:buy
+        self.auto_cover = 2  # 0:off, 1:sell, 2:buy
         self.acc_uninfied = 1  # 0: accnt_cov seperated, 1:unified
 
         if self.auto_cover == 1:

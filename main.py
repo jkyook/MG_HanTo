@@ -34,7 +34,7 @@ from qasync import QEventLoop
 # from qasync import asyncSlot, QThreadExecutor
 # from quamash import QEventLoop
 
-import NProb_new
+import NProb
 import NProb2
 
 from Crypto.Cipher import AES
@@ -496,7 +496,7 @@ cum_qty = 0
 elap = 0
 
 print("jump to NP")
-NP = NProb_new.Nprob()
+NP = NProb.Nprob()
 NP2 = NProb2.Nprob()
 print("NP..Laoded")
 
