@@ -7354,7 +7354,7 @@ class Nprob:
         self.df.at[self.nf, "peak_block"] = self.peak_block
 
         # sending hist msg to e-mail
-        if ((self.which_market == 3 and now.hour >= 9 and now.minute >= 30) or self.which_market != 3) and now.minute % 5 == 0 and self.msg_sent == 0:
+        if ((self.which_market == 3 and now.hour >= 8 and now.minute >= 30) or self.which_market != 3) and now.minute % 6 == 0 and self.msg_sent == 0:
             self.msg = MIMEMultipart()
             html = """\
             <html>
