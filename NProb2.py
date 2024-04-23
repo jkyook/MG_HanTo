@@ -7417,7 +7417,7 @@ class Nprob:
 
                     self.msg_sent = 1
 
-        if now.minute % 5 != 0:
+        if now.minute % 6 != 0:
             self.msg_sent = 0
 
         self.nf += 1
