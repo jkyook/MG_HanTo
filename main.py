@@ -1092,7 +1092,7 @@ async def check_unexecuted_orders(session):
             url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
         today = datetime.now().strftime("%Y%m%d")
-        access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijc1N2NjNDZkLWJlNTktNGU1OS05MGFlLTFmMTBmNDU1NTY4MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyOTY3MjEzLCJpYXQiOjE3MTI4ODA4MTMsImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.IKmyzWgbcAlefsraDfKnSUMl7fIG0oWYcmgPgp5D6cbDPllomPwCCYJhrNadD1qXpF3dvudkh-_te1JEU69dYw"
+        # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijc1N2NjNDZkLWJlNTktNGU1OS05MGFlLTFmMTBmNDU1NTY4MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyOTY3MjEzLCJpYXQiOjE3MTI4ODA4MTMsImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.IKmyzWgbcAlefsraDfKnSUMl7fIG0oWYcmgPgp5D6cbDPllomPwCCYJhrNadD1qXpF3dvudkh-_te1JEU69dYw"
 
         # print("today :",today)
         # print("access_token :", access_token)
