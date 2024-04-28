@@ -7,7 +7,7 @@ from datetime import datetime
 from sklearn import datasets, linear_model
 from sklearn.preprocessing import scale, robust_scale, minmax_scale, maxabs_scale
 import numpy as np
-# import talib
+import talib
 import matplotlib.pyplot as plt
 import smtplib
 from email.mime.text import MIMEText
@@ -194,7 +194,7 @@ class Nprob:
         if not os.path.exists(self.merged_dir):
             os.makedirs(self.merged_dir)
 
-        self.talib = 0
+        self.talib = 1
 
         # global df , nf
         self.nf = 0
