@@ -49,7 +49,17 @@ manu_reorder = 0
 def calculate_kospi_mini_futures_code():
     today = datetime.today()
     # Adjust for the next month if currently trading for the next month's expiry
-    target_month = today.month + 1 if today.month != 12 else 1
+    # target_month = today.month + 1 if today.month != 12 else 1
+
+    # 두 번째 주 목요일 계산
+    first_day = datetime(today.year, today.month, 1)
+    second_thursday = first_day + timedelta(days=(10 - first_day.weekday()) % 7)
+
+    if today <= second_thursday:
+        target_month = today.month
+    else:
+        target_month = today.month + 1 if today.month != 12 else 1
+
     target_year = today.year if today.month != 12 else today.year + 1
 
     year_map = {2024: 'V', 2025: 'W'}  # Update and expand as necessary
