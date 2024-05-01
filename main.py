@@ -518,6 +518,13 @@ print("NP..Laoded")
 ## 텔레그램 봇 정보
 
 bot = telegram.Bot(token=telegram_token)
+
+async def send_messages(chat_id, text):
+    try:
+        await bot.sendMessage(chat_id=chat_id, text=text)
+    except:
+        pass
+
 text1 = " *** (MG7) 시스템 가동 시작 ***, Start == 0"
 try:
     if bot_alive == 1:
@@ -697,7 +704,7 @@ async def connect_websocket(session):
                         logger.info("#### 선물옵션체결통보 ####")
                         key = "AES_key"
                         iv = "AES_iv"
-                        asyncio.create_task(stocksigningnotice_futsoptn(recvstr[3], key, iv))
+                        # asyncio.create_task(stocksigningnotice_futsoptn(recvstr[3], key, iv))
 
             except Exception as e:
                 logger.error(f"Error while receiving data from websocket: {e}")
@@ -1510,7 +1517,7 @@ async def msg():
 
                 if msg_now != msg_last and msg_now != msg_out and (msg_now in msgs or msg_now[:3] in msgs) :# and msg_last[0] == "1":# and msg_now != "shut":  # and msg_now != "last":
                     if bot_alive == 1 or bot_alive == 2:
-                        bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " (now): " + msg_now + ", (last) : " + msg_last)
+                        asyncio.create_task(send_messages(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " (now): " + msg_now + ", (last) : " + msg_last))
 
                     msg_last = msg_now
 
@@ -1519,17 +1526,17 @@ async def msg():
                             text = str(NP.auto_cover) + " = (한투) (MG7) 커버 진입상태임..확인필요 ="
                             chkForb = 1
                             if bot_alive == 1 or bot_alive == 2:
-                                bot.sendMessage(chat_id="322233222", text=text)
+                                asyncio.create_task(send_messages(chat_id="322233222", text=text))
                         if NP.cover_ordered == 0:
                             chkForb = 1
                             text = str(NP.auto_cover) + " = (한투) (MG7) 매매를 중단합니다. ="
                             if bot_alive == 1 or bot_alive == 2:
-                                bot.sendMessage(chat_id="322233222", text=text)
+                                asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                         if chkForb == 1 and isblocked_msg == 0:
                             text = str(NP.auto_cover) + " = (한투) (MG7) 매매가 중단된 상태입니다. ="
                             if bot_alive == 1 or bot_alive == 2:
-                                bot.sendMessage(chat_id="322233222", text=text)
+                                asyncio.create_task(send_messages(chat_id="322233222", text=text))
                             isblocked_msg = 1
                             isreleased_msg = 0
 
@@ -1538,60 +1545,60 @@ async def msg():
                             auto_time = 1
                         elif auto_time == 1:
                             auto_time = 0
-                        bot.sendMessage(chat_id="322233222", text="(한투)" + str(auto_time) + ", 0:release, 1:set")
+                        asyncio.create_task(send_messages(chat_id="322233222", text="(한투)" + str(auto_time) + ", 0:release, 1:set"))
 
                     if (msg_now == "start" or msg_now == "111") and msg_out != "start":
                         chkForb = 0
                         text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매 중단을 해제합니다. ="
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                         if chkForb == 0 and isreleased_msg == 0:
                             text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매가 시작되었습니다. ="
                             if bot_alive == 1 or bot_alive == 2:
-                                bot.sendMessage(chat_id="322233222", text=text)
+                                asyncio.create_task(send_messages(chat_id="322233222", text=text))
                             isreleased_msg = 1
                             isblocked_msg = 0
                             istimeblocked_msg = 0
 
                     if msg_now[:3] == "out":
                         msg_out = msg_now[4:]
-                        bot.sendMessage(chat_id="322233222", text= "(한투)" + "아래 명령어 제외 :" + msg_now[4:])
+                        asyncio.create_task(send_messages(chat_id="322233222", text= "(한투)" + "아래 명령어 제외 :" + msg_now[4:]))
 
                     if msg_now == "mout":
-                        bot.sendMessage(chat_id="322233222", text= "(한투)" + "제외된 명령어 :" + msg_out)
+                        asyncio.create_task(send_messages(chat_id="322233222", text= "(한투)" + "제외된 명령어 :" + msg_out))
 
                     if msg_now == "cover":
                         text = "(한투)" + str(NP.auto_cover) + " (한투) cover_ordered: " + str(NP.cover_ordered) + ",  exed: " + str(NP.cover_order_exed)
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     if msg_now == "qty":
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text="(한투)" + str(cum_qty))
+                            asyncio.create_task(send_messages(chat_id="322233222", text="(한투)" + str(cum_qty)))
 
                     if msg_now == "orders":
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " " + str(orders))
+                            asyncio.create_task(send_messages(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " " + str(orders)))
 
                     if msg_now == "orders_che":
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " " + str(orders_che))
+                            asyncio.create_task(send_messages(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) + " " + str(orders_che)))
 
                     if msg_now == "now":
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) +" " + msg_now)
+                            asyncio.create_task(send_messages(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) +" " + msg_now))
 
                     if msg_now == "last":
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) +" " + msg_last)
+                            asyncio.create_task(send_messages(chat_id="322233222", text= "(한투)" + str(NP.auto_cover) +" " + msg_last))
 
                     if msg_now == "stat":
                         text = "(한투)" + str(NP.auto_cover) + "stat_in_org: " + str(stat_in_org) + ",  stat_out_org: " + str(stat_out_org)
                         if sub == 1:
                             text = "(한투)" + str(NP.auto_cover) + "(sub) stat_in_org: " + str(stat_in_org) + ",  stat_out_org: " + str(stat_out_org)
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     if msg_now == "statset":
                         stat_in_org = [0,0,0]
@@ -1600,42 +1607,42 @@ async def msg():
                         if sub == 1:
                             text = "(한투)" + str(NP.auto_cover) + "(sub) stat_in_org: " + str(stat_in_org) + ",  stat_out_org: " + str(stat_out_org)
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     if msg_now == "ord":
                         text = "(한투)" + str(NP.auto_cover) + "Ord: " + str(OrgOrdNo)
                         if sub == 1:
                             text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) Ord: " + str(OrgOrdNo)
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     if msg_now == "cordnum":
                         text = "(한투)" + str(NP.auto_cover) + "Ord_Cov: " + str(OrgOrdNo_Cov)
                         if sub == 1:
                             text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) Ord_Cov: " + str(OrgOrdNo_Cov)
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     if msg_now == "corded":
                         text = "(한투)" + str(NP.auto_cover) + "Ord_Ordered: " + str(NP.cover_ordered)
                         if sub == 1:
                             text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) Ord_Ordered: " + str(NP.cover_ordered)
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     if msg_now == "cexed":
                         text = "(한투)" + str(NP.auto_cover) + "cover_order_exed: " + str(NP.cover_order_exed)
                         if sub == 1:
                             text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) cover_order_exed: " + str(NP.cover_order_exed)
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     # if msg_now == "reord":
                     #     text = "(한투)" + str(NP.auto_cover) + "reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
                     #     if sub == 1:
                     #         text = "(한투)" + str(NP.auto_cover) + str(NP.auto_cover) + " (sub) reOrdered: " + str(reordered) + "  reOrdExed: " + str(reordered_exed)
                     #     if bot_alive == 1 or bot_alive == 2:
-                    #         bot.sendMessage(chat_id="322233222", text=text)
+                    #         asyncio.create_task(send_messages(chat_id="322233222", text=text)
 
                     if msg_now == "block":
                         if chkForb == 0:
@@ -1647,30 +1654,30 @@ async def msg():
                             if sub == 1:
                                 text = "(한투)" + str(NP.auto_cover) + " (sub) Block: " + str("Released")
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text=text)
+                            asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
                     if msg_now == "list":
                         # text = " [block, stop, start, time, cover, plot, stat, statset, ord, cordnum, cexed, plotset, reord] "
                         if bot_alive == 1 or bot_alive == 2:
-                            bot.sendMessage(chat_id="322233222", text="(한투)" + ", ".join(msgs))
+                            asyncio.create_task(send_messages(chat_id="322233222", text="(한투)" + ", ".join(msgs)))
             except:
                 if msg_now != "no var in list":
-                    bot.sendMessage(chat_id="322233222", text="no var in list")
+                    asyncio.create_task(send_messages(chat_id="322233222", text="no var in list"))
 
 
             if msg_now != msg_last:
                 if msg_now[:2] == "np":
                     # want_see = msg_now[2]
                     if bot_alive == 1 or bot_alive == 2:
-                        bot.sendMessage(chat_id="322233222", text="(한투)" + "np :" + str(NP.msg_now[3:]))
+                        asyncio.create_task(send_messages(chat_id="322233222", text="(한투)" + "np :" + str(NP.msg_now[3:])))
 
                 if msg_now[:6] == "delord":
                     del orders[int(msg_now[6:])]
-                    bot.sendMessage(chat_id="322233222", text="(한투)" + "deleted : " + str(int(msg_now[6:])))
+                    asyncio.create_task(send_messages(chat_id="322233222", text="(한투)" + "deleted : " + str(int(msg_now[6:]))))
 
                 if msg_now[:7] == "deleted":
                     orders = []
-                    bot.sendMessage(chat_id="322233222", text="(한투)" + "dumped : " + str(NP.auto_cover))
+                    asyncio.create_task(send_messages(chat_id="322233222", text="(한투)" + "dumped : " + str(NP.auto_cover)))
 
 
             if nf % 500 == 0 and nf != 0:
@@ -1679,13 +1686,13 @@ async def msg():
                     if sub == 1:
                         text = str(NP.auto_cover) + "(한투, sub) = (한투) (MG7) In Released Status=" + str(nf)
                     if bot_alive == 1 or bot_alive == 2:
-                        bot.sendMessage(chat_id="322233222", text=text)
+                        asyncio.create_task(send_messages(chat_id="322233222", text=text))
                 if chkForb == 1:
                     text = str(NP.auto_cover) + " = (한투) (MG7) In Blocked Status =" + str(nf)
                     if sub == 1:
                         text = str(NP.auto_cover) + " =(한투, sub) (MG7) In Blocked Status =" + str(nf)
                     if bot_alive == 1 or bot_alive == 2:
-                        bot.sendMessage(chat_id="322233222", text=text)
+                        asyncio.create_task(send_messages(chat_id="322233222", text=text))
 
         await asyncio.sleep(5)
 
