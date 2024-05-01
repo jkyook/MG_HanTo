@@ -1491,7 +1491,7 @@ async def msg():
     while True:
 
         if (datetime.now().minute % 7 == 0 and datetime.now().second <= 1):
-            asyncio.create_task(send_messages(chat_id="322233222", text=str(NP.auto_cover) + "// prf : {:.2f}".format(NP.profit_opt)))
+            asyncio.create_task(send_messages(chat_id="322233222", text=str(NP.auto_cover) + "// prf : {:.2f}, {:.2f}".format(NP.profit_opt, NP2.profit_opt)))
 
         if NP.auto_cover != 0:
 
