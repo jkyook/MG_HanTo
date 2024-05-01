@@ -1069,7 +1069,7 @@ async def send_order(bns):
                         NP.OrgOrdNo = str(ord_no)
                         logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
                         orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"), False)
-                        bot.sendMessage(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}")
+                        asyncio.create_task(send_messages(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}"))
                         ord_sent = 1
                         await update_order_list()  # 주문 내역 업데이트
                     else:
