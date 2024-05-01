@@ -1489,6 +1489,10 @@ async def msg():
     global started, sub, orders, NP, msg_out, auto_time, chkForb
 
     while True:
+
+        if (datetime.now().minute % 7 == 0 and datetime.now().second <= 1):
+            asyncio.create_task(send_messages(chat_id="322233222", text=str(NP.auto_cover) + "// prf : " + str(NP.profit_opt)))
+
         if NP.auto_cover != 0:
 
             # chat_token = "5269168004:AAEVzu9b7QBc3EBGDlQXum6abOCFxKEVmbg"
