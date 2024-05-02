@@ -19,7 +19,8 @@ chat_id = "322233222"
 # 계좌 및 종목 정보
 account = "64154012" # 실전
 # account = "60025978" # 모의
-code = "105V04"
+code = "105V05"
+code_ovs = "MESM24"
 qty = 1  # 주문 수량
 
 
