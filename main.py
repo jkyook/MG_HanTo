@@ -17,7 +17,7 @@ import scipy.stats as stat
 import copy
 from datetime import datetime, timedelta
 import telegram
-from config import api_key, secret_key, telegram_token, chat_id, account, code, qty
+from config import api_key, secret_key, telegram_token, chat_id, account, code, code_ovs, qty
 from tkinter import filedialog  # //Python 3
 import matplotlib.pyplot as plt
 import subprocess  # subprocess 모듈 import 추가
@@ -42,18 +42,18 @@ from Crypto.Util.Padding import unpad
 from base64 import b64decode
 
 real_demo = 1  # 0:demo, 1: real
+which_market = 2 # 1:kospi, 2:s&p
 temp_id = ""
 manu_reorder = 0
 
 #####################################################################
 def calculate_kospi_mini_futures_code():
     today = datetime.today()
-    # Adjust for the next month if currently trading for the next month's expiry
-    # target_month = today.month + 1 if today.month != 12 else 1
 
     # 두 번째 주 목요일 계산
     first_day = datetime(today.year, today.month, 1)
-    second_thursday = first_day + timedelta(days=(10 - first_day.weekday()) % 7)
+    first_thursday = first_day + timedelta(days=(3 - first_day.weekday()) % 7)
+    second_thursday = first_thursday + timedelta(days=7)
 
     if today <= second_thursday:
         target_month = today.month
@@ -412,7 +412,10 @@ class AutoTradeGUI(QMainWindow):
         self.elap_label.setText(f'nf, elap: {nf}, {elap:.1f}')
 
         # 시가 등
-        self.stock_code_label.setText(f'종목코드: {code}')
+        if which_market == 1:
+            self.stock_code_label.setText(f'종목코드: {code}')
+        if which_market == 2:
+            self.stock_code_label.setText(f'종목코드: {code_ovs}')
         self.stock_open_label.setText(f'시가: {price}')
         self.stock_bid_label.setText(f'매수호가 잔량: {lblBqty1v}')
         self.stock_ask_label.setText(f'매도호가 잔량: {lblSqty1v}')
@@ -478,7 +481,10 @@ lblShoga1v = 0
 lblBqty1v = 0
 lblBqty2v = 0
 prc_o1 = 0
-slack = 0.02
+if which_market == 1:
+    slack = 0.02 * 1
+if which_market == 2:
+    slack = 0.25 * 1
 
 nf = 0
 npp = 0
@@ -628,7 +634,7 @@ async def get_access_token(session):
         logger.error(f"액세스 토큰 발급 중 오류 발생: {e}")
 
 #####################################################################
-# 웹소켓 접속키 발급
+# 웹소켓 접속키 발급(코스피)
 
 async def get_approval():
     global approval_key
@@ -647,6 +653,21 @@ async def get_approval():
     approval_key = res.json()["approval_key"]
 
     return approval_key
+
+# 웹소켓 접속키 발급(해외선물)
+def get_approval_ovs(key, secret):
+    # url = https://openapivts.koreainvestment.com:29443' # 모의투자계좌
+    url = 'https://openapi.koreainvestment.com:9443'  # 실전투자계좌
+    headers = {"content-type": "application/json"}
+    body = {"grant_type": "client_credentials",
+            "appkey": key,
+            "secretkey": secret}
+    PATH = "oauth2/Approval"
+    URL = f"{url}/{PATH}"
+    res = requests.post(URL, headers=headers, data=json.dumps(body))
+    approval_key = res.json()["approval_key"]
+    return approval_key
+
 
 #####################################################################
 # 웹소켓 접속 및 데이터 수신
@@ -708,6 +729,104 @@ async def connect_websocket(session):
 
             except Exception as e:
                 logger.error(f"Error while receiving data from websocket: {e}")
+
+#####################################################################
+# 해외선물
+
+async def connect(session):
+
+    g_appkey = api_key
+    g_appsceret = secret_key
+    g_approval_key = get_approval_ovs(g_appkey, g_appsceret)
+    print("approval_key [%s]" % (g_approval_key))
+
+    # url = 'ws://ops.koreainvestment.com:31000' # 모의투자계좌
+    url = 'ws://ops.koreainvestment.com:21000'  # 실전투자계좌
+
+    # 원하는 호출을 [tr_type, tr_id, tr_key] 순서대로 리스트 만들기
+
+    ### 4. 해외선물옵션 호가, 체결가, 체결통보 ###
+    # code_list = [['1','HDFFF020','FCAZ22']] # 해외선물체결
+    # code_list = [['1','HDFFF010','FCAZ22']] # 해외선물호가
+    # code_list = [['1','HDFFF020','OESH23 C3900']] # 해외옵션체결
+    # code_list = [['1','HDFFF010','OESH23 C3900']] # 해외옵션호가
+    # code_list = [['1','HDFFF2C0','HTS ID를 입력하세요']] # 해외선물옵션체결통보
+    code_list = [['1', 'HDFFF020', code_ovs], ['1', 'HDFFF010', code_ovs], ['1', 'HDFFF2C0', 'jika79']] # ['1', code_ovs, 'OESH23 C3900'], ['1', code_ovs, 'OESH23 C3900'],
+
+    senddata_list = []
+
+    for i, j, k in code_list:
+        temp = '{"header":{"approval_key": "%s","custtype":"P","tr_type":"%s","content-type":"utf-8"},"body":{"input":{"tr_id":"%s","tr_key":"%s"}}}' % (g_approval_key, i, j, k)
+        senddata_list.append(temp)
+
+    async with websockets.connect(url, ping_interval=None) as websocket:
+
+        for senddata in senddata_list:
+            await websocket.send(senddata)
+            await asyncio.sleep(0.5)
+            print(f"Input Command is :{senddata}")
+
+        while True:
+
+            try:
+
+                data = await websocket.recv()
+                await asyncio.sleep(0.5)
+                # print(f"Recev Command is :{data}")  # 정제되지 않은 Request / Response 출력
+
+                if data[0] == '0':
+                    recvstr = data.split('|')  # 수신데이터가 실데이터 이전은 '|'로 나뉘어져있어 split
+                    trid0 = recvstr[1]
+
+                    if trid0 == "HDFFF010":  # 해외선물옵션호가 tr 일경우의 처리 단계
+                        print("#### 해외선물옵션호가 ####")
+                        stockhoka_overseafut(recvstr[3])
+                        await asyncio.sleep(0.5)
+
+                    elif trid0 == "HDFFF020":  # 해외선물옵션체결 데이터 처리
+                        print("#### 해외선물옵션체결 ####")
+                        data_cnt = int(recvstr[2])  # 체결데이터 개수
+                        stockspurchase_overseafut(data_cnt, recvstr[3])
+                        await asyncio.sleep(0.5)
+
+                elif data[0] == '1':
+
+                    recvstr = data.split('|')  # 수신데이터가 실데이터 이전은 '|'로 나뉘어져있어 split
+                    trid0 = recvstr[1]
+
+                    if trid0 == "HDFFF2C0":  # 해외선물옵션체결 통보 처리
+                        stocksigningnotice_overseafut(recvstr[3], aes_key, aes_iv)
+
+                else:
+
+                    jsonObject = json.loads(data)
+                    trid = jsonObject["header"]["tr_id"]
+
+                    if trid != "PINGPONG":
+                        rt_cd = jsonObject["body"]["rt_cd"]
+
+                        if rt_cd == '1':  # 에러일 경우 처리
+
+                            if jsonObject["body"]["msg1"] != 'ALREADY IN SUBSCRIBE':
+                                print("### ERROR RETURN CODE [ %s ][ %s ] MSG [ %s ]" % (jsonObject["header"]["tr_key"], rt_cd, jsonObject["body"]["msg1"]))
+                            break
+
+                        elif rt_cd == '0':  # 정상일 경우 처리
+                            print("### RETURN CODE [ %s ][ %s ] MSG [ %s ]" % (jsonObject["header"]["tr_key"], rt_cd, jsonObject["body"]["msg1"]))
+
+                            # 체결통보 처리를 위한 AES256 KEY, IV 처리 단계
+                            if trid == "HDFFF2C0":  # 해외선물옵션
+                                aes_key = jsonObject["body"]["output"]["key"]
+                                aes_iv = jsonObject["body"]["output"]["iv"]
+                                print("### TRID [%s] KEY[%s] IV[%s]" % (trid, aes_key, aes_iv))
+
+                    elif trid == "PINGPONG":
+                        print("### RECV [PINGPONG] [%s]" % (data))
+                        await websocket.pong(data)
+                        print("### SEND [PINGPONG] [%s]" % (data))
+
+            except websockets.ConnectionClosed:
+                continue
 
 #####################################################################
 # file_check
@@ -789,6 +908,41 @@ def stockhoka_futs(data):
         lblBqty1v = float(recvvalue[27])
         lblBhoga1v = float(recvvalue[7])
 
+# 해외선물옵션호가 출력라이브러리
+def stockhoka_overseafut(data):
+    global lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v
+
+    # print(data)
+    recvvalue = data.split('^')  # 수신데이터를 split '^'
+
+    if recvvalue[0] == code_ovs:
+
+        lblSqty2v = float(recvvalue[13])
+        lblSqty1v = float(recvvalue[7])
+        lblShoga1v =float(recvvalue[9])
+
+        lblBqty2v = float(recvvalue[10])
+        lblBqty1v = float(recvvalue[4])
+        lblBhoga1v = float(recvvalue[6])
+
+    # print("종목코드	 [" + recvvalue[0] + "]")
+    # print("수신일자	 [" + recvvalue[1] + "]")
+    # print("수신시각	 [" + recvvalue[2] + "]")
+    # print("전일종가	 [" + recvvalue[3] + "]")
+    # print("====================================")
+    # print("매수1수량 	[" + recvvalue[4] + "]" + ",    매수1번호 	[" + recvvalue[5] + "]" + ",    매수1호가 	[" + recvvalue[6] + "]")
+    # print("매도1수량 	[" + recvvalue[7] + "]" + ",    매도1번호 	[" + recvvalue[8] + "]" + ",    매도1호가 	[" + recvvalue[9] + "]")
+    # print("매수2수량 	[" + recvvalue[10] + "]" + ",    매수2번호 	[" + recvvalue[11] + "]" + ",    매수2호가 	[" + recvvalue[12] + "]")
+    # print("매도2수량 	[" + recvvalue[13] + "]" + ",    매도2번호 	[" + recvvalue[14] + "]" + ",    매도2호가 	[" + recvvalue[15] + "]")
+    # print("매수3수량 	[" + recvvalue[16] + "]" + ",    매수3번호  	[" + recvvalue[17] + "]" + ",    매수3호가  	[" + recvvalue[18] + "]")
+    # print("매도3수량 	[" + recvvalue[19] + "]" + ",    매도3번호 	[" + recvvalue[20] + "]" + ",    매도3호가 	[" + recvvalue[21] + "]")
+    # print("매수4수량 	[" + recvvalue[22] + "]" + ",    매수4번호 	[" + recvvalue[23] + "]" + ",    매수4호가 	[" + recvvalue[24] + "]")
+    # print("매도4수량 	[" + recvvalue[25] + "]" + ",    매도4번호 	[" + recvvalue[26] + "]" + ",    매도4호가 	[" + recvvalue[27] + "]")
+    # print("매수5수량 	[" + recvvalue[28] + "]" + ",   매수5번호 	[" + recvvalue[29] + "]" + ",    매수5호가 	[" + recvvalue[30] + "]")
+    # print("매도5수량 	[" + recvvalue[31] + "]" + ",    매도5번호 	[" + recvvalue[32] + "]" + ",    매도5호가 	[" + recvvalue[33] + "]")
+    # print("====================================")
+    # print("전일정산가 	[" + recvvalue[32] + "]")
+
 #####################################################################
 # 지수선물체결처리 출력라이브러리
 
@@ -803,7 +957,7 @@ async def stockspurchase_futs(data_cnt, data):
     pValue = data.split('^')
     # print("code: ", pValue[0])
 
-    if pValue[0] == "105V04":
+    if pValue[0] == "105V05":
         # 현재가
         prc_o1 = float(pValue[5])
 
@@ -911,6 +1065,132 @@ async def stockspurchase_futs(data_cnt, data):
     #             print("%-13s[%s]" % (menu, pValue[i]))
     #             i += 1
 
+#####################################################################
+# 해외선물옵션체결처리 출력라이브러리
+def stockspurchase_overseafut(data_cnt, data):
+    global price, volume, cvolume, cgubun, count, npp, npp2, elap, NP, NP2
+    global last_time, last_volume, cgubun_sum, cvolume_mid, cvolume_sum, count_mid, nf, ExedQty
+    global lblSqty2v, lblSqty1v, lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1
+
+    print("============================================")
+    # menulist = "종목코드|영업일자|장개시일자|장개시시각|장종료일자|장종료시각|전일종가|수신일자|수신시각|본장_전산장구분|체결가격|체결수량|전일대비가|등락률|시가|고가|저가|누적거래량|전일대비부호|체결구분|수신시각2만분의일초|전일정산가|전일정산가대비|전일정산가대비가격|전일정산가대비율"
+    # menustr = menulist.split('|')
+    # pValue = data.split('^')
+    # print(pValue)
+    # i = 0
+    # for cnt in range(data_cnt):  # 넘겨받은 체결데이터 개수만큼 print 한다
+    #     print("### [%d / %d]" % (cnt + 1, data_cnt))
+    #     for menu in menustr:
+    #         print("%-13s[%s]" % (menu, pValue[i]))
+    #         i += 1
+
+    # print("============================================")
+    menulist = "종목코드|영업일자|장개시일자|장개시시각|장종료일자|장종료시각|전일종가|수신일자|수신시각|본장_전산장구분|체결가격|체결수량|전일대비가|등락률|시가|고가|저가|누적거래량|전일대비부호|체결구분|수신시각2만분의일초|전일정산가|전일정산가대비|전일정산가대비가격|전일정산가대비율"
+    menustr = menulist.split('|')
+    pValue = data.split('^')
+    # print("values: ", pValue[0:20])
+
+    if pValue[0] != code_ovs:
+        # 현재가
+        prc_o1 = float(pValue[10])
+
+    elif pValue[0] == code_ovs:
+        # 현재가
+        price = float(pValue[10])/100
+        volume = pValue[11]
+        if last_volume == 0:
+            last_volume = int(volume) + 1
+        cvolume = int(volume) - int(last_volume)  #pValue[9]
+        last_volume = volume
+        cgubun = pValue[5]
+        if pValue[19] == "5": #2:매수체결 5:매도체결
+            cgubun = "Sell"
+        else:
+            cgubun = "Buy"
+
+        # print(price, cgubun, cvolume, pValue[9], volume)
+
+    if 1==1:
+        #####################################
+        # NProb
+        #####################################
+
+        t1 = time.time()
+        mt = t1 - last_time
+        timestamp = int(t1 * 1000)
+
+        # nprob at under 0.5
+        if mt < 1:
+            if cgubun == "Buy":
+                cvolume_mid += cvolume
+            else:
+                cvolume_mid += cvolume * -1
+            count_mid += 1
+        else:
+            print("                                                   ")
+            print("                                                   ")
+            # if cgubun == "Buy":
+            #     cvolume = cvolume
+            if cgubun == "Sell":
+                cvolume = cvolume * -1
+            cvolume_sum = cvolume_mid + cvolume
+            if cvolume_sum > 0:
+                cgubun_sum = "Buy"
+            else:
+                cgubun_sum = "Sell"
+            count = count_mid + 1
+            mt = mt / count
+            # print(price, f"{mt:.2f}", count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
+            #                lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
+
+            ##########
+            # npp
+            ##########
+
+            nf += 1
+            try:
+                npp = NP.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
+                               lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
+                npp2 = NP2.nprob(price, timestamp, mt, count, cgubun_sum, cvolume_sum, volume, lblSqty2v, lblSqty1v,
+                               lblShoga1v, lblBqty1v, lblBhoga1v, lblBqty2v, prc_o1)
+            except:
+                print("npp error")
+
+            # 기록
+            if 1==0:
+                if NP.auto_cover == 1:
+                    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp_.txt'
+                    # file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp_.txt'
+                    f = open(file_path, 'w')
+                    s = chkForb #ex.chkForb.isChecked()
+                    f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt) + "," + str(s))
+                    f.close()
+                # if NP.auto_cover == 2:
+                #     file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo_2/npp.txt'
+                #     f = open(file_path, 'w')
+                #     f.write(str(NP.cover_ordered) + "," + str(NP.profit_opt))
+                #     f.close()
+
+                if NP2.auto_cover == 2:
+                    file_path = '/Users/yugjingwan/PycharmProjects/MG_HanTo/npp.txt'
+                    # file_path = 'C:/Users/Administrator/PycharmProjects/MG_HanTo/npp.txt'
+                    f = open(file_path, 'w')
+                    f.write(str(NP2.cover_ordered) + "," + str(NP2.profit_opt))
+                    f.close()
+
+            ##########
+            # 주문처리
+            ##########
+            asyncio.create_task(place_order())
+
+            cvolume_mid = 0
+            cvolume_sum = 0
+            count_mid = 0
+            last_time = t1
+            elap = (time.time() - t1) * 1000
+            print("elap: ", elap)
+            # ex.txtElap.setText(str("%0.1f" % elap))
+
 
 #####################################################################
 # 주문 처리 함수
@@ -922,15 +1202,27 @@ async def place_order():
     if 1==0 and nf == 10:
         await send_order(bns = "02")
 
-    if npp ==  4:
-        await send_order(bns = "02")
-    elif npp ==  -4:
-        await send_order(bns = "01")
+    if which_market == 1:
+        if npp ==  4:
+            await send_order(bns = "02")
+        elif npp ==  -4:
+            await send_order(bns = "01")
 
-    if npp2 ==  4:
-        await send_order(bns = "02")
-    elif npp2 ==  -4:
-        await send_order(bns = "01")
+        if npp2 ==  4:
+            await send_order(bns = "02")
+        elif npp2 ==  -4:
+            await send_order(bns = "01")
+
+    if which_market == 2:
+        if npp ==  4:
+            await send_order_ovs(bns = "02")
+        elif npp ==  -4:
+            await send_order_ovs(bns = "01")
+
+        if npp2 ==  4:
+            await send_order_ovs(bns = "02")
+        elif npp2 ==  -4:
+            await send_order_ovs(bns = "01")
 
     # 기록
     if 1==0:
@@ -1010,7 +1302,7 @@ async def place_order():
 
 async def send_order(bns):
     global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
-    global gui, NP, slack
+    global gui, NP, slack, which_market
 
     print("주문변수: ", account, bns, code, str(qty), str(prc_o1 - 1))
 
@@ -1075,6 +1367,75 @@ async def send_order(bns):
                     else:
                         logger.error("주문 요청 실패")
     # gui.order_button.setStyleSheet("")
+
+#####################################################################
+# 일반 주문(해외선물)
+
+async def send_order_ovs(bns):
+    global orders, ord_sent, api_key, secret_key, price, qty, code, account, chkForb, auto_time, prc_o1
+    global gui, NP, slack, which_market
+
+    print("주문변수: ", account, bns, code, str(qty), str(prc_o1 - 1))
+
+    if auto_time == 1:
+        # if real_demo == 0:
+        #     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-futureoption/v1/trading/order"
+        if real_demo == 1:
+            url = "https://openapi.koreainvestment.com:9443/uapi/overseas-futureoption/v1/trading/order"
+
+        if bns == "02":
+            adj_prc = float(prc_o1) - slack
+        elif bns == "01":
+            adj_prc = float(prc_o1) + slack
+
+        payload = json.dumps({
+            "CANO": account,
+            "ACNT_PRDT_CD": "08",
+            "OVRS_FUTR_FX_PDNO": code_ovs,
+            "SLL_BUY_DVSN_CD": bns,
+            "FM_LQD_USTL_CCLD_DT": "",
+            "FM_LQD_USTL_CCNO": "",
+            "PRIC_DVSN_CD": "1",  # 가격구분코드
+            "FM_LIMIT_ORD_PRIC": str(adj_prc), #지정가인 경우 가격 입력 * 시장가, STOP주문인 경우, 빈칸("") 입력
+            "FM_STOP_ORD_PRIC": "",
+            "FM_ORD_QTY": str(qty),
+            "FM_LQD_LMT_ORD_PRIC": "",
+            "FM_LQD_STOP_ORD_PRIC": "",
+            "CCLD_CNDT_CD": "6",  # 체결조건코드 : 일반적으로 6 (EOD, 지정가) GTD인 경우 5, 시장가인 경우만 2
+            "CPLX_ORD_DVSN_CD": "0",
+            "ECIS_RSVN_ORD_YN": "N",
+            "FM_HDGE_ORD_SCRN_YN": "N"
+        })
+
+        headers = {
+            'content-type': 'application/json',
+            'authorization': 'Bearer ' + str(access_token),
+            'appkey': 'PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC',
+            'appsecret': 'KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=',
+            'tr_id': 'OTFM3001U',
+            'hashkey': '46149c294a68a8fc71336b76fbafe5193698f28b5f83c3c3193f2c5f8f9c1aa4'
+        }
+
+        # OTFM3001U : ASFM선물옵션주문신규
+        # [POST API 대상] Client가 요청하는 Request Body를 hashkey api로 생성한 Hash값  * API문서 > hashkey 참조
+
+        if chkForb != 1:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, data=payload) as response:
+                    result = await response.json()
+                    print("신규주문 회신 data: ", result)
+                    if result["rt_cd"] == "0":
+                        ord_no = result["output"]["ODNO"]
+                        NP.OrgOrdNo = str(ord_no)
+                        logger.info(f"주문 요청 완료 - 주문번호: {ord_no}")
+                        orders[ord_no] = (bns, qty, price, prc_o1, datetime.now().strftime("%H:%M"), False)
+                        asyncio.create_task(send_messages(chat_id=chat_id, text=f"신규 주문 요청 - 주문번호: {ord_no}, 구분: {bns}, 주문가격: {str(prc_o1)}, 주문수량: {qty}"))
+                        ord_sent = 1
+                        await update_order_list()  # 주문 내역 업데이트
+                    else:
+                        logger.error("주문 요청 실패")
+    # gui.order_button.setStyleSheet("")
+
 
 #####################################################################
 
@@ -1744,14 +2105,23 @@ async def main():
 
 async def run_async_tasks(gui, loop):
     async with aiohttp.ClientSession() as session:
-        await asyncio.gather(
-            connect_websocket(session),
-            refresh_token(session),
-            check_unexecuted_orders(session),
-            msg(),
-            # loop=loop
-        )
 
+        if which_market == 1:
+            await asyncio.gather(
+                connect_websocket(session),
+                refresh_token(session),
+                check_unexecuted_orders(session),
+                msg(),
+                # loop=loop
+            )
+        elif which_market == 2:
+            await asyncio.gather(
+                connect(session),
+                refresh_token(session),
+                check_unexecuted_orders(session),
+                msg(),
+                # loop=loop
+            )
 
 # 프로그램 실행
 if __name__ == "__main__":
