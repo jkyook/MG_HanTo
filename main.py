@@ -1851,12 +1851,12 @@ async def update_execution_list():
 async def msg():
     global bot, df, nf, df1, msg_now, msg_last, msg_last_sent, bot_alive, OrgOrdNo
     global isblocked_msg, isreleased_msg, istimeblocked_msg, stat_out_org, stat_in_org, OrgOrdNo_Cov
-    global started, sub, orders, NP, msg_out, auto_time, chkForb
+    global started, sub, orders, NP, msg_out, auto_time, chkForb, price
 
     while True:
 
         if (datetime.now().minute % 7 == 0 and datetime.now().second <= 1):
-            asyncio.create_task(send_messages(chat_id="322233222", text=str(NP.auto_cover) + "// prf : {:.2f}, {:.2f}".format(NP.profit_opt, NP2.profit_opt)))
+            asyncio.create_task(send_messages(chat_id="322233222", text=str(NP.auto_cover) + "now : " + str(price) + "// prf : {:.2f}, {:.2f}".format(NP.profit_opt, NP2.profit_opt)))
 
         if NP.auto_cover != 0:
 
