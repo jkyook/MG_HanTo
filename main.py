@@ -42,7 +42,7 @@ from Crypto.Util.Padding import unpad
 from base64 import b64decode
 
 real_demo = 1  # 0:demo, 1: real
-which_market = 2 # 1:kospi, 2:s&p
+which_market = 1 # 1:kospi, 2:s&p
 temp_id = ""
 manu_reorder = 0
 
@@ -68,7 +68,7 @@ def calculate_kospi_mini_futures_code():
     year_code = year_map.get(target_year, 'Unknown year')
     month_code = month_map.get(target_month, 'Unknown month')
 
-    product_code = f"105{year_code}{month_code}000"
+    product_code = f"105{year_code}0{month_code}"
     return product_code
 
 code = calculate_kospi_mini_futures_code()
@@ -1312,6 +1312,10 @@ async def send_order(bns):
         if real_demo == 1:
             url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/order"
 
+        # 테스트용
+        prc_o1 = 370.20
+        code = "105V05"
+
         if bns == "02":
             adj_prc = float(prc_o1) - slack
         elif bns == "01":
@@ -1633,13 +1637,13 @@ async def check_unexecuted_orders(session):
             #         access_token = f.read().strip()
             #         logger.info("저장된 액세스 토큰 사용(발급직후): %s", access_token)
             elif "msg1" in data:
-                print("응답 메시지 : ", data["msg1"])
+                print("(미체결) 응답 메시지 : ", data["msg1"])
 
             else:
-                print("증권사 API 응답에 'output1' 키와 'msg1' 키가 없습니다.")
+                print("(미체결) 증권사 API 응답에 'output1' 키와 'msg1' 키가 없습니다.")
                 with open('access_token.txt', 'r') as f:
                     access_token = f.read().strip()
-                    logger.info("저장된 액세스 토큰 사용(발급직후): %s", access_token)
+                    logger.info("(미체결) 저장된 액세스 토큰 사용(발급직후): %s", access_token)
 
 
         except Exception as e:
