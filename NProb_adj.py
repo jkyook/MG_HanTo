@@ -68,7 +68,7 @@ class AIModel:
             self.which_market = 3  # (1:bitmex, 2:upbit, 3:kospi, 4:e-mini, 5:A50, 6:Micro, 7:HS)
         else:
             self.which_market = 4
-        self.which_market = 1
+        # self.which_market = 1
         self.ai_mode = 3
 
         self.ai_ = pd.read_csv("index_ai_sshort.csv").columns.values.tolist()
@@ -250,7 +250,7 @@ class Nprob:
         # self.which_market = 1
         # if self.which_market == 4:
         #     chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
-        self.which_market = 1
+        # self.which_market = 1
 
         # self.auto
         self.auto_cover = 1  # 0:off, 1:sell, 2:buy
