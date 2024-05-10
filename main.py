@@ -1828,6 +1828,96 @@ async def modify_order(odno, ord_qty, prc_o1):
 
 
 #####################################################################
+# 해외선물옵션 체결통보 출력라이브러리
+
+# def stocksigningnotice_overseafut(data, key, iv):
+#     global orders, orders_che, price, qty, code, account, cum_qty
+#     global bns_che, qty_che, prc_o1_che, time_che
+#     global gui
+#
+#     try:
+#         # AES256 처리 단계
+#         aes_dec_str = aes_cbc_base64_dec(key, iv, data)
+#         logger.debug("aes_dec_str: %s", aes_dec_str)
+#         pValue = aes_dec_str.split('^')
+#         logger.debug("pValue: %s", pValue)
+#
+#         # 정상 체결 통보
+#         if pValue[6] == '0':
+#             logger.info("#### 지수선물옵션 체결 통보 ####")
+#             menulist_sign = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|체결수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|주문수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#             menustr = menulist_sign.split('|')
+#
+#             try:
+#                 bns_che = pValue[4]  # 매도매수구분
+#                 qty_che = int(pValue[8])  # 체결수량
+#                 if bns_che == "매도":
+#                     qty_che = -qty_che
+#                 cum_qty += qty_che
+#
+#                 ord_no_che = pValue[3]  # 원주문번호
+#                 prc_o1_che = float(pValue[9])  # 체결단가
+#                 time_che = pValue[10]  # 체결시간
+#
+#                 # 체결내역 결과 집계
+#                 orders_che[ord_no_che] = (bns_che, qty_che, price, prc_o1_che, time_che)
+#                 asyncio.create_task(update_execution_list())  # 체결 내역 업데이트
+#
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#                 logger.debug("orders_che: %s", orders_che)
+#
+#                 if bns_che == "매수":
+#                     NP.cover_ordered_exed = 1
+#                 elif bns_che == "매도":
+#                     NP.cover_ordered_exed = -1
+#             except (IndexError, ValueError) as e:
+#                 logger.error("체결 통보 데이터 처리 중 오류 발생: %s", e)
+#
+#         # 주문·정정·취소·거부 접수 통보
+#         else:  # pValue[6] == 'L',
+#             if pValue[5] == '1':  # 정정 접수 통보 (정정구분이 1일 경우)
+#                 logger.info("#### 지수선물옵션 정정 접수 통보 ####")
+#                 menulist_revise = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|정정수량|정정단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_revise.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#             elif pValue[5] == '2':  # 취소 접수 통보 (정정구분이 2일 경우)
+#                 logger.info("#### 지수선물옵션 취소 접수 통보 ####")
+#                 menulist_cancel = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|취소수량|주문단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_cancel.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#             elif pValue[11] == '1':  # 거부 접수 통보 (거부여부가 1일 경우)
+#                 logger.info("#### 지수선물옵션 거부 접수 통보 ####")
+#                 menulist_refuse = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|주문단가|주문시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_refuse.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#             else:  # 주문 접수 통보
+#                 logger.info("#### 지수선물옵션 주문 접수 통보 ####")
+#                 menulist_order = "고객ID|계좌번호|주문번호|원주문번호|매도매수구분|정정구분|주문종류|단축종목코드|주문수량|체결단가|체결시간|거부여부|체결여부|접수여부|지점번호|체결수량|계좌명|체결종목명|주문조건|주문그룹ID|주문그룹SEQ|주문가격"
+#                 menustr = menulist_order.split('|')
+#                 i = 0
+#                 for menu in menustr:
+#                     logger.info("%s  [%s]", menu, pValue[i])
+#                     i += 1
+#
+#     except Exception as e:
+#         logger.error("체결 통보 메시지 처리 중 오류 발생: %s", e)
+
+#####################################################################
 
 async def update_execution_list():
     global orders_che, gui
