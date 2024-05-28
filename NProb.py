@@ -2672,7 +2672,7 @@ class Nprob:
         if self.which_market == 3:
             if self.nf > 301:
                 if self.std_std_prc < 0.1:
-                    if prc_std > 0.3:
+                    if self.prc_std > 0.3:
                         if self.nf < 2000:
                             if self.cvol_m > 0.01:
                                 self.vol_peak = 1
