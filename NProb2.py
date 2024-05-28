@@ -252,7 +252,7 @@ class Nprob:
         # self.which_market = 1
 
         # self.auto
-        self.auto_cover = 2  #0:off, 1:sell, 2:buy
+        self.auto_cover = 2  # 0:off, 1:sell, 2:buy
         self.acc_uninfied = 1  # 0: accnt_cov seperated, 1:unified
 
         if self.auto_cover == 1:
@@ -729,6 +729,7 @@ class Nprob:
         else:
             prc_std = self.tick  # self.prc_std_ave
         self.df.at[self.nf, "prc_std"] = prc_std
+        self.prc_std = prc_std
 
         if self.nf >= 101:  # and prc_avg != 0:
             prc_std_100 = self.df.loc[self.nf - min(100, self.nf):self.nf - 1, "px1"].std() * (
@@ -910,6 +911,7 @@ class Nprob:
         else:
             std_std_prc = self.tick / 2  # self.std_std_prc_ave
         self.df.at[self.nf, "std_std_prc"] = std_std_prc
+        self.std_std_prc = std_std_prc
 
         ####### self.prc_std_per_cri
         self.prc_std_per_cri = self.tick * self.cri_tick / price
@@ -2664,6 +2666,21 @@ class Nprob:
 
         if pr_error == 1:
             print("7.2")
+
+        # vol_peak
+        self.vol_peak = 0
+        if self.which_market == 3:
+            if self.nf > 301:
+                if self.std_std_prc < 0.1:
+                    if self.prc_std > 0.3:
+                        if self.nf < 2000:
+                            if self.cvol_m > 0.01:
+                                self.vol_peak = 1
+                        elif self.nf >= 2000:
+                            if self.cvol_m > 0.01:
+                                self.vol_peak = 1
+        self.df.at[self.nf, "vol_peak"] = self.vol_peak
+
         ###############################
         #  // In Decision - AI//
         ###############################
