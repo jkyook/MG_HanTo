@@ -2671,13 +2671,13 @@ class Nprob:
         self.vol_peak = 0
         if self.which_market == 3:
             if self.nf > 301:
-                if self.std_std_prc < 0.1:
-                    if self.prc_std > 0.3:
-                        if self.nf < 2000:
-                            if self.cvol_m > 0.01:
+                if self.std_std_prc < 0.15 and self.std_std_prc_cvol_m > 1:
+                    if self.prc_std > 0.25:
+                        if self.nf < 3000:
+                            if self.cvol_m > 0.02:
                                 self.vol_peak = 1
-                        elif self.nf >= 2000:
-                            if self.cvol_m > 0.01:
+                        elif self.nf >= 3000:
+                            if self.cvol_m > 0.015:
                                 self.vol_peak = 1
         self.df.at[self.nf, "vol_peak"] = self.vol_peak
 
