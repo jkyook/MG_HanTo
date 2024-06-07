@@ -947,12 +947,12 @@ class Nprob:
                     self.prc_s_peak = -1
 
             if self.prc_s_peak == 0 or self.prc_s_peak == 1:
-                if prc_s > prc_s_std * 2 and prc_s > self.prc_s_limit * 0.25:
+                if prc_s > prc_s_std * 1.8 and prc_s > self.prc_s_limit * 0.25:
                     self.prc_s_peak = 2
                     if self.add_5 != 0:
                         self.add_5 = 0
             if self.prc_s_peak == 0 or self.prc_s_peak == -1:
-                if prc_s < prc_s_std * -2 and prc_s < self.prc_s_limit * -0.25:
+                if prc_s < prc_s_std * -1.8 and prc_s < self.prc_s_limit * -0.25:
                     self.prc_s_peak = -2
                     if self.add_5 != 0:
                         self.add_5 = 0
@@ -2671,7 +2671,7 @@ class Nprob:
         self.vol_peak = 0
         if self.which_market == 3:
             if self.nf > 301:
-                if self.std_std_prc < 0.15 and self.std_std_prc_cvol_m > 1:
+                if self.std_std_prc < 0.2 and self.std_std_prc_cvol_m > 1:
                     if self.prc_std > 0.25:
                         if self.nf < 3000:
                             if self.cvol_m > 0.02:
