@@ -251,7 +251,7 @@ class Nprob:
         #     chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
         # self.which_market = 1
 
-        # self.auto
+        ## self.auto
         self.auto_cover = 2  # 0:off, 1:sell, 2:buy
         self.acc_uninfied = 1  # 0: accnt_cov seperated, 1:unified
 
@@ -2672,7 +2672,7 @@ class Nprob:
         if self.which_market == 3:
             if self.nf > 301:
                 if self.std_std_prc < 0.2 and self.std_std_prc_cvol_m > 1:
-                    if self.prc_std > 0.25:
+                    if self.prc_std > 0.2 and abs(self.t_gray_strong) >= 2:
                         if self.nf < 3000:
                             if self.cvol_m > 0.02:
                                 self.vol_peak = 1
