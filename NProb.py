@@ -2671,8 +2671,8 @@ class Nprob:
         self.vol_peak = 0
         if self.which_market == 3:
             if self.nf > 301:
-                if self.std_std_prc < 0.15 and self.std_std_prc_cvol_m > 1:
-                    if self.prc_std > 0.25:
+                if self.std_std_prc < 0.2 and self.std_std_prc_cvol_m > 1:
+                    if self.prc_std > 0.2 and abs(self.t_gray_strong) >= 2:
                         if self.nf < 3000:
                             if self.cvol_m > 0.02:
                                 self.vol_peak = 1
