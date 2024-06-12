@@ -947,12 +947,12 @@ class Nprob:
                     self.prc_s_peak = -1
 
             if self.prc_s_peak == 0 or self.prc_s_peak == 1:
-                if prc_s > prc_s_std * 1.8 and prc_s > self.prc_s_limit * 0.25:
+                if prc_s > prc_s_std * 2 and prc_s > self.prc_s_limit * 0.25:
                     self.prc_s_peak = 2
                     if self.add_5 != 0:
                         self.add_5 = 0
             if self.prc_s_peak == 0 or self.prc_s_peak == -1:
-                if prc_s < prc_s_std * -1.8 and prc_s < self.prc_s_limit * -0.25:
+                if prc_s < prc_s_std * -2 and prc_s < self.prc_s_limit * -0.25:
                     self.prc_s_peak = -2
                     if self.add_5 != 0:
                         self.add_5 = 0
