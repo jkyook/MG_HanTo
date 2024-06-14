@@ -682,7 +682,7 @@ async def connect_websocket(session):
     if real_demo == 1:
         url = 'ws://ops.koreainvestment.com:21000'  # 실전투자계좌
 
-    code_list = [['1','H0IFASP0','101V06'],['1','H0IFCNT0','101V06'], # 지수선물호가, 체결가
+    code_list = [['1','H0IFASP0','101V09'],['1','H0IFCNT0','101V09'], # 지수선물호가, 체결가
                  ['1', 'H0IFASP0', code], ['1', 'H0IFCNT0', code],
     #              ['1','H0IOASP0','201T11317'],['1','H0IOCNT0','201T11317'], # 지수옵션호가, 체결가
                  ['1','H0IFCNI0','jika79']] # 선물옵션체결통보
@@ -898,7 +898,7 @@ def stockhoka_futs(data):
 
     # print(data)
     recvvalue = data.split('^')  # 수신데이터를 split '^'
-    if recvvalue[0] == "101V06":
+    if recvvalue[0] == "101V09":
 
         lblSqty2v = float(recvvalue[23])
         lblSqty1v = float(recvvalue[22])
@@ -961,7 +961,7 @@ async def stockspurchase_futs(data_cnt, data):
         # 현재가
         prc_o1 = float(pValue[5])
 
-    elif pValue[0] == "101V07":
+    elif pValue[0] == "105V07":
         # 현재가
         price = float(pValue[5])
         volume = pValue[10]
