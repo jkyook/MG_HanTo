@@ -957,11 +957,13 @@ async def stockspurchase_futs(data_cnt, data):
     pValue = data.split('^')
     # print("code: ", pValue[0])
 
+    # 매매대상 미니선물(월별) 코드 입력
     if pValue[0] == "105V07":
         # 현재가
         prc_o1 = float(pValue[5])
 
-    elif pValue[0] == "105V07":
+    # 기준 정규선물(분기별) 코드 입력
+    elif pValue[0] == "101V09":
         # 현재가
         price = float(pValue[5])
         volume = pValue[10]
