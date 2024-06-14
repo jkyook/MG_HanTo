@@ -251,7 +251,7 @@ class Nprob:
         #     chat_token = "5095431220:AAF5hRJL8mQYCB7tmaqqn_VC06Nwg1ttYB8"
         # self.which_market = 1
 
-        ## self.auto
+        # self.auto
         self.auto_cover = 2  # 0:off, 1:sell, 2:buy
         self.acc_uninfied = 1  # 0: accnt_cov seperated, 1:unified
 
@@ -2680,6 +2680,18 @@ class Nprob:
                             if self.cvol_m > 0.015:
                                 self.vol_peak = 1
         self.df.at[self.nf, "vol_peak"] = self.vol_peak
+
+        # vol_peak_2
+        self.vol_peak_2 = 0
+        if self.which_market == 3:
+            if self.nf > 301:
+                if self.std_prc_peak_cvol_m >= 3:
+                    if self.std_prc_peak_cvol_m < self.df.at[self.nf - 1, "std_prc_peak_cvol_m"]:
+                        self.vol_peak_2 = -1
+                if self.std_prc_peak_cvol_m <= -3:
+                    if self.std_prc_peak_cvol_m > self.df.at[self.nf - 1, "std_prc_peak_cvol_m"]:
+                        self.vol_peak_2 = 1
+        self.df.at[self.nf, "vol_peak_2"] = self.vol_peak_2
 
         ###############################
         #  // In Decision - AI//

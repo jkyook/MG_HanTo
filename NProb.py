@@ -2681,6 +2681,18 @@ class Nprob:
                                 self.vol_peak = 1
         self.df.at[self.nf, "vol_peak"] = self.vol_peak
 
+        # vol_peak_2
+        self.vol_peak_2 = 0
+        if self.which_market == 3:
+            if self.nf > 301:
+                if self.std_prc_peak_cvol_m >= 3:
+                    if self.std_prc_peak_cvol_m < self.df.at[self.nf - 1, "std_prc_peak_cvol_m"]:
+                        self.vol_peak_2 = -1
+                if self.std_prc_peak_cvol_m <= -3:
+                    if self.std_prc_peak_cvol_m > self.df.at[self.nf - 1, "std_prc_peak_cvol_m"]:
+                        self.vol_peak_2 = 1
+        self.df.at[self.nf, "vol_peak_2"] = self.vol_peak_2
+
         ###############################
         #  // In Decision - AI//
         ###############################
