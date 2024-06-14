@@ -957,11 +957,11 @@ async def stockspurchase_futs(data_cnt, data):
     pValue = data.split('^')
     # print("code: ", pValue[0])
 
-    if pValue[0] == "105V05":
+    if pValue[0] == "105V07":
         # 현재가
         prc_o1 = float(pValue[5])
 
-    elif pValue[0] == "101V06":
+    elif pValue[0] == "101V07":
         # 현재가
         price = float(pValue[5])
         volume = pValue[10]
@@ -1314,7 +1314,7 @@ async def send_order(bns):
 
         # 테스트용
         prc_o1 = 370.20
-        code = "105V05"
+        code = "105V07"
 
         if bns == "02":
             adj_prc = float(prc_o1) - slack
