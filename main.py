@@ -1611,7 +1611,7 @@ async def check_unexecuted_orders(session):
                         elapsed_time = (current_time - ord_datetime).total_seconds()
                         # print("times : ", elapsed_time, current_time, ord_datetime)  # 수정된 부분
 
-                        if 1==0 and elapsed_time > 20 and datetime.now().second % 5 == 0:
+                        if 1==1 and elapsed_time > 20 and datetime.now().second % 5 == 0:
                             # 현재 가격으로 정정주문 요청
                             print(f"주문번호 {odno} - 주문 시간 경과({elapsed_time}초), 정정 주문 실행")
                             await modify_order(odno, ord_qty, prc_o1 - 1)
