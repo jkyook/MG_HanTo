@@ -510,6 +510,7 @@ chkForb = 0
 np_count = 0
 cum_qty = 0
 elap = 0
+tick = 0.02
 
 print("jump to NP")
 NP = NProb.Nprob()
@@ -1466,7 +1467,7 @@ async def update_order_list():
 async def check_unexecuted_orders(session):
     global access_token, prc_o1, api_key, secret_key
     global unexecuted_orders, orders, orders_che, reordered
-    global temp_id, manu_reorder, gui
+    global temp_id, manu_reorder, gui, tick
 
     while True:
 
