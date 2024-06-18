@@ -1316,7 +1316,7 @@ async def send_order(bns):
             url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/order"
 
         # 테스트용
-        prc_o1 = 370.20
+        # prc_o1 = 370.20
         code = "105V07"
 
         if bns == "02":

@@ -306,7 +306,9 @@ if mode == 4:
     ord_tmd = row['ord_tmd']
     ord_gubun = row['trad_dvsn_name']
 
-  print(df)
+  # 원하는 열 선택
+  sorted_df = df[['ord_dt','ord_tmd', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+  print(sorted_df)
   print(odno, ord_tmd, ord_dt, ord_gubun)
 
   # # 'qty' 열의 데이터 타입을 정수형으로 변환하여 1 이상인 행만 필터링
