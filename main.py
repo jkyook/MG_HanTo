@@ -1604,6 +1604,7 @@ async def check_unexecuted_orders(session):
                         ord_qty = int(row['ord_qty'])
                         ord_dt = row['ord_dt']  # 주문일자 추출
                         ord_tmd = row['ord_tmd']
+                        ord_gubun = row['trad_dvsn_name']
 
                         # 주문일자와 주문시각을 조합하여 datetime 객체 생성
                         ord_datetime = datetime.strptime(ord_dt + ord_tmd, '%Y%m%d%H%M%S')
@@ -1615,7 +1616,11 @@ async def check_unexecuted_orders(session):
                         if 1==1 and elapsed_time > 20 and datetime.now().second % 5 == 0:
                             # 현재 가격으로 정정주문 요청
                             print(f"주문번호 {odno} - 주문 시간 경과({elapsed_time}초), 정정 주문 실행")
-                            await modify_order(odno, ord_qty, prc_o1 - 1)
+                            # if ord_gubun == "매도":
+                            #     await modify_order(odno, ord_qty, prc_o1 - tick * 1)
+                            # if ord_gubun == "매수":
+                            #     await modify_order(odno, ord_qty, prc_o1 + tick * 1)
+                            await modify_order(odno, ord_qty, prc_o1)
                         else:
                             print(f"주문번호 {odno}은 주문시각으로부터 20초 이내입니다. 정정주문 미실행.")
 

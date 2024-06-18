@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 account = "64154012" # real
 code = "105V07"
 qty = "1"
-prc = "377.2"
+prc = "378.2"
 OrdNo_org = "1401"
 bns = "02" # 01:sell, 02:buy
 mode = 4 # 1:new_ord, 2:reord/cancel, 3:che, 4:unexed
@@ -295,8 +295,19 @@ if mode == 4:
   print("data ", data)
   # 데이터 프레임 생성
   df = pd.DataFrame(data["output1"])
+  df['qty'] = df['qty'].astype(int)
+  df['ord_idx'] = df['ord_idx'].astype(float)
+  df['tot_ccld_qty'] = df['tot_ccld_qty'].astype(float)
+  filtered_df = df[(df['qty'] > 0) & (df['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+  for _, row in filtered_df.iterrows():
+    odno = int(row['odno'])
+    ord_qty = int(row['ord_qty'])
+    ord_dt = row['ord_dt']  # 주문일자 추출
+    ord_tmd = row['ord_tmd']
+    ord_gubun = row['trad_dvsn_name']
 
   print(df)
+  print(odno, ord_tmd, ord_dt, ord_gubun)
 
   # # 'qty' 열의 데이터 타입을 정수형으로 변환하여 1 이상인 행만 필터링
   # filtered_df = df[df['ord_qty'].astype(int) >= 1]
