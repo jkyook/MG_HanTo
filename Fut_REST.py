@@ -1,24 +1,25 @@
 import requests
 import json
 import pandas as pd
+from datetime import datetime, timedelta
 
 
 # account = "60025978"
 account = "64154012" # real
-code = "105V05"
+code = "105V07"
 qty = "1"
-prc = "371.2"
+prc = "377.2"
 OrdNo_org = "1401"
 bns = "02" # 01:sell, 02:buy
-mode = 1 # 1:new_ord, 2:reord/cancel, 3:che, 4:unexed
+mode = 4 # 1:new_ord, 2:reord/cancel, 3:che, 4:unexed
 
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijc1N2NjNDZkLWJlNTktNGU1OS05MGFlLTFmMTBmNDU1NTY4MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyOTY3MjEzLCJpYXQiOjE3MTI4ODA4MTMsImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.IKmyzWgbcAlefsraDfKnSUMl7fIG0oWYcmgPgp5D6cbDPllomPwCCYJhrNadD1qXpF3dvudkh-_te1JEU69dYw"
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjJmNGFmYTM2LTJkYTktNDM5NC1hYWNlLThjMGQyNzY0MGUxMCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcxNDM2NzIwNSwiaWF0IjoxNzE0MjgwODA1LCJqdGkiOiJQU3BSVnNLU05ZamRPVG12Y3JQTjBDME15dXFFWkJhZXkyQUMifQ.u9NOR0WlwnH7jPa3ySOjmsT4I-hUYbQfk8uGAbu9-1grQrQAi8sJhsscbea1rgzJnKfqmg8dymqOm9lLS6bo9g"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU3ZWFhZWYwLWMwNzYtNDgxZC1iMzZiLWE2OTc3NzkwOWJkOCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcxODc1NDM4OSwiaWF0IjoxNzE4NjY3OTg5LCJqdGkiOiJQU3BSVnNLU05ZamRPVG12Y3JQTjBDME15dXFFWkJhZXkyQUMifQ.VRdAfbDcjiQ8oe8IqcmRP8Rc4ExK00ZqN9Bok38zq8xW68at0GVfGS_zXdw5GPYdEQ0XqzeNwaBYraCh4oDScg"
 #########################################################
 # 액세스 토큰 발급 요청 URL #
 #########################################################
 
-if 1==1:
+if 1==0:
 
   # global access_token
 
@@ -250,11 +251,14 @@ if mode == 4:
   # url = "https://openapivts.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
   url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-ccnl"
 
+  today = datetime.now()
+  formatted_date = today.strftime("%Y%m%d")
+
   payload = {
     "CANO": account,
     "ACNT_PRDT_CD": "03",
-    "STRT_ORD_DT": "20240412",
-    "END_ORD_DT": "20240412",
+    "STRT_ORD_DT": formatted_date,
+    "END_ORD_DT": formatted_date,
     "SLL_BUY_DVSN_CD": "00",
     "CCLD_NCCS_DVSN": "00",
     "SORT_SQN": "DS",

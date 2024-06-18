@@ -1508,11 +1508,14 @@ async def check_unexecuted_orders(session):
 
         # REAL
 
+        today = datetime.now()
+        formatted_date = today.strftime("%Y%m%d")
+
         payload = {
             "CANO": account,
             "ACNT_PRDT_CD": "03",
-            "STRT_ORD_DT": "20240412",
-            "END_ORD_DT": "20240412",
+            "STRT_ORD_DT": formatted_date,
+            "END_ORD_DT": formatted_date,
             "SLL_BUY_DVSN_CD": "00",
             "CCLD_NCCS_DVSN": "00",
             "SORT_SQN": "DS",
