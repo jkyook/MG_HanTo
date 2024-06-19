@@ -42,7 +42,7 @@ from Crypto.Util.Padding import unpad
 from base64 import b64decode
 
 real_demo = 1  # 0:demo, 1: real
-which_market = 1 # 1:kospi, 2:s&p
+which_market = 3 # 3:kospi, 4:s&p
 temp_id = ""
 manu_reorder = 0
 
@@ -220,10 +220,12 @@ class AutoTradeGUI(QMainWindow):
         # 주문 상태 구획
         self.order_status_group = QGroupBox('주문 상태')
         self.order_status_layout = QVBoxLayout()
+        self.now_qty_label = QLabel('현재잔고: ')
         self.cover_ordered_label = QLabel('커버주문: ')
         self.cover_price_label = QLabel('주문가격: ')
         self.cover_time_label = QLabel('주문시각: ')
         self.cover_type_label = QLabel('유형: ')
+        self.order_status_layout.addWidget(self.now_qty_label)
         self.order_status_layout.addWidget(self.cover_ordered_label)
         self.order_status_layout.addWidget(self.cover_price_label)
         self.order_status_layout.addWidget(self.cover_time_label)
@@ -404,7 +406,7 @@ class AutoTradeGUI(QMainWindow):
             self.order_ban_button.setStyleSheet("background-color: green;")  # 주문가능 시 배경색을 녹색으로 변경
 
     def update_gui(self):
-        global elap, orders, unexecuted_orders
+        global elap, orders, unexecuted_orders, cum_qty
 
         # 계좌 정보 업데이트
         self.account_num_label.setText(f'계좌번호: {account}')
@@ -422,6 +424,7 @@ class AutoTradeGUI(QMainWindow):
         # self.order_list_text.setText(str(orders))  # 주문 내역 표시
 
         # 주문 상태 업데이트
+        self.now_qty_label.setText(f'현재잔고: {cum_qty}')
         self.cover_ordered_label.setText(f'커버주문: {NP.cover_ordered}, {NP2.cover_ordered}')
         self.cover_price_label.setText(f'주문가격: {NP.cover_in_prc}, {NP2.cover_in_prc}')
         self.cover_time_label.setText(f'주문시각: {NP.cover_in_time}, {NP2.cover_in_time}')
@@ -1462,6 +1465,52 @@ async def update_order_list():
     gui.order_button.setStyleSheet("")
 
 #####################################################################
+# 현재 잔고 및 평가손익
+
+async def check_executed_qty(session):
+    global access_token, prc_o1, api_key, secret_key
+    global unexecuted_orders, orders, orders_che, reordered, gui, tick, cum_qty
+
+    while True:
+
+        try:
+            url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-balance"
+
+            payload = {
+                "CANO": account,
+                "ACNT_PRDT_CD": "03",
+                "MGNA_DVSN": "01",
+                "EXCC_STAT_CD": "1",
+                "CTX_AREA_FK200": "",
+                "CTX_AREA_NK200": ""
+            }
+
+            headers = {
+                'content-type': 'application/json',
+                'authorization': 'Bearer ' + access_token,
+                'appkey': 'PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC',
+                'appsecret': 'KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=',
+                'tr_id': 'CTFO6118R'
+            }
+
+            response = requests.request("GET", url, headers=headers, params=payload)
+
+            data = response.json()
+            # print("data ", data)
+
+            df = pd.DataFrame(data["output1"])
+            df['cblc_qty'] = df['cblc_qty'].astype(int)
+            cum_qty = int(df['cblc_qty'])
+            df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
+            df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+
+        except Exception as e:
+            logger.error(f"잔고 확인 중 오류 발생(증권사): {e}")
+
+        await asyncio.sleep(1)  # 1초 간격으로 잔고 확인
+
+
+#####################################################################
 # 미체결 주문 확인 및 처리
 
 async def check_unexecuted_orders(session):
@@ -2211,15 +2260,16 @@ async def main():
 async def run_async_tasks(gui, loop):
     async with aiohttp.ClientSession() as session:
 
-        if which_market == 1:
+        if which_market == 3:
             await asyncio.gather(
                 connect_websocket(session),
                 refresh_token(session),
                 check_unexecuted_orders(session),
+                check_executed_qty(session),
                 msg(),
                 # loop=loop
             )
-        elif which_market == 2:
+        elif which_market == 4:
             await asyncio.gather(
                 connect(session),
                 refresh_token(session),
