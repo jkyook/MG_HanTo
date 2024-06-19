@@ -3862,15 +3862,23 @@ class Nprob:
                 if self.df.loc[self.nf - 10: self.nf - 1, "std_prc_cvol_m"].mean() > 0:
                     self.t_gray = -1
 
+            # std_prc_cvol_m_peak
+            self.temp_strong = 0
+            if self.df.loc[self.nf - 10: self.nf - 1, "std_prc_cvol_m"].mean() >= 5 and self.std_prc_cvol_m >= 10:
+                self.temp_strong = 1
+            if self.df.loc[self.nf - 10: self.nf - 1, "std_prc_cvol_m"].mean() <= -5 and self.std_prc_cvol_m <= -10:
+                self.temp_strong = -1
+            self.df.at[self.nf, "term_str"] = self.temp_strong
+
             # triple_gray_strong (strogn up : 1, strong down :-1)
             self.t_gray_strong = 0
-            if self.test_signal <= -2 and self.sum_peak >= 2 and self.dOrgMain_new_bns2 >= 1:
+            if self.test_signal <= -2 and self.sum_peak >= 2 and (self.dOrgMain_new_bns2 >= 1 or self.temp_strong == 1):
                 self.t_gray_strong = 1
-            if self.sum_peak >= 2 and self.prc_s_peak >= 2 and self.dOrgMain_new_bns2 >= 1:
+            if self.sum_peak >= 2 and self.prc_s_peak >= 2 and (self.dOrgMain_new_bns2 >= 1 or self.temp_strong == 1):
                 self.t_gray_strong = 2
-            if self.test_signal >= 2 and self.sum_peak <= -2 and self.dOrgMain_new_bns2 <= -1:
+            if self.test_signal >= 2 and self.sum_peak <= -2 and (self.dOrgMain_new_bns2 <= -1 or self.temp_strong == -1):
                 self.t_gray_strong = -1
-            if self.sum_peak <= -2 and self.prc_s_peak <= -2 and self.dOrgMain_new_bns2 <= -1:
+            if self.sum_peak <= -2 and self.prc_s_peak <= -2 and (self.dOrgMain_new_bns2 <= -1 or self.temp_strong == -1):
                 self.t_gray_strong = -2
 
             self.df.at[self.nf, "gray"] = self.t_gray
@@ -5608,7 +5616,7 @@ class Nprob:
                             if self.df_std_std_s[self.df_std_std_s >= self.std_std_prc_cvol_m_limit].count() == 0:
                                 self.bns_check_3 = 1
                                 self.bns_check_6 = 1
-                                if self.OrgMain == "s" and self.df.loc[self.nf - 25:self.nf - 1, "cover_ordered"].mean() == 0 and (self.stat_in_org == "111" or self.chkForb == 1):
+                                if self.OrgMain == "s" and self.df.loc[self.nf - 50:self.nf - 1, "cover_ordered"].mean() == 0 and (self.stat_in_org == "111" or self.chkForb == 1):
                                     self.d_OMain = 4
                                     self.cover_ordered = 1
                                     self.cover_in_prc = price
@@ -5643,7 +5651,7 @@ class Nprob:
                             if self.df_std_std_s[self.df_std_std_s >= self.std_std_prc_cvol_m_limit].count() == 0:
                                 self.bns_check_3 = -1
                                 self.bns_check_6 = -1
-                                if self.OrgMain == "b" and self.df.loc[self.nf - 25:self.nf - 1, "cover_ordered"].mean() == 0 and (self.stat_in_org == "111" or self.chkForb == 1):
+                                if self.OrgMain == "b" and self.df.loc[self.nf - 50:self.nf - 1, "cover_ordered"].mean() == 0 and (self.stat_in_org == "111" or self.chkForb == 1):
                                     self.d_OMain = -4
                                     self.cover_ordered = -1
                                     self.cover_in_prc = price
