@@ -11,10 +11,11 @@ qty = "1"
 prc = "378.2"
 OrdNo_org = "1401"
 bns = "02" # 01:sell, 02:buy
-mode = 4 # 1:new_ord, 2:reord/cancel, 3:che, 4:unexed
+mode = 5 # 1:new_ord, 2:reord/cancel, 3:che, 4:unexed, 5:잔고조회
 
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijc1N2NjNDZkLWJlNTktNGU1OS05MGFlLTFmMTBmNDU1NTY4MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyOTY3MjEzLCJpYXQiOjE3MTI4ODA4MTMsImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.IKmyzWgbcAlefsraDfKnSUMl7fIG0oWYcmgPgp5D6cbDPllomPwCCYJhrNadD1qXpF3dvudkh-_te1JEU69dYw"
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjU3ZWFhZWYwLWMwNzYtNDgxZC1iMzZiLWE2OTc3NzkwOWJkOCIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcxODc1NDM4OSwiaWF0IjoxNzE4NjY3OTg5LCJqdGkiOiJQU3BSVnNLU05ZamRPVG12Y3JQTjBDME15dXFFWkJhZXkyQUMifQ.VRdAfbDcjiQ8oe8IqcmRP8Rc4ExK00ZqN9Bok38zq8xW68at0GVfGS_zXdw5GPYdEQ0XqzeNwaBYraCh4oDScg"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRlYjY3NTEyLWIyNDUtNDZhMy1iZWU1LWJmMzQzYmRjYjY0NyIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcxODg2MjMyNywiaWF0IjoxNzE4Nzc1OTI3LCJqdGkiOiJQU3BSVnNLU05ZamRPVG12Y3JQTjBDME15dXFFWkJhZXkyQUMifQ.rr4_N1-NzalwqyhkrfLSyoL7ixCdMrg5OPsBD8birnsylOKKlAKrUoBEpUAs3kEHnN0xdS2JlF9V-oT228BIUg"
+
 #########################################################
 # 액세스 토큰 발급 요청 URL #
 #########################################################
@@ -298,6 +299,10 @@ if mode == 4:
   df['qty'] = df['qty'].astype(int)
   df['ord_idx'] = df['ord_idx'].astype(float)
   df['tot_ccld_qty'] = df['tot_ccld_qty'].astype(float)
+  # 원하는 열 선택
+  sorted_df = df[['ord_dt','ord_tmd', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
+  print(sorted_df)
+
   filtered_df = df[(df['qty'] > 0) & (df['ord_idx'] != 0)][['ord_dt', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
   for _, row in filtered_df.iterrows():
     odno = int(row['odno'])
@@ -305,10 +310,6 @@ if mode == 4:
     ord_dt = row['ord_dt']  # 주문일자 추출
     ord_tmd = row['ord_tmd']
     ord_gubun = row['trad_dvsn_name']
-
-  # 원하는 열 선택
-  sorted_df = df[['ord_dt','ord_tmd', 'odno', 'ord_tmd', 'trad_dvsn_name', 'ord_qty', 'ord_idx']]
-  print(sorted_df)
   print(odno, ord_tmd, ord_dt, ord_gubun)
 
   # # 'qty' 열의 데이터 타입을 정수형으로 변환하여 1 이상인 행만 필터링
@@ -318,3 +319,44 @@ if mode == 4:
   # print(filtered_df)
 
   # print(response.text)
+
+
+
+#########################################################
+# 잔고조회
+#########################################################
+
+if mode == 5:
+
+  url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-balance"
+
+payload = {
+  "CANO": account,
+  "ACNT_PRDT_CD": "03",
+  "MGNA_DVSN": "01",
+  "EXCC_STAT_CD": "1",
+  "CTX_AREA_FK200": "",
+  "CTX_AREA_NK200": ""
+}
+
+headers = {
+  'content-type': 'application/json',
+  'authorization': 'Bearer ' + access_token,
+  'appkey': 'PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC',
+  'appsecret': 'KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=',
+  'tr_id': 'CTFO6118R'
+}
+
+response = requests.request("GET", url, headers=headers, params=payload)
+
+data = response.json()
+print("data ", data)
+
+df = pd.DataFrame(data["output1"])
+df['cblc_qty'] = df['cblc_qty'].astype(int)
+df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
+df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+
+# 원하는 열 선택
+sorted_df = df[['cblc_qty', 'ccld_avg_unpr1', 'evlu_pfls_amt']]
+print(sorted_df)
