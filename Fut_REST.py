@@ -14,7 +14,7 @@ bns = "02" # 01:sell, 02:buy
 mode = 5 # 1:new_ord, 2:reord/cancel, 3:che, 4:unexed, 5:잔고조회
 
 # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6Ijc1N2NjNDZkLWJlNTktNGU1OS05MGFlLTFmMTBmNDU1NTY4MCIsImlzcyI6InVub2d3IiwiZXhwIjoxNzEyOTY3MjEzLCJpYXQiOjE3MTI4ODA4MTMsImp0aSI6IlBTcFJWc0tTTllqZE9UbXZjclBOMEMwTXl1cUVaQmFleTJBQyJ9.IKmyzWgbcAlefsraDfKnSUMl7fIG0oWYcmgPgp5D6cbDPllomPwCCYJhrNadD1qXpF3dvudkh-_te1JEU69dYw"
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6ImRlYjY3NTEyLWIyNDUtNDZhMy1iZWU1LWJmMzQzYmRjYjY0NyIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcxODg2MjMyNywiaWF0IjoxNzE4Nzc1OTI3LCJqdGkiOiJQU3BSVnNLU05ZamRPVG12Y3JQTjBDME15dXFFWkJhZXkyQUMifQ.rr4_N1-NzalwqyhkrfLSyoL7ixCdMrg5OPsBD8birnsylOKKlAKrUoBEpUAs3kEHnN0xdS2JlF9V-oT228BIUg"
+access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI6IjBmYzAwOWVlLTQ2YTUtNDQwOC1iYTc3LWMwOWM5MmUyN2Q0MiIsInByZHRfY2QiOiIiLCJpc3MiOiJ1bm9ndyIsImV4cCI6MTcxODk0OTc1NSwiaWF0IjoxNzE4ODYzMzU1LCJqdGkiOiJQU3BSVnNLU05ZamRPVG12Y3JQTjBDME15dXFFWkJhZXkyQUMifQ.lT6PX2mqd6W-aMxkv6sTDORWTwzpb5DGRkjs1ZFtphp25rvYoDrSoTFBJYIT69VFp8uYzfAAqQQScJwhUGm3Iw"
 
 #########################################################
 # 액세스 토큰 발급 요청 URL #
@@ -328,35 +328,46 @@ if mode == 4:
 
 if mode == 5:
 
-  url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-balance"
+  try:
 
-payload = {
-  "CANO": account,
-  "ACNT_PRDT_CD": "03",
-  "MGNA_DVSN": "01",
-  "EXCC_STAT_CD": "1",
-  "CTX_AREA_FK200": "",
-  "CTX_AREA_NK200": ""
-}
+    url = "https://openapi.koreainvestment.com:9443/uapi/domestic-futureoption/v1/trading/inquire-balance"
 
-headers = {
-  'content-type': 'application/json',
-  'authorization': 'Bearer ' + access_token,
-  'appkey': 'PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC',
-  'appsecret': 'KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=',
-  'tr_id': 'CTFO6118R'
-}
+    payload = {
+      "CANO": account,
+      "ACNT_PRDT_CD": "03",
+      "MGNA_DVSN": "01",
+      "EXCC_STAT_CD": "1",
+      "CTX_AREA_FK200": "",
+      "CTX_AREA_NK200": ""
+    }
 
-response = requests.request("GET", url, headers=headers, params=payload)
+    headers = {
+      'content-type': 'application/json',
+      'authorization': 'Bearer ' + access_token,
+      'appkey': 'PSpRVsKSNYjdOTmvcrPN0C0MyuqEZBaey2AC',
+      'appsecret': 'KyTMYmD49Rbh+/DhtKYUuSRv6agjM9zxXs9IIHx9vz4UiCurqbpEPoawVFKNrx3DryhrLjxDy/vFbe/4acttdIU5hz6thCiPgeBLCEGpQcXvluQQWRNJg77ztOUPcPpqg3gVS+LxGOaOF9sB/n19fJmhf+O2cht6swH5Iz4aHUJZsZ0nrZM=',
+      'tr_id': 'CTFO6118R'
+    }
 
-data = response.json()
-print("data ", data)
+    response = requests.request("GET", url, headers=headers, params=payload)
 
-df = pd.DataFrame(data["output1"])
-df['cblc_qty'] = df['cblc_qty'].astype(int)
-df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
-df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+    data = response.json()
+    print("data ", data)
 
-# 원하는 열 선택
-sorted_df = df[['cblc_qty', 'ccld_avg_unpr1', 'evlu_pfls_amt']]
-print(sorted_df)
+    try:
+      df = pd.DataFrame(data["output1"])
+      df['cblc_qty'] = df['cblc_qty'].astype(int)
+      df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
+      df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+
+      # 원하는 열 선택
+      sorted_df = df[['cblc_qty', 'ccld_avg_unpr1', 'evlu_pfls_amt']]
+      print(sorted_df)
+    except:
+      pass
+
+
+    print(data['output2']['nxdy_dncl_amt'])
+
+  except:
+    pass

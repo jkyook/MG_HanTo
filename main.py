@@ -1498,11 +1498,15 @@ async def check_executed_qty(session):
             data = response.json()
             # print("data ", data)
 
-            df = pd.DataFrame(data["output1"])
-            df['cblc_qty'] = df['cblc_qty'].astype(int)
-            cum_qty = int(df['cblc_qty'])
-            df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
-            df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+            try:
+                df = pd.DataFrame(data["output1"])
+                df['cblc_qty'] = df['cblc_qty'].astype(int)
+                cum_qty = int(df['cblc_qty'])
+                df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
+                df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+            except:
+                pass
+
 
         except Exception as e:
             logger.error(f"잔고 확인 중 오류 발생(증권사): {e}")
