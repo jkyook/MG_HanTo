@@ -20,7 +20,7 @@ access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0b2tlbiIsImF1ZCI
 # 액세스 토큰 발급 요청 URL #
 #########################################################
 
-if 1==0:
+if 1==1:
 
   # global access_token
 
@@ -353,6 +353,12 @@ if mode == 5:
 
     data = response.json()
     print("data ", data)
+
+    dnca_cash = data['output2']['dnca_cash']  # 보유원화현금
+    futr_trad_pfls_amt = data['output2']['futr_trad_pfls_amt']  # (선물)실현손익
+    futr_evlu_pfls_amt = data['output2']['futr_evlu_pfls_amt']  # (선물)평가손익
+
+    print(dnca_cash, futr_trad_pfls_amt, futr_evlu_pfls_amt)
 
     try:
       df = pd.DataFrame(data["output1"])

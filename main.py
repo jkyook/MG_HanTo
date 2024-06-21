@@ -207,15 +207,43 @@ class AutoTradeGUI(QMainWindow):
         self.order_layout.addWidget(self.order_button)
         self.order_group.setLayout(self.order_layout)
 
+        # # 누적수익 구획
+        # self.profit_group = QGroupBox('수익 등')
+        # self.profit_layout = QHBoxLayout()
+        # self.npp_label = QLabel('NPPs: ')
+        # self.profit_layout.addWidget(self.npp_label)
+        # self.profit_label = QLabel('누적수익: ')
+        # self.profit_layout.addWidget(self.profit_label)
+        # self.profit_group.setLayout(self.profit_layout)
+        # self.profit_group.setFixedSize(420, 70)  # 누적수익 구획 크기 지정
+
         # 누적수익 구획
         self.profit_group = QGroupBox('수익 등')
-        self.profit_layout = QHBoxLayout()
+        self.profit_layout = QVBoxLayout()
+
+        # 상단 레이아웃
+        self.upper_profit_layout = QHBoxLayout()
         self.npp_label = QLabel('NPPs: ')
-        self.profit_layout.addWidget(self.npp_label)
+        self.upper_profit_layout.addWidget(self.npp_label)
         self.profit_label = QLabel('누적수익: ')
-        self.profit_layout.addWidget(self.profit_label)
+        self.upper_profit_layout.addWidget(self.profit_label)
+        self.cum_qty_label = QLabel('잔고: ')
+        self.upper_profit_layout.addWidget(self.cum_qty_label)
+        self.profit_layout.addLayout(self.upper_profit_layout)
+
+        # 하단 레이아웃
+        self.lower_profit_layout = QHBoxLayout()
+        self.cash_label = QLabel('현금: ')
+        self.lower_profit_layout.addWidget(self.cash_label)
+        self.eval_profit_label = QLabel('평가손익: ')
+        self.lower_profit_layout.addWidget(self.eval_profit_label)
+        self.realized_profit_label = QLabel('실현손익: ')
+        self.lower_profit_layout.addWidget(self.realized_profit_label)
+        self.profit_layout.addLayout(self.lower_profit_layout)
+
         self.profit_group.setLayout(self.profit_layout)
-        self.profit_group.setFixedSize(420, 70)  # 누적수익 구획 크기 지정
+        self.profit_group.setFixedSize(420, 100)  # 누적수익 구획 크기 조정
+
 
         # 주문 상태 구획
         self.order_status_group = QGroupBox('주문 상태')
@@ -406,7 +434,8 @@ class AutoTradeGUI(QMainWindow):
             self.order_ban_button.setStyleSheet("background-color: green;")  # 주문가능 시 배경색을 녹색으로 변경
 
     def update_gui(self):
-        global elap, orders, unexecuted_orders, cum_qty
+        global elap, orders, unexecuted_orders
+        global cum_qty, dnca_cash, futr_trad_pfls_amt, futr_evlu_pfls_amt
 
         # 계좌 정보 업데이트
         self.account_num_label.setText(f'계좌번호: {account}')
@@ -433,6 +462,12 @@ class AutoTradeGUI(QMainWindow):
         # 누적수익 업데이트
         self.profit_label.setText(f'누적수익: {NP.profit_opt:.1f}, {NP2.profit_opt:.1f}')
         self.npp_label.setText(f'NPPs: {npp}, {npp2}')
+        self.cum_qty_label.setText(f'잔고: {cum_qty}')
+
+        # 예수금, 손익 업데이트
+        self.cash_label.setText(f'현금: {int(dnca_cash):,}')
+        self.eval_profit_label.setText(f'평가손익: {int(futr_evlu_pfls_amt):,}')
+        self.realized_profit_label.setText(f'실현손익: {int(futr_trad_pfls_amt):,}')
 
         # # 미체결 내역 업데이트
         # self.unexecuted_order_list_text.setText(str(unexecuted_orders))  # 미체결 내역 표시
@@ -514,6 +549,9 @@ np_count = 0
 cum_qty = 0
 elap = 0
 tick = 0.02
+dnca_cash = 0
+futr_trad_pfls_amt = 0
+futr_evlu_pfls_amt = 0
 
 print("jump to NP")
 NP = NProb.Nprob()
@@ -538,7 +576,8 @@ async def send_messages(chat_id, text):
 text1 = " *** (MG7) 시스템 가동 시작 ***, Start == 0"
 try:
     if bot_alive == 1:
-        bot.sendMessage(chat_id=chat_id, text=text1)
+        # bot.sendMessage(chat_id=chat_id, text=text1)
+        bot.sendMessage_sync(chat_id=chat_id, text=text1)
 except:
     pass
 
@@ -1469,7 +1508,8 @@ async def update_order_list():
 
 async def check_executed_qty(session):
     global access_token, prc_o1, api_key, secret_key
-    global unexecuted_orders, orders, orders_che, reordered, gui, tick, cum_qty
+    global unexecuted_orders, orders, orders_che, reordered, gui, tick
+    global cum_qty, dnca_cash, futr_trad_pfls_amt, futr_evlu_pfls_amt
 
     while True:
 
@@ -1496,9 +1536,13 @@ async def check_executed_qty(session):
             response = requests.request("GET", url, headers=headers, params=payload)
 
             data = response.json()
-            # print("data ", data)
+            print("data ", data)
 
             try:
+                dnca_cash = data['output2']['dnca_cash'] #보유원화현금
+                futr_trad_pfls_amt = data['output2']['futr_trad_pfls_amt']  # (선물)실현손익
+                futr_evlu_pfls_amt = data['output2']['futr_evlu_pfls_amt']  # (선물)평가손익
+
                 df = pd.DataFrame(data["output1"])
                 df['cblc_qty'] = df['cblc_qty'].astype(int)
                 cum_qty = int(df['cblc_qty'])
