@@ -3868,7 +3868,7 @@ class Nprob:
                 self.temp_strong = 1
             if self.df.loc[self.nf - 10: self.nf - 1, "std_prc_cvol_m"].mean() <= -5 and self.std_prc_cvol_m <= -10:
                 self.temp_strong = -1
-            self.df.at[self.nf, "term_str"] = self.temp_strong
+            self.df.at[self.nf, "temp_str"] = self.temp_strong
 
             # triple_gray_strong (strogn up : 1, strong down :-1)
             self.t_gray_strong = 0
