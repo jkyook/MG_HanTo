@@ -1545,11 +1545,14 @@ async def check_executed_qty(session):
                 futr_trad_pfls_amt = data['output2']['futr_trad_pfls_amt']  # (선물)실현손익
                 futr_evlu_pfls_amt = data['output2']['futr_evlu_pfls_amt']  # (선물)평가손익
 
-                df = pd.DataFrame(data["output1"])
-                df['cblc_qty'] = df['cblc_qty'].astype(int)
-                cum_qty = int(df['cblc_qty'])
-                df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
-                df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+                if data["output1"]:
+                    df = pd.DataFrame(data["output1"])
+                    df['cblc_qty'] = df['cblc_qty'].astype(int)
+                    cum_qty = int(df['cblc_qty'])
+                    df['ccld_avg_unpr1'] = df['ccld_avg_unpr1'].astype(float)
+                    df['evlu_pfls_amt'] = df['evlu_pfls_amt'].astype(float)
+                else:
+                    print("output1이 비어 있습니다.")
             except:
                 pass
 
@@ -1557,7 +1560,7 @@ async def check_executed_qty(session):
         except Exception as e:
             logger.error(f"잔고 확인 중 오류 발생(증권사): {e}")
 
-        await asyncio.sleep(1)  # 1초 간격으로 잔고 확인
+        await asyncio.sleep(5)  # 5초 간격으로 잔고 확인
 
 
 #####################################################################
