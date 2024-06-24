@@ -547,6 +547,7 @@ circulation = 0
 chkForb = 0
 np_count = 0
 cum_qty = 0
+np_qty = 0
 elap = 0
 tick = 0.02
 dnca_cash = 0
