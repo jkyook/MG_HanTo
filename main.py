@@ -2068,7 +2068,7 @@ async def msg():
             match_ox = "불일치"
 
         if (datetime.now().minute % 7 == 0 and datetime.now().second <= 1):
-            asyncio.create_task(send_messages(chat_id=chat_id, text=str(NP.auto_cover) + str(match_ox) + " now : " + str(price) + "// prf : {:.2f}, {:.2f}".format(NP.profit_opt, NP2.profit_opt)))
+            asyncio.create_task(send_messages(chat_id=chat_id, text=str(NP.auto_cover) + " " + str(match_ox) + " now : " + str(price) + "// prf : {:.2f}, {:.2f}".format(NP.profit_opt, NP2.profit_opt)))
 
         if NP.auto_cover != 0:
 
@@ -2115,6 +2115,8 @@ async def msg():
                             if bot_alive == 1 or bot_alive == 2:
                                 asyncio.create_task(send_messages(chat_id=chat_id, text=text))
 
+                        await asyncio.gather(*tasks)
+
                         if chkForb == 1 and isblocked_msg == 0:
                             text = str(NP.auto_cover) + " = (한투) (MG7) 매매가 중단된 상태입니다. ="
                             if bot_alive == 1 or bot_alive == 2:
@@ -2134,6 +2136,8 @@ async def msg():
                         text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매 중단을 해제합니다. ="
                         if bot_alive == 1 or bot_alive == 2:
                             asyncio.create_task(send_messages(chat_id=chat_id, text=text))
+
+                        await asyncio.gather(*tasks)
 
                         if chkForb == 0 and isreleased_msg == 0:
                             text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매가 시작되었습니다. ="
