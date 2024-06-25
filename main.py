@@ -2103,7 +2103,7 @@ async def msg():
 
                     msg_last = msg_now
 
-                    if nf > 100 and (msg_now == "stop" or msg_now == "x" or msg_now == "000"):
+                    if (msg_now == "stop" or msg_now == "x" or msg_now == "000"): #nf > 100 and
                         tasks = []
                         if NP.cover_ordered != 0:
                             text = str(NP.auto_cover) + " = (한투) (MG7) 커버 진입상태임..확인필요 ="
@@ -2134,12 +2134,12 @@ async def msg():
 
                     if (msg_now == "start" or msg_now == "111") and msg_out != "start":
                         chkForb = 0
-                        tasks = []
+                        # tasks = []
                         text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매 중단을 해제합니다. ="
                         if bot_alive == 1 or bot_alive == 2:
                             tasks.append(asyncio.create_task(send_messages(chat_id=chat_id, text=text)))
 
-                        await asyncio.gather(*tasks)
+                        # await asyncio.gather(*tasks)
 
                         if chkForb == 0 and isreleased_msg == 0:
                             text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매가 시작되었습니다. ="
@@ -2334,7 +2334,7 @@ async def run_async_tasks(gui, loop):
                 connect_websocket(session),
                 refresh_token(session),
                 check_unexecuted_orders(session),
-                check_executed_qty(session),
+                # check_executed_qty(session),
                 msg(),
                 # loop=loop
             )
