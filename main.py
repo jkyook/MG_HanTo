@@ -2104,16 +2104,17 @@ async def msg():
                     msg_last = msg_now
 
                     if nf > 100 and (msg_now == "stop" or msg_now == "x" or msg_now == "000"):
+                        tasks = []
                         if NP.cover_ordered != 0:
                             text = str(NP.auto_cover) + " = (한투) (MG7) 커버 진입상태임..확인필요 ="
                             chkForb = 1
                             if bot_alive == 1 or bot_alive == 2:
-                                asyncio.create_task(send_messages(chat_id=chat_id, text=text))
+                                tasks.append(asyncio.create_task(send_messages(chat_id=chat_id, text=text)))
                         if NP.cover_ordered == 0:
                             chkForb = 1
                             text = str(NP.auto_cover) + " = (한투) (MG7) 매매를 중단합니다. ="
                             if bot_alive == 1 or bot_alive == 2:
-                                asyncio.create_task(send_messages(chat_id=chat_id, text=text))
+                                tasks.append(asyncio.create_task(send_messages(chat_id=chat_id, text=text)))
 
                         await asyncio.gather(*tasks)
 
@@ -2133,9 +2134,10 @@ async def msg():
 
                     if (msg_now == "start" or msg_now == "111") and msg_out != "start":
                         chkForb = 0
+                        tasks = []
                         text = "(한투)" + str(NP.auto_cover) + " = (한투) (MG7) 매매 중단을 해제합니다. ="
                         if bot_alive == 1 or bot_alive == 2:
-                            asyncio.create_task(send_messages(chat_id=chat_id, text=text))
+                            tasks.append(asyncio.create_task(send_messages(chat_id=chat_id, text=text)))
 
                         await asyncio.gather(*tasks)
 
