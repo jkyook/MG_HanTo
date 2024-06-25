@@ -434,8 +434,14 @@ class AutoTradeGUI(QMainWindow):
             self.order_ban_button.setStyleSheet("background-color: green;")  # 주문가능 시 배경색을 녹색으로 변경
 
     def update_gui(self):
-        global elap, orders, unexecuted_orders
+        global elap, orders, unexecuted_orders, chkForb
         global cum_qty, dnca_cash, futr_trad_pfls_amt, futr_evlu_pfls_amt
+
+        # 주문가능여부
+        if chkForb == 1:
+            self.order_ban_button.setStyleSheet("background-color: red;")
+        if chkForb == 0:
+            self.order_ban_button.setStyleSheet("background-color: green;")
 
         # 계좌 정보 업데이트
         self.account_num_label.setText(f'계좌번호: {account}')
@@ -2092,7 +2098,8 @@ async def msg():
 
                 if msg_now != msg_last and msg_now != msg_out and (msg_now in msgs or msg_now[:3] in msgs) :# and msg_last[0] == "1":# and msg_now != "shut":  # and msg_now != "last":
                     if bot_alive == 1 or bot_alive == 2:
-                        asyncio.create_task(send_messages(chat_id=chat_id, text= "(한투)" + str(NP.auto_cover) + " (now): " + msg_now + ", (last) : " + msg_last))
+                        pass
+                        # asyncio.create_task(send_messages(chat_id=chat_id, text= "(한투)" + str(NP.auto_cover) + " (now): " + msg_now + ", (last) : " + msg_last))
 
                     msg_last = msg_now
 
