@@ -525,9 +525,9 @@ lblShoga1v = 0
 lblBqty1v = 0
 lblBqty2v = 0
 prc_o1 = 0
-if which_market == 1:
+if which_market == 3:
     slack = 0.02 * 1
-if which_market == 2:
+if which_market == 4:
     slack = 0.25 * 1
 
 nf = 0
