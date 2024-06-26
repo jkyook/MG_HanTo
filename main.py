@@ -2092,7 +2092,7 @@ async def msg():
 
             now = datetime.now()
 
-            msgs = ["block", "stop", "x", "start", "now", "last", "out", "mout", "time", "qty", "cover", "orders", "orders_che", "tr", "plot", "stat", "statset", "ord", "cordnum", "cexed", "plotset", "reord", "list", "delord", "deleted", "auto"]
+            msgs = ["block", "stop", "x", "start", "prf", "now", "last", "out", "mout", "time", "qty", "cover", "orders", "orders_che", "tr", "plot", "stat", "statset", "ord", "cordnum", "cexed", "plotset", "reord", "list", "delord", "deleted", "auto"]
 
             try:
 
@@ -2164,6 +2164,10 @@ async def msg():
                     if msg_now == "qty":
                         if bot_alive == 1 or bot_alive == 2:
                             asyncio.create_task(send_messages(chat_id=chat_id, text="(한투)" + str(cum_qty)))
+
+                    if msg_now == "prf":
+                        if bot_alive == 1 or bot_alive == 2:
+                            asyncio.create_task(send_messages(chat_id=chat_id, text="(한투) np1: " + str(NP.prf) + ", np2: " + str(NP2.prf)))
 
                     if msg_now == "orders":
                         if bot_alive == 1 or bot_alive == 2:
